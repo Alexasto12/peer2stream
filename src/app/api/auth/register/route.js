@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
-import connectToDatabase from '@/lib/mongodb';
+import { connectToDatabase } from '@/lib/mongodb'; // Note: importing as named export
 
 export async function POST(req) {
   try {
@@ -30,7 +30,10 @@ export async function POST(req) {
 
     return NextResponse.json({ message: 'Usuario registrado correctamente' });
   } catch (error) {
-    console.error('Registro error:', error);
-    return NextResponse.json({ error: error.message || 'Error en el servidor' }, { status: 500 });
+    console.error('❌ Registro error completo:', error);
+    return NextResponse.json({
+      error: error.message || 'Error en el servidor',
+      raw: JSON.stringify(error),
+    }, { status: 500 });
   }
 }
