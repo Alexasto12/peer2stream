@@ -6,80 +6,63 @@ import { connectToDatabase } from '@/lib/mongodb';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// GET: Obtener un registro específico
 export async function GET(request, { params }) {
-  await connectToDatabase();
-  const token = cookies().get('token')?.value;
-  if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-  }
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
-  }
-
-  const { externalId } = params;
-  const contentStatus = await ContentStatus.findOne({ userId: decoded.id, externalId });
-  if (!contentStatus) {
-    return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-  }
-  return NextResponse.json({ contentStatus });
+    await connectToDatabase();
+    const token = cookies().get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
+    const { externalId } = params;
+    const contentStatus = await ContentStatus.findOne({ userId: decoded.id, externalId });
+    if (!contentStatus) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+    return NextResponse.json(contentStatus);
 }
 
+// PATCH: Actualizar un registro específico
 export async function PATCH(request, { params }) {
-  await connectToDatabase();
-  const token = cookies().get('token')?.value;
-  if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-  }
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
-  }
-
-  const { externalId } = params;
-  const body = await request.json();
-  const update = { ...body };
-
-  // Si el status se cambia a 'watched', watchedTime debe ser 0
-  if (update.status === 'watched') {
-    update.watchedTime = 0;
-  }
-
-  const updated = await ContentStatus.findOneAndUpdate(
-    { userId: decoded.id, externalId },
-    update,
-    { new: true }
-  );
-  if (!updated) {
-    return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-  }
-  return NextResponse.json({ contentStatus: updated });
+    await connectToDatabase();
+    const token = cookies().get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
+    const { externalId } = params;
+    const body = await request.json();
+    const update = { ...body };
+    // Si el status se cambia a 'watched', watchedTime debe ser 0
+    if (update.status === 'watched') {
+        update.watchedTime = 0;
+    }
+    const updated = await ContentStatus.findOneAndUpdate(
+        { userId: decoded.id, externalId },
+        update,
+        { new: true }
+    );
+    if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+    return NextResponse.json(updated);
 }
 
+// DELETE: Eliminar un registro específico
 export async function DELETE(request, { params }) {
-  await connectToDatabase();
-  const token = cookies().get('token')?.value;
-  if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-  }
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
-  }
-
-  const { externalId } = params;
-  const deleted = await ContentStatus.findOneAndDelete({ userId: decoded.id, externalId });
-  if (!deleted) {
-    return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-  }
-  return NextResponse.json({ success: true });
+    await connectToDatabase();
+    const token = cookies().get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
+    const { externalId } = params;
+    const deleted = await ContentStatus.findOneAndDelete({ userId: decoded.id, externalId });
+    if (!deleted) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+    return NextResponse.json({ success: true });
 }

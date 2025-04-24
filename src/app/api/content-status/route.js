@@ -6,41 +6,34 @@ import { connectToDatabase } from '@/lib/mongodb';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-async function getUserIdFromToken() {
-    const tokenStore = await cookies();
-    const token = tokenStore.get('token')?.value;
-    if (!token) return null;
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        return decoded.id;
-    } catch {
-        return null;
-    }
-}
-
-export async function GET(req) {
+// GET: Obtener todos los registros del usuario autenticado
+export async function GET() {
     await connectToDatabase();
-    const userId = await getUserIdFromToken();
-    if (!userId) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-    let externalId;
+    const token = cookies().get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    let decoded;
     try {
-        const body = await req.json();
-        externalId = body.externalId;
+        decoded = jwt.verify(token, JWT_SECRET);
     } catch {
-        externalId = undefined;
+        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
     }
-    const query = { userId };
-    if (externalId) query.externalId = externalId;
-    const status = await ContentStatus.find(query);
+    const status = await ContentStatus.find({ userId: decoded.id });
     return NextResponse.json(status);
 }
 
+// POST: Crear un nuevo registro
 export async function POST(req) {
     await connectToDatabase();
-    const userId = await getUserIdFromToken();
-    if (!userId) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    const token = cookies().get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
     const data = await req.json();
-    data.userId = userId;
+    data.userId = decoded.id;
     try {
         const nuevo = new ContentStatus(data);
         await nuevo.save();
@@ -48,38 +41,4 @@ export async function POST(req) {
     } catch (err) {
         return NextResponse.json({ error: err.message }, { status: 400 });
     }
-}
-
-export async function PATCH(req) {
-    await connectToDatabase();
-    const userId = await getUserIdFromToken();
-    if (!userId) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-    const data = await req.json();
-    if (!data.externalId) return NextResponse.json({ error: 'externalId requerido' }, { status: 400 });
-    // Si el status cambia a 'watched', poner watchedTime a 0
-    if (data.status === 'watched') {
-        data.watchedTime = 0;
-    }
-    try {
-        const updated = await ContentStatus.findOneAndUpdate(
-            { userId, externalId: data.externalId },
-            data,
-            { new: true }
-        );
-        if (!updated) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-        return NextResponse.json(updated);
-    } catch (err) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
-    }
-}
-
-export async function DELETE(req) {
-    await connectToDatabase();
-    const userId = await getUserIdFromToken();
-    if (!userId) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-    const { externalId } = await req.json();
-    if (!externalId) return NextResponse.json({ error: 'externalId requerido' }, { status: 400 });
-    const deleted = await ContentStatus.findOneAndDelete({ userId, externalId });
-    if (!deleted) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-    return NextResponse.json({ message: 'Eliminado correctamente' });
 }

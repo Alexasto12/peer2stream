@@ -6,7 +6,7 @@ const ContentStatusSchema = new mongoose.Schema({
     type: { type: String, enum: ['movie', 'show'], required: true },
     season: { type: Number, default: null }, // null si es película
     episode: { type: Number, default: null }, // null si es película
-    status: { type: String, enum: ['in_progress', 'watched'], required: true },
+    status: { type: String, enum: ['pending', 'watched'], required: true },
     watchedTime: { type: Number, required: true }, // en segundos
     lastWatched: { type: Date, required: true }
 });
