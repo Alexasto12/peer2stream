@@ -9,7 +9,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function PATCH(req) {
   await connectToDatabase();
-  const token = cookies().get('token')?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
   if (!token) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
@@ -24,9 +25,16 @@ export async function PATCH(req) {
   const userId = decoded.id;
   const body = await req.json();
 
-  // No permitir actualizar el email
-  if ('email' in body) {
-    return NextResponse.json({ error: 'No se permite actualizar el email' }, { status: 400 });
+  // Validar que no se pueda enviar oldPassword sin password nuevo
+  if (body.oldPassword && !body.password) {
+    return NextResponse.json({ error: 'Debes proporcionar una nueva contraseña junto con la contraseña actual' }, { status: 400 });
+  }
+  // Solo permitir username y password
+  const allowedFields = ['username', 'password', 'oldPassword'];
+  for (const key of Object.keys(body)) {
+    if (!allowedFields.includes(key)) {
+      return NextResponse.json({ error: 'Solo se puede actualizar username o password' }, { status: 400 });
+    }
   }
 
   // Si se actualiza username, comprobar que no exista otro igual
@@ -37,13 +45,34 @@ export async function PATCH(req) {
     }
   }
 
-  // Si se actualiza password, hashearla
+  // Si se actualiza password, comprobar oldPassword y que no sea igual
   if (body.password) {
+    if (!body.oldPassword) {
+      return NextResponse.json({ error: 'Debes proporcionar la contraseña actual' }, { status: 400 });
+    }
+    const user = await User.findById(userId).select('+password');
+    const isMatch = await bcrypt.compare(body.oldPassword, user.password);
+    if (!isMatch) {
+      return NextResponse.json({ error: 'La contraseña actual es incorrecta' }, { status: 400 });
+    }
+    const isSame = await bcrypt.compare(body.password, user.password);
+    if (isSame) {
+      return NextResponse.json({ error: 'La nueva contraseña no puede ser igual a la anterior' }, { status: 400 });
+    }
     body.password = await bcrypt.hash(body.password, 10);
+    delete body.oldPassword;
   }
 
   // Actualizar usuario
-  const updatedUser = await User.findByIdAndUpdate(userId, body, { new: true, runValidators: true, fields: '-password' });
+  const updateFields = {};
+  if (body.username) updateFields.username = body.username;
+  if (body.password) updateFields.password = body.password;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    updateFields,
+    { new: true, runValidators: true, fields: '-password' }
+  );
   if (!updatedUser) {
     return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
   }
