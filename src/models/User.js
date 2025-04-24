@@ -17,6 +17,15 @@ const UserSchema = new mongoose.Schema({
         external_id: { type: String, required: true }
       }
     ]
+  },
+  notifications: {
+    type: [
+      {
+        message: { type: String, maxlength: 255, required: true }
+        // No se define ningún campo id personalizado, solo se usará _id
+      }
+    ],
+    default: []
   }
 }, {
   timestamps: true,
@@ -26,6 +35,9 @@ const UserSchema = new mongoose.Schema({
 UserSchema.pre('save', function (next) {
   if (!this.favourites || !this.favourites.content) {
     this.favourites = { content: [] };
+  }
+  if (!this.notifications) {
+    this.notifications = [];
   }
   next();
 });
