@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --background-gradient-1: #440ae6;
+  --background-gradient-2: #351effb9;
+  --background-gradient-3: #440ae6;
 }
 
 @theme inline {
@@ -20,7 +23,15 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(120deg, var(--background-gradient-1), var(--background-gradient-2), var(--background-gradient-3));
+  background-size: 300% 300%;
+  animation: layout-gradient 12s ease-in-out infinite;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes layout-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

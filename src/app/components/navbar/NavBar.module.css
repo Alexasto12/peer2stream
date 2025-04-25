@@ -1,38 +1,66 @@
 .navbar {
   position: fixed;
-  top: 5.0vh;
-  left: 2vw;
+  top: 10vh;
+  left: 1vw;
   bottom: 5.0vh;
-  height: 85vh;
-width: 6%;
+  height: 80vh;
+width: 6.5%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 2rem 1.5rem 2rem 1.5rem;
-  background: linear-gradient(180deg, #7b2ff2 0%, #1e90ff 100%);
-  color: #fff;
-  box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
-  z-index: 1000;
-  border-radius: 24px;
+  padding: 1.5rem 1rem 1.5rem 1rem;
+background: linear-gradient(180deg, #7b2ff2 0%, #351eff8f 100%);
+color: #fff;
+box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
+z-index: 1000;
+border-radius: 30px;
+border: 2px solid rgba(255, 255, 255, 0.151);
+backdrop-filter: blur(10px);
+background: linear-gradient(270deg, #7b2ff2, #351effb9, #7b2ff2);
+background-size: 400% 400%;
+animation: gradient 15s ease infinite;
+}
 
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
+
 .logoContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 10%;
+    margin-bottom: 4rem;
+    transform: scale(1.1);
+   
+    
+    
+    
 }
+
 .logoIcon {
-  border-radius: 50%;
-  background: rgba(122, 47, 242, 0.384);
-  box-shadow: 0 2px 12px rgba(122, 47, 242, 0.774);
-  width: 100% !important;
-  height: 100% !important;
-  margin-bottom: 5rem;
+    border-radius: 50%;
+    display: flex;
+    margin-bottom: 0;
+    width: 7rem;
+    height: 5rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 2px rgba(80, 7, 129, 0.1);
+    
+    
 }
+
 .navLinks {
   list-style: none;
   display: flex;
@@ -59,44 +87,20 @@ width: 6%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 90%;
   padding: 0.2rem 0.2rem;
   border-radius: 10px;
 }
 .navLinks li a:hover {
-  color: #7b2ff2;
-  background: rgba(255,255,255,0.10);
+
+    transition: transform 0.5s;
+    transform: scale(1.05);
+
+  background: rgba(255, 255, 255, 0.123);
+    box-shadow: 0 0 10px rgba(80, 7, 129, 0.2);
 }
-@media (max-width: 700px) {
-  .navbar {
-    position: static;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: linear-gradient(90deg, #7b2ff2 0%, #1e90ff 100%);
-    border-radius: 0;
-    left: 0;
-    top: 0;
-  }
-  .logoContainer {
-    flex-direction: row;
-    margin-bottom: 0;
-    margin-right: 2rem;
-  }
-  .logoIcon {
-    width: 32px !important;
-    height: 32px !important;
-  }
-  .navLinks {
-    flex-direction: row;
-    gap: 1.2rem;
-    width: auto;
-    height: auto;
-    justify-content: flex-start;
-  }
-  .navLinks li a {
-    font-size: 2rem;
-  }
+.navLinks li a.active {
+    
+
+  background: rgba(255,255,255,0.123);
 }
