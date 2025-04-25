@@ -1,5 +1,7 @@
+import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NavBarWrapper from "./components/navbar/NavBarWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,8 +23,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ minHeight: "100vh", background: "#f7f8fa" }}
       >
-        {children}
+        <NavBarWrapper />
+        <div style={{ marginLeft: "120px", minHeight: "100vh" }}>
+          {children}
+        </div>
       </body>
     </html>
   );

@@ -1,0 +1,102 @@
+.navbar {
+  position: fixed;
+  top: 5.0vh;
+  left: 2vw;
+  bottom: 5.0vh;
+  height: 85vh;
+width: 6%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2rem 1.5rem 2rem 1.5rem;
+  background: linear-gradient(180deg, #7b2ff2 0%, #1e90ff 100%);
+  color: #fff;
+  box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
+  z-index: 1000;
+  border-radius: 24px;
+
+}
+.logoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+  width: 100%;
+}
+.logoIcon {
+  border-radius: 50%;
+  background: rgba(122, 47, 242, 0.384);
+  box-shadow: 0 2px 12px rgba(122, 47, 242, 0.774);
+  width: 100% !important;
+  height: 100% !important;
+  margin-bottom: 5rem;
+}
+.navLinks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+
+}
+.navLinks li {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.navLinks li a {
+  color: #bbb;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s, background 0.2s;
+  font-size: 5.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.2rem 0.2rem;
+  border-radius: 10px;
+}
+.navLinks li a:hover {
+  color: #7b2ff2;
+  background: rgba(255,255,255,0.10);
+}
+@media (max-width: 700px) {
+  .navbar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(90deg, #7b2ff2 0%, #1e90ff 100%);
+    border-radius: 0;
+    left: 0;
+    top: 0;
+  }
+  .logoContainer {
+    flex-direction: row;
+    margin-bottom: 0;
+    margin-right: 2rem;
+  }
+  .logoIcon {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .navLinks {
+    flex-direction: row;
+    gap: 1.2rem;
+    width: auto;
+    height: auto;
+    justify-content: flex-start;
+  }
+  .navLinks li a {
+    font-size: 2rem;
+  }
+}
