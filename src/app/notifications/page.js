@@ -1,10 +1,341 @@
-import React from "react";
+'use client'
 
-export default function NotificationsPage() {
+import React, { useEffect, useState } from "react";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
+import { FaGripVertical } from "react-icons/fa";
+
+function NotificationCard({ notification, onDelete, style, selected, onSelect, dragHandleProps, isDragging }) {
   return (
-    <main style={{ paddingLeft: "220px", padding: "2rem" }}>
-      <h1>Notifications</h1>
-      <p>Aquí verás tus notificaciones importantes.</p>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        background: "#222",
+        color: "#fff",
+        borderRadius: "10px",
+        padding: "1.5rem 2rem",
+        marginBottom: "1rem",
+        width: "100%",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        fontSize: "1.1rem",
+        opacity: isDragging ? 0.5 : 1,
+        ...style,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", flex: 1 }}>
+        <span {...dragHandleProps} style={{ display: 'flex', alignItems: 'center' }}>
+          <FaGripVertical style={{ cursor: "grab", opacity: 0.7, fontSize: "1.5rem" }} />
+        </span>
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onSelect}
+          style={{ accentColor: "#00bcd4", width: 18, height: 18 }}
+        />
+        <span>{notification.message}</span>
+      </div>
+      <button
+        onClick={() => onDelete(notification._id)}
+        style={{
+          background: "transparent",
+          border: "none",
+          color: "#fff",
+          fontSize: "1.5rem",
+          cursor: "pointer",
+          marginLeft: "1.5rem",
+        }}
+        aria-label="Eliminar notificación"
+        title="Eliminar"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+function SortableNotification({ notification, ...props }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: notification._id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 2 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style}>
+      <NotificationCard
+        notification={notification}
+        {...props}
+        dragHandleProps={{ ...listeners, ...attributes }}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+}
+
+export default function NotificationsPage({ setNotificationCount }) {
+  const [notifications, setNotifications] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [selected, setSelected] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/user/notifications", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.notifications) {
+          const savedOrder = JSON.parse(localStorage.getItem("notificationOrder") || "null");
+          if (savedOrder && Array.isArray(savedOrder)) {
+            const ordered = [...data.notifications].sort((a, b) => {
+              const ia = savedOrder.indexOf(a._id);
+              const ib = savedOrder.indexOf(b._id);
+              if (ia === -1 && ib === -1) return 0;
+              if (ia === -1) return 1;
+              if (ib === -1) return -1;
+              return ia - ib;
+            });
+            setNotifications(ordered);
+            setNotificationCount && setNotificationCount(ordered.length);
+          } else {
+            setNotifications(data.notifications);
+            setNotificationCount && setNotificationCount(data.notifications.length);
+          }
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      localStorage.setItem(
+        "notificationOrder",
+        JSON.stringify(notifications.map(n => n._id))
+      );
+      setNotificationCount && setNotificationCount(notifications.length);
+    } else {
+      setNotificationCount && setNotificationCount(0);
+    }
+  }, [notifications]);
+
+  const handleDelete = async (_id) => {
+    setPendingDelete(_id);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (pendingDelete) {
+      await fetch("/api/user/notifications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ _id: pendingDelete }),
+      });
+      setNotifications((prev) => {
+        const updated = prev.filter((n) => n._id !== pendingDelete);
+        setNotificationCount && setNotificationCount(updated.length);
+        window.dispatchEvent(new Event('notificationUpdate'));
+        return updated;
+      });
+      setSelected((prev) => prev.filter((id) => id !== pendingDelete));
+    }
+    setShowConfirm(false);
+    setPendingDelete(null);
+  };
+
+  const handleSelect = (id) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleDeleteSelected = () => {
+    if (selected.length > 0) {
+      setPendingDelete([...selected]);
+      setShowConfirm(true);
+    }
+  };
+
+  const confirmDeleteSelected = async () => {
+    if (Array.isArray(pendingDelete)) {
+      for (const id of pendingDelete) {
+        await fetch("/api/user/notifications", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ _id: id }),
+        });
+      }
+      setNotifications((prev) => {
+        const updated = prev.filter((n) => !pendingDelete.includes(n._id));
+        setNotificationCount && setNotificationCount(updated.length);
+        window.dispatchEvent(new Event('notificationUpdate'));
+        return updated;
+      });
+      setSelected([]);
+    }
+    setShowConfirm(false);
+    setPendingDelete(null);
+  };
+
+  // Drag and drop handlers
+  function handleDragStart(event) {
+    setActiveId(event.active.id);
+  }
+  function handleDragEnd(event) {
+    setActiveId(null);
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = notifications.findIndex((n) => n._id === active.id);
+      const newIndex = notifications.findIndex((n) => n._id === over?.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setNotifications((prev) => arrayMove(prev, oldIndex, newIndex));
+      }
+    }
+  }
+
+  return (
+    <main style={{ paddingLeft: "220px", padding: "2rem", marginLeft: "2.5rem" }}>
+      <div style={{
+        background: "rgba(30, 30, 40, 0.7)",
+        borderRadius: "18px",
+        padding: "2.5rem 2rem 2rem 2rem",
+        marginBottom: "2.5rem",
+        maxWidth: 900,
+        margin: "0 auto 2.5rem auto",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+        textAlign: "center"
+      }}>
+        <h1 style={{
+          fontWeight: 700,
+          fontSize: "2.5rem",
+          margin: 0,
+          letterSpacing: "-1px",
+          color: "#fff",
+          textShadow: "0 2px 8px #0007"
+        }}>Tus notificaciones</h1>
+        <p style={{
+          color: "#cfd8dc",
+          fontSize: "1.2rem",
+          marginTop: "1rem",
+          marginBottom: 0,
+          textShadow: "0 1px 4px #0006"
+        }}>
+          Aquí verás tus notificaciones importantes y podrás gestionarlas fácilmente.
+        </p>
+      </div>
+      <div style={{
+        marginTop: "2rem",
+        display: "flex",
+        justifyContent: "center",
+      }}>
+        <div style={{
+          width: "90%",
+          maxWidth: "90%",
+        }}>
+          <button
+            onClick={handleDeleteSelected}
+            disabled={selected.length === 0}
+            style={{
+              marginBottom: "1.5rem",
+              background: selected.length === 0 ? "#444" : "#e53935",
+              color: selected.length === 0 ? "#bbb" : "#fff",
+              border: "none",
+              borderRadius: "8px",
+              padding: "0.7rem 1.5rem",
+              fontWeight: 500,
+              fontSize: "1.05rem",
+              cursor: selected.length === 0 ? "not-allowed" : "pointer",
+              boxShadow: "0 2px 8px #0002",
+              opacity: selected.length === 0 ? 0.7 : 1,
+              transition: "all 0.2s"
+            }}
+          >
+            Borrar seleccionadas
+          </button>
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={notifications.map(n => n._id)}>
+              {notifications.map((n) => (
+                <SortableNotification
+                  key={n._id}
+                  notification={n}
+                  onDelete={handleDelete}
+                  selected={selected.includes(n._id)}
+                  onSelect={() => handleSelect(n._id)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+      </div>
+      {showConfirm && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          background: "rgba(0,0,0,0.45)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <div style={{
+            background: "#23232b",
+            color: "#fff",
+            borderRadius: "14px",
+            padding: "2.5rem 2.5rem 2rem 2.5rem",
+            minWidth: 320,
+            boxShadow: "0 4px 24px #0007",
+            textAlign: "center"
+          }}>
+            <h2 style={{ margin: 0, fontWeight: 600, fontSize: "1.5rem" }}>
+              ¿Seguro que quieres borrar {Array.isArray(pendingDelete) ? `estas ${pendingDelete.length} notificaciones` : 'esta notificación'}?
+            </h2>
+            <div style={{ marginTop: "2rem", display: "flex", gap: 24, justifyContent: "center" }}>
+              <button
+                onClick={() => {
+                  if (Array.isArray(pendingDelete)) confirmDeleteSelected();
+                  else confirmDelete();
+                }}
+                style={{
+                  background: "#e53935",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.7rem 1.5rem",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  cursor: "pointer"
+                }}
+              >
+                Sí, borrar
+              </button>
+              <button
+                onClick={() => { setShowConfirm(false); setPendingDelete(null); }}
+                style={{
+                  background: "#333",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.7rem 1.5rem",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  cursor: "pointer"
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

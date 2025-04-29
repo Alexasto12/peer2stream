@@ -25,10 +25,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ minHeight: "100vh"}}
       >
-        <NavBarWrapper />
-        <div style={{ marginLeft: "120px", minHeight: "100vh" }}>
-          {children}
-        </div>
+        <NavBarWrapper>{children}</NavBarWrapper>
       </body>
     </html>
   );
