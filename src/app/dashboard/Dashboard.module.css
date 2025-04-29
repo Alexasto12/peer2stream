@@ -310,7 +310,7 @@
   height: 38px;
   min-width: 38px;
   min-height: 38px;
-  background: linear-gradient(135deg, #7b2ff2 60%, #351eff 100%);
+ text-align: center;
   border: 2.5px solid #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px #351eff55;
@@ -318,9 +318,6 @@
   align-items: center;
   justify-content: center;
   cursor: grab;
-  margin-right: 8px;
-  margin-top: 2px;
-  transition: box-shadow 0.2s, border 0.2s, background 0.2s;
   z-index: 3;
   position: relative;
 }

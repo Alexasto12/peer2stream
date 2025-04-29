@@ -92,9 +92,21 @@ export default function DashboardPage() {
             {...listeners}
             style={{ marginRight: 8 }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="#7b2ff2"/><circle cx="6" cy="12" r="2" fill="#7b2ff2"/><circle cx="6" cy="18" r="2" fill="#7b2ff2"/><circle cx="12" cy="6" r="2" fill="#7b2ff2"/><circle cx="12" cy="12" r="2" fill="#7b2ff2"/><circle cx="12" cy="18" r="2" fill="#7b2ff2"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <circle cx="6" cy="6" r="2" fill="#7b2ff2"/>
+              <circle cx="6" cy="12" r="2" fill="#7b2ff2"/>
+              <circle cx="6" cy="18" r="2" fill="#7b2ff2"/>
+              <circle cx="12" cy="6" r="2" fill="#7b2ff2"/>
+              <circle cx="12" cy="12" r="2" fill="#7b2ff2"/>
+              <circle cx="12" cy="18" r="2" fill="#7b2ff2"/>
+              <circle cx="18" cy="6" r="2" fill="#7b2ff2"/>
+              <circle cx="18" cy="12" r="2" fill="#7b2ff2"/>
+              <circle cx="18" cy="18" r="2" fill="#7b2ff2"/>
+            </svg>
           </button>
-          {/* Botón de colapsar/expandir siempre visible arriba derecha */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 38 }}>
+            {children.title}
+          </div>
           {children.collapseBtn}
         </div>
         {children.content}
@@ -279,6 +291,7 @@ export default function DashboardPage() {
                 if (id === 'user') return (
                   <SortableCard id="user" key="user">
                     {{
+                      title: <h2 className={styles.sectionTitle}>Usuario</h2>,
                       collapseBtn: (
                         <button
                           className={styles.collapseBtn}
@@ -296,7 +309,6 @@ export default function DashboardPage() {
                       ),
                       content: !isCollapsed && (
                         <>
-                          <h2 className={styles.sectionTitle}>Usuario</h2>
                           <form className={styles.settingsForm} onSubmit={handleUserUpdate}>
                             <div className={styles.formGroup} style={{flexDirection: 'row', alignItems: 'center', gap: '0.5rem'}}>
                               <label htmlFor="username" style={{flex: '0 0 90px'}}>Usuario</label>
@@ -353,6 +365,7 @@ export default function DashboardPage() {
                 if (id === 'preferences') return (
                   <SortableCard id="preferences" key="preferences">
                     {{
+                      title: <h2 className={styles.sectionTitle}>Preferencias de usuario</h2>,
                       collapseBtn: (
                         <button
                           className={styles.collapseBtn}
@@ -370,7 +383,6 @@ export default function DashboardPage() {
                       ),
                       content: !isCollapsed && (
                         <>
-                          <h2 className={styles.sectionTitle}>Preferencias de usuario</h2>
                           <form className={styles.settingsForm} onSubmit={handleSettingsUpdate}>
                             <div className={styles.formGroup}>
                               <label htmlFor="prefered_lang">Idioma preferido</label>
@@ -432,6 +444,7 @@ export default function DashboardPage() {
                 if (id === 'security') return (
                   <SortableCard id="security" key="security">
                     {{
+                      title: <h2 className={styles.sectionTitle}>Seguridad y cuenta</h2>,
                       collapseBtn: (
                         <button
                           className={styles.collapseBtn}
@@ -449,7 +462,6 @@ export default function DashboardPage() {
                       ),
                       content: !isCollapsed && (
                         <>
-                          <h2 className={styles.sectionTitle}>Seguridad y cuenta</h2>
                           <form className={styles.settingsForm} onSubmit={handleSecurityUpdate}>
                             <div className={styles.formGroup}>
                               <label htmlFor="oldPassword">Contraseña actual</label>
