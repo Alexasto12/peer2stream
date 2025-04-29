@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar";
 
-export default function NavBarWrapper() {
+export default function NavBarWrapper({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then((res) => {
@@ -12,5 +14,43 @@ export default function NavBarWrapper() {
       })
       .catch(() => setIsLoggedIn(false));
   }, []);
-  return <NavBar isLoggedIn={isLoggedIn} />;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetch("/api/user/notifications", { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.notifications) setNotificationCount(data.notifications.length);
+        })
+        .catch(() => setNotificationCount(0));
+    } else {
+      setNotificationCount(0);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const handleNotificationUpdate = () => {
+      if (isLoggedIn) {
+        fetch("/api/user/notifications", { credentials: "include" })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.notifications) setNotificationCount(data.notifications.length);
+          })
+          .catch(() => setNotificationCount(0));
+      } else {
+        setNotificationCount(0);
+      }
+    };
+    window.addEventListener('notificationUpdate', handleNotificationUpdate);
+    return () => {
+      window.removeEventListener('notificationUpdate', handleNotificationUpdate);
+    };
+  }, [isLoggedIn]);
+
+  return (
+    <>
+      <NavBar isLoggedIn={isLoggedIn} notificationCount={notificationCount} />
+      {children && React.cloneElement(children, { setNotificationCount })}
+    </>
+  );
 }
