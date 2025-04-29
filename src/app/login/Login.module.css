@@ -1,0 +1,112 @@
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.formCard {
+  background: rgba(255,255,255,0.13);
+  border-radius: 30px;
+  box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 350px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.logo {
+  width: 7rem;
+  height: 5rem;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 2px rgba(80, 7, 129, 0.1);
+}
+
+.welcome {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  text-align: center;
+  text-shadow: 0 2px 8px #351effb9;
+}
+
+.loginTitle {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.loginDesc {
+  color: #eee;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.formGroup {
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+.formGroup label {
+  color: #fff;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+.formGroup input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.25);
+  color: #351eff;
+  font-size: 1rem;
+  margin-top: 0.2rem;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(80, 7, 129, 0.08);
+}
+.formGroup input:focus {
+  background: #fff;
+}
+
+.error {
+  color: #ff3b3b;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.loginButton {
+  width: 100%;
+  padding: 0.8rem 0;
+  background: linear-gradient(90deg, #7b2ff2 0%, #351eff 100%);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(80, 7, 129, 0.13);
+  transition: background 0.2s, transform 0.2s;
+}
+.loginButton:hover {
+  background: linear-gradient(90deg, #351eff 0%, #7b2ff2 100%);
+  transform: scale(1.03);
+}
