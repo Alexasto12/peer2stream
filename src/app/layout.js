@@ -20,10 +20,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang='en' suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ minHeight: "100vh"}}
+        style={{ minHeight: "100vh" }}
       >
         <NavBarWrapper />
         <div style={{ marginLeft: "120px", minHeight: "100vh" }}>

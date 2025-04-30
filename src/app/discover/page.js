@@ -13,6 +13,11 @@ export default function DiscoverPage() {
   const [error, setError] = useState("");
   const [contentCount, setContentCount] = useState(20); // Por defecto 1, pero puedes cambiarlo
 
+  const dateYear = function (date) {
+    let year = new Date(date)
+    return year.getFullYear()
+  }
+
   useEffect(() => {
     const BASE_URL = "https://api.themoviedb.org/3";
 
@@ -31,13 +36,18 @@ export default function DiscoverPage() {
     <main style={{ paddingLeft: "220px", padding: "2rem" }}>
       <h1>Discover</h1>
       <p>Descubre nuevas películas y series recomendadas para ti.</p>
-      {error && <div style={{color: "red"}}>{error}</div>}
+
+      {error && <div style={{ color: "red" }}>{error}</div>}
+
       <div className="flex flex-wrap gap-6 justify-start items-start mt-8">
         {results.slice(0, contentCount).map((item, idx) => (
           <Card
-            key={item.id || idx}
+            key={idx} // idx del map
+            id={item.id}
+            type={item.media_type}
             image={item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : "/file.svg"}
             title={item.title || item.name}
+            release_date={item.media_type === ('movie') ? dateYear(item.release_date) : dateYear(item.first_air_date)}
           />
         ))}
       </div>
