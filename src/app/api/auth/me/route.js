@@ -6,7 +6,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET(req) {
   await connectToDatabase();
-  const token = cookies().get('token')?.value;
+  const meCookie = await cookies();
+  const token = meCookie.get('token')?.value;
   if (!token) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
