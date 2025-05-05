@@ -108,6 +108,8 @@ export default function DiscoverPage() {
     return year.getFullYear()
   }
 
+  const showFilters = endpoint === "/discover/movie" || endpoint === "/discover/tv";
+
   return (
     <div className={styles.mainDiscover}>
       <h1>Discover</h1>
@@ -115,11 +117,7 @@ export default function DiscoverPage() {
 
       {error && <div style={{ color: "red" }}>{error}</div>}
 
-      <form
-        className={styles.discoverForm}
-        onSubmit={e => e.preventDefault()}
-      >
-
+      <form className={styles.discoverForm} onSubmit={e => e.preventDefault()}>
         <label className={styles.discoverLabel}>
           Tipo:
           <select
@@ -132,58 +130,59 @@ export default function DiscoverPage() {
             <option value="/discover/tv">Series</option>
           </select>
         </label>
-
-        <label className={styles.discoverLabel}>
-          Género:
-          <select
-            value={genre}
-            onChange={e => setGenre(e.target.value)}
-            className={styles.discoverSelect}
-          >
-            <option value="">Todos</option>
-            {genres.map(g => (
-              <option key={g.id} value={g.id}>{g.name}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className={styles.discoverLabel}>
-          Plataforma:
-          <select
-            value={provider}
-            onChange={e => setProvider(e.target.value)}
-            className={styles.discoverSelect}
-          >
-            <option value="">Todas</option>
-            {providers.map(p => (
-              <option key={p.provider_id} value={p.provider_id}>{p.provider_name}</option>
-            ))}
-          </select>
-        </label>
-
-        <div className={styles.orderButtonWrapper}>
-          <label className={styles.discoverLabel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            Ordenar por:
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              className={styles.discoverSelect}
-              style={{ minWidth: '120px' }}
-            >
-              <option value="popularity">Popularidad</option>
-              <option value="release_date">Fecha</option>
-              <option value="vote_average">Puntuación</option>
-            </select>
-            <button
-              type="button"
-              className={styles.orderButton}
-              onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
-              aria-label={orderDirection === 'desc' ? 'Orden descendente' : 'Orden ascendente'}
-            >
-              {orderDirection === 'desc' ? '↓' : '↑'}
-            </button>
-          </label>
-        </div>
+        {showFilters && (
+          <>
+            <div className={styles.orderButtonWrapper}>
+              <label className={styles.discoverLabel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                Ordenar por:
+                <select
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  className={styles.discoverSelect}
+                  style={{ minWidth: '120px' }}
+                >
+                  <option value="popularity">Popularidad</option>
+                  <option value="release_date">Fecha</option>
+                  <option value="vote_average">Puntuación</option>
+                </select>
+                <button
+                  type="button"
+                  className={styles.orderButton}
+                  onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
+                  aria-label={orderDirection === 'desc' ? 'Orden descendente' : 'Orden ascendente'}
+                >
+                  {orderDirection === 'desc' ? '↓' : '↑'}
+                </button>
+              </label>
+            </div>
+            <label className={styles.discoverLabel}>
+              Género:
+              <select
+                value={genre}
+                onChange={e => setGenre(e.target.value)}
+                className={styles.discoverSelect}
+              >
+                <option value="">Todos</option>
+                {genres.map(g => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.discoverLabel}>
+              Plataforma:
+              <select
+                value={provider}
+                onChange={e => setProvider(e.target.value)}
+                className={styles.discoverSelect}
+              >
+                <option value="">Todas</option>
+                {providers.map(p => (
+                  <option key={p.provider_id} value={p.provider_id}>{p.provider_name}</option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
       </form>
 
       <div className="flex flex-wrap gap-6 justify-start items-start mt-8">
