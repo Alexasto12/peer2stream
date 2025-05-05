@@ -3,6 +3,7 @@
 import Card from "@/app/components/card/Card";
 import { useEffect, useState } from "react";
 import React from "react";
+import styles from "./discover.module.css";
 
 export default function DiscoverPage() {
   // Estado para endpoint y parámetros
@@ -13,7 +14,8 @@ export default function DiscoverPage() {
   const [contentCount, setContentCount] = useState(20);
 
   // Filtros avanzados
-  const [sortBy, setSortBy] = useState("popularity.desc");
+  const [sortBy, setSortBy] = useState("popularity");
+  const [orderDirection, setOrderDirection] = useState("desc");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
   const [provider, setProvider] = useState("");
@@ -24,7 +26,6 @@ export default function DiscoverPage() {
 
     // Géneros principales personalizados
     const mainGenres = [
-      { id: "", name: "Todos" },
       { id: 35, name: "Comedia" },
       { id: 28, name: "Acción" },
       { id: 16, name: "Animación" },
@@ -81,6 +82,14 @@ export default function DiscoverPage() {
     });
   }, [sortBy, genre, provider, providers]);
 
+  // Cambia sortBy cuando cambia el campo o la dirección
+  useEffect(() => {
+    setParams(prev => ({
+      ...prev,
+      sort_by: `${sortBy}.${orderDirection}`
+    }));
+  }, [sortBy, orderDirection]);
+
   useEffect(() => {
     const BASE_URL = "https://api.themoviedb.org/3";
     const query = new URLSearchParams({
@@ -100,82 +109,36 @@ export default function DiscoverPage() {
   }
 
   return (
-    <main style={{ paddingLeft: "220px", padding: "2rem" }}>
+    <div className={styles.mainDiscover}>
       <h1>Discover</h1>
       <p>Descubre nuevas películas y series recomendadas para ti.</p>
 
       {error && <div style={{ color: "red" }}>{error}</div>}
 
       <form
-        style={{
-          display: "flex",
-          gap: "1rem",
-          alignItems: "center",
-          margin: "2rem 0 1.5rem 0",
-          background: "#18181b",
-          padding: "1rem 1.5rem",
-          borderRadius: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          maxWidth: "600px"
-        }}
+        className={styles.discoverForm}
         onSubmit={e => e.preventDefault()}
       >
-        <label style={{ color: "#fff" }}>
+
+        <label className={styles.discoverLabel}>
           Tipo:
           <select
             value={endpoint}
             onChange={e => setEndpoint(e.target.value)}
-            style={{
-              marginLeft: "0.5rem",
-              padding: "0.3rem 0.7rem",
-              borderRadius: "6px",
-              border: "1px solid #333",
-              background: "#23232b",
-              color: "#fff"
-            }}
+            className={styles.discoverSelect}
           >
             <option value="/trending/all/week">Todos</option>
             <option value="/discover/movie">Películas</option>
             <option value="/discover/tv">Series</option>
           </select>
         </label>
-        <label style={{ color: "#fff" }}>
-          Ordenar por:
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            style={{
-              marginLeft: "0.5rem",
-              padding: "0.3rem 0.7rem",
-              borderRadius: "6px",
-              border: "1px solid #333",
-              background: "#23232b",
-              color: "#fff"
-            }}
-          >
-            <option value="popularity.desc">Popularidad ↓</option>
-            <option value="popularity.asc">Popularidad ↑</option>
-            <option value="release_date.desc">Fecha ↓</option>
-            <option value="release_date.asc">Fecha ↑</option>
-            <option value="vote_average.desc">Puntuación ↓</option>
-            <option value="vote_average.asc">Puntuación ↑</option>
-          </select>
-        </label>
-        <label style={{ color: "#fff" }}>
-        </label>
-        <label style={{ color: "#fff" }}>
+
+        <label className={styles.discoverLabel}>
           Género:
           <select
             value={genre}
             onChange={e => setGenre(e.target.value)}
-            style={{
-              marginLeft: "0.5rem",
-              padding: "0.3rem 0.7rem",
-              borderRadius: "6px",
-              border: "1px solid #333",
-              background: "#23232b",
-              color: "#fff"
-            }}
+            className={styles.discoverSelect}
           >
             <option value="">Todos</option>
             {genres.map(g => (
@@ -183,19 +146,13 @@ export default function DiscoverPage() {
             ))}
           </select>
         </label>
-        <label style={{ color: "#fff" }}>
+
+        <label className={styles.discoverLabel}>
           Plataforma:
           <select
             value={provider}
             onChange={e => setProvider(e.target.value)}
-            style={{
-              marginLeft: "0.5rem",
-              padding: "0.3rem 0.7rem",
-              borderRadius: "6px",
-              border: "1px solid #333",
-              background: "#23232b",
-              color: "#fff"
-            }}
+            className={styles.discoverSelect}
           >
             <option value="">Todas</option>
             {providers.map(p => (
@@ -203,6 +160,30 @@ export default function DiscoverPage() {
             ))}
           </select>
         </label>
+
+        <div className={styles.orderButtonWrapper}>
+          <label className={styles.discoverLabel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            Ordenar por:
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className={styles.discoverSelect}
+              style={{ minWidth: '120px' }}
+            >
+              <option value="popularity">Popularidad</option>
+              <option value="release_date">Fecha</option>
+              <option value="vote_average">Puntuación</option>
+            </select>
+            <button
+              type="button"
+              className={styles.orderButton}
+              onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
+              aria-label={orderDirection === 'desc' ? 'Orden descendente' : 'Orden ascendente'}
+            >
+              {orderDirection === 'desc' ? '↓' : '↑'}
+            </button>
+          </label>
+        </div>
       </form>
 
       <div className="flex flex-wrap gap-6 justify-start items-start mt-8">
@@ -217,6 +198,6 @@ export default function DiscoverPage() {
           />
         ))}
       </div>
-    </main>
+    </div>
   );
 }

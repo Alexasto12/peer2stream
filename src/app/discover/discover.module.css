@@ -1,0 +1,55 @@
+.mainDiscover {
+    padding-left: 220px;
+    /* O el ancho real de tu sidebar */
+    padding-top: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+}
+
+.discoverForm {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin: 2rem 0 1.5rem 0;
+    background: #18181b;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    max-width: fit-content;
+    position: relative;
+}
+
+.discoverLabel {
+    color: #fff;
+}
+
+.discoverSelect, .discoverInput {
+    margin-left: 0.5rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #23232b;
+    color: #fff;
+}
+
+.orderButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.4rem;
+    color: #fff;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.orderButton:hover {
+    color: #00b4d8;
+}
+
+.orderButtonWrapper {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
