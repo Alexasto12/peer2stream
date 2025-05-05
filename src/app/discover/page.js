@@ -6,6 +6,7 @@ import React from "react";
 import styles from "./discover.module.css";
 
 export default function DiscoverPage() {
+
   // Estado para endpoint y parámetros
   const [endpoint, setEndpoint] = useState("/trending/all/week");
   const [params, setParams] = useState({});
@@ -20,6 +21,11 @@ export default function DiscoverPage() {
   const [genres, setGenres] = useState([]);
   const [provider, setProvider] = useState("");
   const [providers, setProviders] = useState([]);
+
+  // Estado para búsqueda
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchMode, setSearchMode] = useState(false);
 
   // Cargar géneros y plataformas según tipo
   useEffect(() => {
@@ -91,17 +97,17 @@ export default function DiscoverPage() {
   }, [sortBy, orderDirection]);
 
   useEffect(() => {
+    if (searchMode) return; // No refrescar discover si estamos en modo búsqueda
     const BASE_URL = "https://api.themoviedb.org/3";
     const query = new URLSearchParams({
       ...params,
       api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY
     }).toString();
-
     fetch(`${BASE_URL}${endpoint}?${query}`)
       .then(res => res.json())
       .then(data => setResults(data.results || []))
       .catch(() => setError("Error al cargar resultados"));
-  }, [endpoint, params]);
+  }, [endpoint, params, searchMode]);
 
   const dateYear = function (date) {
     let year = new Date(date)
@@ -109,6 +115,22 @@ export default function DiscoverPage() {
   }
 
   const showFilters = endpoint === "/discover/movie" || endpoint === "/discover/tv";
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    setIsSearching(true);
+    setSearchMode(true);
+    const BASE_URL = "https://api.themoviedb.org/3";
+    const query = new URLSearchParams({
+      api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY,
+      query: searchQuery
+    }).toString();
+    const res = await fetch(`${BASE_URL}/search/multi?${query}`);
+    const data = await res.json();
+    setResults(data.results || []);
+    setIsSearching(false);
+  };
 
   return (
     <div className={styles.mainDiscover}>
@@ -183,6 +205,28 @@ export default function DiscoverPage() {
             </label>
           </>
         )}
+      </form>
+
+      <form onSubmit={handleSearch} className={styles.searchBar}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Buscar películas o series..."
+          className={styles.searchInput}
+        />
+        <button type="submit" className={styles.searchButton}>Buscar</button>
+        <button
+          type="button"
+          className={styles.resetButton}
+          onClick={() => {
+            setSearchQuery("");
+            setEndpoint("/trending/all/week");
+            setSearchMode(false);
+          }}
+        >
+          Restablecer
+        </button>
       </form>
 
       <div className="flex flex-wrap gap-6 justify-start items-start mt-8">
