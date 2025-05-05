@@ -1,7 +1,7 @@
 'use client'
 
 import Card from "@/app/components/card/Card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import React from "react";
 import styles from "./discover.module.css";
 
@@ -12,7 +12,12 @@ export default function DiscoverPage() {
   const [params, setParams] = useState({});
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");
-  const [contentCount, setContentCount] = useState(20);
+
+  // const [contentCount, setContentCount] = useState(20);
+  
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const loaderRef = useRef(null);
 
   // Filtros avanzados
   const [sortBy, setSortBy] = useState("popularity");
@@ -132,6 +137,59 @@ export default function DiscoverPage() {
     setIsSearching(false);
   };
 
+  // Reset page/results cuando cambian endpoint o filtros
+  useEffect(() => {
+    setResults([]);
+    setPage(1);
+    setHasMore(true);
+  }, [endpoint, sortBy, orderDirection, genre, provider, searchMode]);
+
+  // Cargar más resultados (scroll infinito)
+  useEffect(() => {
+    // Solo si no estamos en modo búsqueda
+    if (searchMode) return;
+
+    // Solo para discover o trending
+    if (
+      endpoint !== "/trending/all/week" &&
+      endpoint !== "/discover/movie" &&
+      endpoint !== "/discover/tv"
+    ) return;
+
+    const BASE_URL = "https://api.themoviedb.org/3";
+    const query = new URLSearchParams({
+      ...params,
+      api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY,
+      page
+    }).toString();
+
+    fetch(`${BASE_URL}${endpoint}?${query}`)
+      .then(res => res.json())
+      .then(data => {
+        setResults(prev => page === 1 ? (data.results || []) : [...prev, ...(data.results || [])]);
+        setHasMore(data.page < data.total_pages);
+      })
+      .catch(() => setError("Error al cargar resultados"));
+  }, [endpoint, params, page, searchMode]);
+
+  // IntersectionObserver igual que antes
+  const handleObserver = useCallback((entries) => {
+    const target = entries[0];
+    if (target.isIntersecting && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  }, [hasMore]);
+
+  useEffect(() => {
+    if (searchMode) return;
+    const option = { root: null, rootMargin: "20px", threshold: 1.0 };
+    const observer = new IntersectionObserver(handleObserver, option);
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [handleObserver, searchMode, results]);
+
   return (
     <div className={styles.mainDiscover}>
       <h1>Discover</h1>
@@ -230,7 +288,7 @@ export default function DiscoverPage() {
       </form>
 
       <div className="flex flex-wrap gap-6 justify-start items-start mt-8">
-        {results.slice(0, contentCount).map((item, idx) => (
+        {results.map((item, idx) => (
           <Card
             key={idx}
             id={item.id}
@@ -241,6 +299,13 @@ export default function DiscoverPage() {
           />
         ))}
       </div>
+      {(endpoint === "/trending/all/week" ||
+        endpoint === "/discover/movie" ||
+        endpoint === "/discover/tv") && hasMore && (
+        <div ref={loaderRef} style={{ height: 40, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <span style={{ color: "#fff" }}>Cargando más...</span>
+        </div>
+      )}
     </div>
   );
 }
