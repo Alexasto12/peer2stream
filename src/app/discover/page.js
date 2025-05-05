@@ -4,6 +4,7 @@ import Card from "@/app/components/card/Card";
 import { useEffect, useState, useRef, useCallback } from "react";
 import React from "react";
 import styles from "./discover.module.css";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 export default function DiscoverPage() {
 
@@ -13,8 +14,6 @@ export default function DiscoverPage() {
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");
 
-  // const [contentCount, setContentCount] = useState(20);
-  
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef(null);
@@ -31,24 +30,63 @@ export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchMode, setSearchMode] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const debounceTimeout = useRef();
+
+  // Nueva función para búsqueda con debounce y sugerencias
+  const handleSearchInput = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setSearchMode(!!value);
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    if (!value.trim()) {
+      setSuggestions([]);
+      setResults([]);
+      setSearchMode(false);
+      return;
+    }
+    debounceTimeout.current = setTimeout(async () => {
+      setIsSearching(true);
+      const BASE_URL = "https://api.themoviedb.org/3";
+      const query = new URLSearchParams({
+        api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY,
+        query: value
+      }).toString();
+      const res = await fetch(`${BASE_URL}/search/multi?${query}`);
+      const data = await res.json();
+      // Filtrar para ignorar personas (actores/actrices) y resultados sin imagen
+      const filteredResults = (data.results || []).filter(item => item.media_type !== 'person' && item.poster_path);
+      setSuggestions(filteredResults.slice(0, 5));
+      setResults(filteredResults);
+      setIsSearching(false);
+    }, 800);
+  };
+
+  // Al hacer click en una sugerencia, se rellena el input y se muestran los resultados completos
+  const handleSuggestionClick = (item) => {
+    setSearchQuery(item.title || item.name);
+    setSuggestions([]);
+    setResults([item]);
+    setSearchMode(true);
+  };
 
   // Cargar géneros y plataformas según tipo
   useEffect(() => {
 
     // Géneros principales personalizados
     const mainGenres = [
-      { id: 35, name: "Comedia" },
-      { id: 28, name: "Acción" },
-      { id: 16, name: "Animación" },
+      { id: 35, name: "Comedy" },
+      { id: 28, name: "Action" },
+      { id: 16, name: "Animation" },
       { id: 18, name: "Drama" },
-      { id: 27, name: "Terror" },
+      { id: 27, name: "Horror" },
       { id: 10749, name: "Romance" },
       { id: 53, name: "Thriller" },
-      { id: 878, name: "Ciencia ficción" },
-      { id: 99, name: "Documental" },
-      { id: 14, name: "Fantasía" },
-      { id: 36, name: "Historia" },
-      { id: 10402, name: "Música" },
+      { id: 878, name: "Science Fiction" },
+      { id: 99, name: "Documentary" },
+      { id: 14, name: "Fantasy" },
+      { id: 36, name: "History" },
+      { id: 10402, name: "Music" },
     ];
 
     setGenres(mainGenres);
@@ -110,8 +148,11 @@ export default function DiscoverPage() {
     }).toString();
     fetch(`${BASE_URL}${endpoint}?${query}`)
       .then(res => res.json())
-      .then(data => setResults(data.results || []))
-      .catch(() => setError("Error al cargar resultados"));
+      .then(data => {
+        const filtered = (data.results || []).filter(item => item.poster_path);
+        setResults(filtered);
+      })
+      .catch(() => setError("Error loading results"));
   }, [endpoint, params, searchMode]);
 
   const dateYear = function (date) {
@@ -192,70 +233,83 @@ export default function DiscoverPage() {
 
   return (
     <div className={styles.mainDiscover}>
-      <h1>Discover</h1>
-      <p>Descubre nuevas películas y series recomendadas para ti.</p>
+      {/* Minimalist centered search bar, always visible */}
+      <div className="w-full flex justify-center mt-2 mb-8 relative">
+        <div className="relative w-full max-w-xl">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchInput}
+            placeholder="Search movies or series..."
+            className="block w-full rounded-full border border-gray-700 bg-[#18181b] py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            autoComplete="off"
+          />
+          {/* Sugerencias dropdown */}
+          {suggestions.length > 0 && (
+            <ul className="absolute z-10 left-0 right-0 mt-2 bg-[#23232b] border border-gray-700 rounded-lg shadow-lg"
+            >
+              {suggestions.map((item, idx) => (
+                <li
+                  key={item.id}
+                  className="px-4 py-2 cursor-pointer hover:bg-[#18181b] flex items-center gap-2"
+                  onClick={() => handleSuggestionClick(item)}
+                >
+                  <img
+                    src={item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : "/file.svg"}
+                    alt={item.title || item.name}
+                    className="w-8 h-12 object-cover rounded"
+                  />
+                  <span>{item.title || item.name}</span>
+                  <span className="ml-auto text-xs text-gray-400">{item.media_type?.toUpperCase()}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       {error && <div style={{ color: "red" }}>{error}</div>}
 
       <form className={styles.discoverForm} onSubmit={e => e.preventDefault()}>
         <label className={styles.discoverLabel}>
-          Tipo:
+          Type:
           <select
             value={endpoint}
             onChange={e => setEndpoint(e.target.value)}
             className={styles.discoverSelect}
           >
-            <option value="/trending/all/week">Todos</option>
-            <option value="/discover/movie">Películas</option>
+            <option value="/trending/all/week">All</option>
+            <option value="/discover/movie">Movies</option>
             <option value="/discover/tv">Series</option>
           </select>
         </label>
         {showFilters && (
           <>
-            <div className={styles.orderButtonWrapper}>
-              <label className={styles.discoverLabel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                Ordenar por:
-                <select
-                  value={sortBy}
-                  onChange={e => setSortBy(e.target.value)}
-                  className={styles.discoverSelect}
-                  style={{ minWidth: '120px' }}
-                >
-                  <option value="popularity">Popularidad</option>
-                  <option value="release_date">Fecha</option>
-                  <option value="vote_average">Puntuación</option>
-                </select>
-                <button
-                  type="button"
-                  className={styles.orderButton}
-                  onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
-                  aria-label={orderDirection === 'desc' ? 'Orden descendente' : 'Orden ascendente'}
-                >
-                  {orderDirection === 'desc' ? '↓' : '↑'}
-                </button>
-              </label>
-            </div>
+            {/* Género y Plataforma permanecen aquí */}
             <label className={styles.discoverLabel}>
-              Género:
+              Genre:
               <select
                 value={genre}
                 onChange={e => setGenre(e.target.value)}
                 className={styles.discoverSelect}
               >
-                <option value="">Todos</option>
+                <option value="">All</option>
                 {genres.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
                 ))}
               </select>
             </label>
             <label className={styles.discoverLabel}>
-              Plataforma:
+              Platform:
               <select
                 value={provider}
                 onChange={e => setProvider(e.target.value)}
                 className={styles.discoverSelect}
               >
-                <option value="">Todas</option>
+                <option value="">All</option>
                 {providers.map(p => (
                   <option key={p.provider_id} value={p.provider_id}>{p.provider_name}</option>
                 ))}
@@ -265,37 +319,43 @@ export default function DiscoverPage() {
         )}
       </form>
 
-      <form onSubmit={handleSearch} className={styles.searchBar}>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Buscar películas o series..."
-          className={styles.searchInput}
-        />
-        <button type="submit" className={styles.searchButton}>Buscar</button>
-        <button
-          type="button"
-          className={styles.resetButton}
-          onClick={() => {
-            setSearchQuery("");
-            setEndpoint("/trending/all/week");
-            setSearchMode(false);
-          }}
-        >
-          Restablecer
-        </button>
-      </form>
+      {/* Searchbar y filtro de ordenación en la misma línea */}
+      {showFilters && (
+        <div className="flex justify-end w-full mb-2">
+          <div className={styles.orderFilter}>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className={styles.discoverSelect}
+              style={{ minWidth: '120px' }}
+            >
+              <option value="popularity">Popularity</option>
+              <option value="release_date">Date</option>
+              <option value="vote_average">Rating</option>
+            </select>
+            <button
+              type="button"
+              className={styles.orderButton}
+              onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
+              aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
+              style={{ fontSize: '1.2rem', padding: 0, width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: '1px solid #333', background: '#23232b' }}
+            >
+              <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.2rem' }}>▼</span>
+            </button>
+          </div>
+        </div>
+      )}
 
-      <div className="flex flex-wrap gap-6 justify-start items-start mt-8">
-        {results.map((item, idx) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-8">
+        {results.filter(item => item.poster_path).map((item, idx) => (
           <Card
             key={idx}
             id={item.id}
             type={item.media_type || (endpoint.includes("movie") ? "movie" : "tv")}
-            image={item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : "/file.svg"}
+            image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
             title={item.title || item.name}
             release_date={item.release_date || item.first_air_date ? dateYear(item.release_date || item.first_air_date) : ""}
+            className="!h-[420px] !w-full"
           />
         ))}
       </div>

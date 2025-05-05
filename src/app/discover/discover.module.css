@@ -16,6 +16,7 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     max-width: fit-content;
+    width: 100%;
     position: relative;
 }
 
@@ -41,7 +42,7 @@
     padding: 0 0.5rem;
     display: flex;
     align-items: center;
-    transition: color 0.2s;
+    transition: color 0.5s;
 }
 
 .orderButton:hover {
@@ -59,6 +60,24 @@
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
+    max-width: fit-content;
+    width: 100%;
+}
+
+.searchBarRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.orderFilter {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 1rem;
+    margin-right: 2.5rem; /* Añadido margen derecho para alinear con las tarjetas */
 }
 
 .searchInput {
@@ -69,7 +88,7 @@
     background: #23232b;
     color: #fff;
     font-size: 1rem;
-    max-width: 20%;
+    max-width: 100%;
 }
 
 .searchButton, .resetButton {
