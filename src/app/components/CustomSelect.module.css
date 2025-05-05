@@ -1,0 +1,86 @@
+/* Custom styles for animated select */
+.selectWrapper {
+  position: relative;
+  min-width: 220px;
+  width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  color: #fff;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin-right: 0.5rem;
+  margin-bottom: 0;
+  min-width: 60px;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 4px #000a;
+}
+
+.selectButton {
+  width: 100%;
+  background: #18181b;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem 0.5rem 1rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+  min-width: 0;
+  flex: 1;
+  margin-left: 0;
+}
+.selectButton:focus, .selectButton:hover {
+  border-color: #00b4d8;
+  box-shadow: 0 0 0 2px #00b4d833;
+}
+
+.arrow {
+  margin-left: 0.7rem;
+  font-size: 1.1em;
+  pointer-events: none;
+  color: #aaa;
+  transition: transform 0.2s;
+}
+
+.optionsList {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.2rem);
+  background: #23232b;
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #00000022;
+  z-index: 20;
+  padding: 0.3rem 0;
+  margin: 0;
+  list-style: none;
+  overflow-x: hidden;
+  min-width: 100%;
+}
+
+.option {
+  padding: 0.6rem 1.2rem;
+  color: #fff;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+.option:hover, .option:focus {
+  background: #18181b;
+}
+.selected {
+  background: #00b4d8;
+  color: #fff;
+}

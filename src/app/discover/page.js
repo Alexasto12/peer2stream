@@ -4,7 +4,9 @@ import Card from "@/app/components/card/Card";
 import { useEffect, useState, useRef, useCallback } from "react";
 import React from "react";
 import styles from "./discover.module.css";
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
+import CustomSelect from "@/app/components/CustomSelect";
+import SearchBar from "../components/SearchBar";
 
 export default function DiscoverPage() {
 
@@ -234,117 +236,117 @@ export default function DiscoverPage() {
   return (
     <div className={styles.mainDiscover}>
       {/* Minimalist centered search bar, always visible */}
-      <div className="w-full flex justify-center mt-2 mb-8 relative">
-        <div className="relative w-full max-w-xl">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchInput}
-            placeholder="Search movies or series..."
-            className="block w-full rounded-full border border-gray-700 bg-[#18181b] py-2 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            autoComplete="off"
-          />
-          {/* Sugerencias dropdown */}
-          {suggestions.length > 0 && (
-            <ul className="absolute z-10 left-0 right-0 mt-2 bg-[#23232b] border border-gray-700 rounded-lg shadow-lg"
-            >
-              {suggestions.map((item, idx) => (
-                <li
-                  key={item.id}
-                  className="px-4 py-2 cursor-pointer hover:bg-[#18181b] flex items-center gap-2"
-                  onClick={() => handleSuggestionClick(item)}
-                >
-                  <img
-                    src={item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : "/file.svg"}
-                    alt={item.title || item.name}
-                    className="w-8 h-12 object-cover rounded"
-                  />
-                  <span>{item.title || item.name}</span>
-                  <span className="ml-auto text-xs text-gray-400">{item.media_type?.toUpperCase()}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+      <SearchBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        setResults={setResults}
+        setIsSearching={setIsSearching}
+        setSearchMode={setSearchMode}
+        suggestions={suggestions}
+        setSuggestions={setSuggestions}
+        handleSuggestionClick={handleSuggestionClick}
+      />
 
-      {error && <div style={{ color: "red" }}>{error}</div>}
-
-      <form className={styles.discoverForm} onSubmit={e => e.preventDefault()}>
-        <label className={styles.discoverLabel}>
-          Type:
-          <select
+      {/* Modern minimalist filter bar */}
+      <motion.div
+        layout
+        transition={{ type: 'spring', stiffness: 70, damping: 18 }}
+        className="w-full flex flex-wrap gap-4 justify-center items-center mb-5"
+        style={{ minHeight: 80 }}
+      >
+        {/* Type selector: SIEMPRE visible */}
+        <motion.div
+          layout
+          transition={{ type: 'spring', stiffness: 70, damping: 18 }}
+          className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+        >
+          <CustomSelect
+            id="type-select"
+            label="Type"
             value={endpoint}
-            onChange={e => setEndpoint(e.target.value)}
-            className={styles.discoverSelect}
-          >
-            <option value="/trending/all/week">All</option>
-            <option value="/discover/movie">Movies</option>
-            <option value="/discover/tv">Series</option>
-          </select>
-        </label>
-        {showFilters && (
-          <>
-            {/* Género y Plataforma permanecen aquí */}
-            <label className={styles.discoverLabel}>
-              Genre:
-              <select
-                value={genre}
-                onChange={e => setGenre(e.target.value)}
-                className={styles.discoverSelect}
+            onChange={setEndpoint}
+            options={[
+              { value: "/trending/all/week", label: "All" },
+              { value: "/discover/movie", label: "Movies" },
+              { value: "/discover/tv", label: "Series" },
+            ]}
+            className="min-w-[150px]"
+          />
+        </motion.div>
+        {/* Contenedor de filtros condicionales con ancho fijo */}
+        <motion.div layout className="flex gap-4 min-h-[64px]" >
+          {showFilters && (
+            <>
+              <motion.div
+                key="genre"
+                layout
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
+                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
-                <option value="">All</option>
-                {genres.map(g => (
-                  <option key={g.id} value={g.id}>{g.name}</option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.discoverLabel}>
-              Platform:
-              <select
-                value={provider}
-                onChange={e => setProvider(e.target.value)}
-                className={styles.discoverSelect}
+                <CustomSelect
+                  id="genre-select"
+                  label="Genre"
+                  value={genre}
+                  onChange={setGenre}
+                  options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
+                  className="min-w-[120px]"
+                />
+              </motion.div>
+              <motion.div
+                key="platform"
+                layout
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
+                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
-                <option value="">All</option>
-                {providers.map(p => (
-                  <option key={p.provider_id} value={p.provider_id}>{p.provider_name}</option>
-                ))}
-              </select>
-            </label>
-          </>
-        )}
-      </form>
-
-      {/* Searchbar y filtro de ordenación en la misma línea */}
-      {showFilters && (
-        <div className="flex justify-end w-full mb-2">
-          <div className={styles.orderFilter}>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              className={styles.discoverSelect}
-              style={{ minWidth: '120px' }}
-            >
-              <option value="popularity">Popularity</option>
-              <option value="release_date">Date</option>
-              <option value="vote_average">Rating</option>
-            </select>
-            <button
-              type="button"
-              className={styles.orderButton}
-              onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
-              aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
-              style={{ fontSize: '1.2rem', padding: 0, width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: '1px solid #333', background: '#23232b' }}
-            >
-              <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.2rem' }}>▼</span>
-            </button>
-          </div>
-        </div>
-      )}
+                <CustomSelect
+                  id="platform-select"
+                  label="Platform"
+                  value={provider}
+                  onChange={setProvider}
+                  options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: p.provider_name }))]}
+                  className="min-w-[120px]"
+                />
+              </motion.div>
+              <motion.div
+                key="order"
+                layout
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
+                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+              >
+                <CustomSelect
+                  id="order-select"
+                  label="Order"
+                  value={sortBy}
+                  onChange={setSortBy}
+                  options={[
+                    { value: "popularity", label: "Popularity" },
+                    { value: "release_date", label: "Date" },
+                    { value: "vote_average", label: "Rating" },
+                  ]}
+                  className="min-w-[120px]"
+                />
+                <button
+                  type="button"
+                  className="ml-3 w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 bg-[#18181b] hover:bg-[#23232b] transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
+                  aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
+                >
+                  <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.4rem', color: '#fff' }}>▼</span>
+                </button>
+              </motion.div>
+            </>
+          )}
+        </motion.div>
+      </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-8">
         {results.filter(item => item.poster_path).map((item, idx) => (
