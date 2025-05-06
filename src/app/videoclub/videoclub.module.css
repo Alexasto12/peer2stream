@@ -1,0 +1,23 @@
+.loadingMsg {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+    margin: 2rem 0;
+}
+
+.mainVideoclub {
+    padding-left: 220px;
+    /* O el ancho real de tu sidebar */
+    padding-top: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1.2rem;
+  margin-top: 2rem;
+}
+
+/* Puedes añadir más estilos personalizados para videoclub aquí */
