@@ -5,8 +5,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import React from "react";
 import styles from "./discover.module.css";
 import { motion } from 'framer-motion';
-import CustomSelect from "@/app/components/CustomSelect";
-import SearchBar from "../components/SearchBar";
+import CustomSelect from "@/app/components/customSelect/CustomSelect";
+import SearchBar from "../components/searchBar/SearchBar";
 
 export default function DiscoverPage() {
 

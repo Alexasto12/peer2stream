@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255,255,255,0.13);
+  background: linear-gradient(180deg, rgba(136, 133, 133, 0.116) 0%, #0a0891 100%);
   border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-  padding: 1rem;
-  width: 290px;
+  box-shadow: 0 4px 16px rgba(5, 0, 71, 0.788);
+  padding: 0.8rem;
+  width: 300px;
   max-width: 100%;
 }
 
@@ -14,9 +14,9 @@
   width: 100%;
   aspect-ratio: 12/17;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 20px;
   margin-bottom: 0.7rem;
-  background: #5604da;
+  background: #0a0891;
 }
 
 .cardImage {
@@ -28,8 +28,9 @@
 }
 
 .cardImage.blurred {
-  filter: blur(6px) brightness(0.7);
-  transition: filter 0.3s;
+  filter: blur(5px) brightness(0.5);
+  scale: 1.02;
+  transition: filter 0.3s ease-in-out, scale 0.3s ease-in-out;
 }
 
 .faviconOverlay {
@@ -42,19 +43,20 @@
   align-items: center;
   justify-content: center;
   pointer-events: auto;
+
 }
 
 .faviconOverlay img {
-  width: 80px !important;
-  height: 80px !important;
-  filter: drop-shadow(0 2px 12px #460fad) brightness(1.3);
+  width: 90px !important;
+  height: 90px !important;
+  filter: drop-shadow(0 2px 4px #120fad) brightness(1.2);
   transition: transform 0.2s, filter 0.2s;
   cursor: pointer;
 }
 
 .faviconOverlay img:hover {
-  transform: scale(1.18);
-  filter: drop-shadow(0 2px 18px #3521e0) brightness(1.7);
+  transform: scale(1.3);
+  filter: contrast(1.15) brightness(1.6) drop-shadow(0 2px 2px #2706e2);
 }
 
 .cardTitle {
@@ -62,14 +64,39 @@
   min-height: 2.8em;
   max-height: 2.8em;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: #222;
+  font-weight: 700;
+  color: #ffffff;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;
+  font-family: 'Oswald', 'Montserrat', Arial, sans-serif;
+  text-shadow: 0 4px 4px #000a;
+}
+
+.cardTitleInner {
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   white-space: normal;
+}
+
+.releaseDate {
+  display: block;
+  font-size: 0.95em;
+  font-weight: 400;
+  color: #bfc6e6;
+  margin-top: 0.1em;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: clip;
+  overflow: visible;
 }

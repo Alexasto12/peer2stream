@@ -11,6 +11,7 @@ export default function Card({ id, type, image, title, release_date }) {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             style={{ position: 'relative' }}
+            title={title}
         >
             <div className={styles.imageWrapper} style={{ position: 'relative' }}>
                 <Image
@@ -28,13 +29,14 @@ export default function Card({ id, type, image, title, release_date }) {
                             alt="favicon"
                             width={64}
                             height={64}
-                            style={{ filter: 'drop-shadow(0 2px 8px #000)' }}
+                            style={{ }}
                         />
                     </div>
                 )}
             </div>
             <div className={styles.cardTitle} title={title}>
-                {title} ({release_date})
+                <div className={styles.cardTitleInner}>{title}</div>
+                <span className={styles.releaseDate}>({release_date})</span>
             </div>
         </div>
     );
