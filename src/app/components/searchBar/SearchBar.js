@@ -62,7 +62,7 @@ export default function SearchBar({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25 }}
-              className="absolute z-10 left-0 right-0 mt-2 bg-[#23232b] border border-gray-700 rounded-lg shadow-lg"
+              className="absolute z-30 left-0 right-0 mt-2 bg-[#23232b] border border-gray-700 rounded-lg shadow-lg"
             >
               {suggestions.map((item, idx) => (
                 <li
