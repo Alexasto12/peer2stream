@@ -1,36 +1,38 @@
 /* Custom styles for animated select */
 .selectWrapper {
   position: relative;
-  min-width: 220px;
-  width: 220px;
+  min-width: 280px;
+  width: auto;
+  max-width: 420px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .label {
   color: #fff;
-  font-size: 1.18rem;
+  font-size: 1.2rem;
   font-weight: 700;
   margin-right: 0.5rem;
   margin-bottom: 0;
   min-width: 60px;
   flex-shrink: 0;
   letter-spacing: 0.01em;
-  text-shadow: 0 1px 4px #000a;
+  text-shadow: 0 4px 4px rgba(0, 0, 0, 0.87);
 }
 
 .selectButton {
   width: 100%;
-  background: #18181b;
+  background: #0a1127;
   color: #fff;
-  border: 1px solid #333;
+  border: 1px solid #707070;
   border-radius: 999px;
   padding: 0.5rem 1.2rem 0.5rem 1rem;
   font-size: 1.08rem;
   font-weight: 600;
   display: flex;
   align-items: center;
+  white-space: nowrap;
   justify-content: space-between;
   cursor: pointer;
   transition: border 0.2s, box-shadow 0.2s;
@@ -40,16 +42,16 @@
   margin-left: 0;
 }
 .selectButton:focus, .selectButton:hover {
-  border-color: #00b4d8;
-  box-shadow: 0 0 0 2px #00b4d833;
+  border-color: #9b00d8;
+  box-shadow: 0 0 0 4px #d100d833;
 }
 
 .arrow {
   margin-left: 0.7rem;
   font-size: 1.1em;
   pointer-events: none;
-  color: #aaa;
-  transition: transform 0.2s;
+  color: #94719b;
+  transition: transform 0.4s;
 }
 
 .optionsList {
@@ -57,16 +59,30 @@
   left: 0;
   right: 0;
   top: calc(100% + 0.2rem);
-  background: #23232b;
+  background: #0a0a1f;
   border: 1px solid #333;
   border-radius: 12px;
   box-shadow: 0 4px 16px #00000022;
-  z-index: 20;
+  z-index: 9999;
   padding: 0.3rem 0;
   margin: 0;
   list-style: none;
   overflow-x: hidden;
   min-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #444 #23232b;
+}
+.optionsList::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+  background: transparent;
+}
+.optionsList::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 8px;
+}
+.optionsList::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .option {
@@ -74,13 +90,16 @@
   color: #fff;
   font-size: 1.05rem;
   cursor: pointer;
-  transition: background 0.18s;
+  transition: background 0.2s;
   white-space: nowrap;
 }
 .option:hover, .option:focus {
-  background: #18181b;
+  scale: 1.03;
+
+  color: #fff;
+  
 }
 .selected {
-  background: #00b4d8;
+  background: #0065d8;
   color: #fff;
 }

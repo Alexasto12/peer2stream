@@ -20,7 +20,7 @@ export default function Card({ id, type, image, title, release_date }) {
                     width={240}
                     height={340}
                     className={styles.cardImage + (hovered ? ' ' + styles.blurred : '')}
-                    priority
+                    loading="lazy"
                 />
                 {hovered && (
                     <div className={styles.faviconOverlay}>
@@ -30,6 +30,7 @@ export default function Card({ id, type, image, title, release_date }) {
                             width={64}
                             height={64}
                             style={{ }}
+                            loading="lazy"
                         />
                     </div>
                 )}

@@ -28,6 +28,17 @@ export default function DiscoverPage() {
   const [provider, setProvider] = useState("");
   const [providers, setProviders] = useState([]);
 
+  // Mapeo de motes para simplificar nombres largos de proveedores
+  const providerNicknames = {
+    "Netflix": "Netflix",
+    "Amazon Prime Video": "Prime",
+    "Disney Plus": "Disney",
+    "Crunchyroll": "Crunchyroll",
+    "Movistar Plus+": "Movistar",
+    "Max": "HBO",
+    "Apple TV+": "Apple TV"
+  };
+
   // Estado para búsqueda
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -102,9 +113,9 @@ export default function DiscoverPage() {
           "Amazon Prime Video",
           "Disney Plus",
           "Crunchyroll",
-          "Movistar Plus",
-          "HBO Max",
-          "Apple TV Plus"
+          "Movistar Plus+",
+          "Max",
+          "Apple TV+"
         ];
         const filtered = (data.results || []).filter(p =>
           allowedProviders.includes(p.provider_name)
@@ -258,7 +269,7 @@ export default function DiscoverPage() {
         <motion.div
           layout
           transition={{ type: 'spring', stiffness: 70, damping: 18 }}
-          className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+          className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
         >
           <CustomSelect
             id="type-select"
@@ -284,7 +295,7 @@ export default function DiscoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
-                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
                 <CustomSelect
                   id="genre-select"
@@ -302,14 +313,14 @@ export default function DiscoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
-                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
                 <CustomSelect
                   id="platform-select"
                   label="Platform"
                   value={provider}
                   onChange={setProvider}
-                  options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: p.provider_name }))]}
+                  options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
                   className="min-w-[120px]"
                 />
               </motion.div>
@@ -320,7 +331,7 @@ export default function DiscoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
-                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
                 <CustomSelect
                   id="order-select"
