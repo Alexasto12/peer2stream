@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Card from "@/app/components/card/Card";
+import CustomSelect from "../components/customSelect/CustomSelect";
 import styles from "./videoclub.module.css";
 
 export default function VideoclubPage() {
@@ -10,11 +11,34 @@ export default function VideoclubPage() {
   const [cards, setCards] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
   const [movieMeta, setMovieMeta] = useState([]); // Nuevo estado para títulos y fechas
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("title"); // "title" o "date"
 
   const dateYear = function (date) {
     let year = new Date(date)
     return year.getFullYear()
   }
+
+  // Opciones para el select
+  const sortOptions = [
+    { value: "title", label: "Título" },
+    { value: "date", label: "Fecha" }
+  ];
+
+  // Filtrar y ordenar movieMeta (solo por título)
+  const filteredMeta = movieMeta
+    .filter(item => item.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sort === "title") {
+        return a.title.localeCompare(b.title);
+      } else if (sort === "date") {
+        return (b.date || "").localeCompare(a.date || "");
+      }
+      return 0;
+    });
+
+  // Obtener las cards filtradas/ordenadas
+  const filteredCards = filteredMeta.map(meta => cards.find(card => card.id === meta.id)).filter(Boolean);
 
   useEffect(() => {
     // Llamar a la API sin Authorization, la cookie se recoge en el backend
@@ -94,13 +118,23 @@ export default function VideoclubPage() {
 
   return (
     <div className={styles.mainVideoclub}>
-      <h1>Videoclub</h1>
-      <p>Aquí puedes ver y gestionar tu colección de contenidos.</p>
+      <h1 className={styles.title}>Videoclub</h1>
+      <p className={styles.subtitle}>Aquí puedes ver y gestionar tu colección de contenidos.</p>
+      <div className={styles.controls}>
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar por título..."
+          className={styles.searchBar}
+        />
+        <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
+      </div>
       {loadingCards ? (
         <div className={styles.loadingMsg}>Cargando tus favoritos...</div>
       ) : (
         <div className={styles.cardsGrid}>
-          {cards.map((item, idx) => (
+          {filteredCards.map((item, idx) => (
             <Card
               key={item.id || idx}
               id={item.id}

@@ -14,10 +14,59 @@
 }
 
 .cardsGrid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1.2rem;
-  margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1.2rem;
+    margin-top: 2rem;
 }
 
 /* Puedes añadir más estilos personalizados para videoclub aquí */
+
+.searchBar {
+    padding: 0.5rem 1.2rem 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #707070;
+    font-size: 1.08rem;
+    font-weight: 600;
+    background: #0a1127;
+    color: #fff;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    min-width: 320px;
+    height: 40px;
+}
+
+.searchBar:focus, .searchBar:hover {
+    border-color: #9b00d8;
+    box-shadow: 0 0 0 4px #d100d833;
+}
+
+.controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 420px;
+}
+
+.title {
+    text-align: center;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+}
+
+.subtitle {
+    text-align: center;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: #bdbdbd;
+    margin-bottom: 2rem;
+    letter-spacing: 0.01em;
+}
