@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./Card.module.css";
 
-export default function Card({ id, type, image, title, release_date }) {
+export default function Card({ id, type, image, title, release_date, onFaviconClick }) {
     const [hovered, setHovered] = useState(false);
 
     return (
@@ -23,7 +23,7 @@ export default function Card({ id, type, image, title, release_date }) {
                     loading="lazy"
                 />
                 {hovered && (
-                    <div className={styles.faviconOverlay}>
+                    <div className={styles.faviconOverlay} onClick={e => { e.stopPropagation(); onFaviconClick && onFaviconClick({ id, type }); }} style={{ cursor: 'pointer' }}>
                         <Image
                             src="/favicon.ico"
                             alt="favicon"
