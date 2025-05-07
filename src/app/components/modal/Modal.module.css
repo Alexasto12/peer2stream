@@ -1,8 +1,8 @@
 .modalBackdrop {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(10,10,20,0.7);
-  backdrop-filter: blur(6px);
+  background: rgba(20, 40, 120, 0.38); /* Azul más fuerte y más transparente */
+  backdrop-filter: blur(12px);
   z-index: 1000;
   display: flex; align-items: center; justify-content: center;
 }
@@ -23,22 +23,24 @@
 .modalContentLarge {
   display: flex;
   flex-direction: row;
-  background: rgba(24,24,27,0.97);
-  border-radius: 24px;
+  background: linear-gradient(120deg, rgba(10,18,38,0.96) 0%, rgba(18,28,58,0.93) 100%);
+  border-radius: 28px;
   overflow: hidden;
-  max-width: 1400px;
-  width: 98vw;
-  min-height: 700px;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  max-width: 1550px;
+  width: 99vw;
+  min-height: 820px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55);
   position: relative;
+  font-family: 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
+  font-size: 1.32rem;
 }
 
 .modalPoster {
   position: relative;
-  min-width: 420px;
+  min-width: 400px;
   max-width: 520px;
   width: 36vw;
-  height: 700px;
+  height: 820px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,23 +69,26 @@
 }
 
 .modalInfo {
-  flex: 1;
-  padding: 48px 38px 32px 38px;
-  color: #fff;
+  flex: 2;
+  padding: 28px 18px 24px 18px;
+  color: #f5f7fa;
+  text-shadow: 0 2px 8px #000a;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   position: relative;
-  font-size: 1.18rem;
-  gap: 0.7em;
+  font-size: 1.32rem;
+  gap: 1.6em;
+  max-width: 1600px;
+  font-family: 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
 }
 
 .modalAside {
   width: 260px;
-  min-width: 200px;
-  background: rgba(30,30,40,0.92);
-  border-left: 1.5px solid #23232b;
-  padding: 36px 18px 24px 18px;
+  min-width: 180px;
+  background: rgba(30,50,120,0.82);
+  border-left: 2px solid #1a2a4a;
+  padding: 32px 18px 24px 18px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -92,10 +97,11 @@
 }
 
 .platformTitle {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   margin-bottom: 10px;
-  color: #fff;
+  color: #ffe7c7;
+  letter-spacing: 0.02em;
 }
 
 .platformList {
@@ -154,48 +160,116 @@
 
 .modalTitle {
   font-size: 2.7rem;
-  font-weight: 800;
-  margin-bottom: 0.1em;
-  letter-spacing: 0.5px;
+  font-weight: 900;
+  margin-bottom: 0.18em;
+  letter-spacing: 1.2px;
+  color: #ffe082;
+  text-shadow: 0 6px 24px #000e, 0 2px 0 #222b;
+  line-height: 1.1;
+  text-align: left;
 }
 
 .modalTagline {
-  font-size: 1.25rem;
-  color: #b3b3b3;
+  font-size: 1.55rem;
+  color: #ffb74d;
   font-style: italic;
+  margin-bottom: 0.7em;
+  font-weight: 700;
+  text-shadow: 0 3px 12px #000a;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.directorUnderTitle {
+  font-size: 1.18rem;
+  color: #ffe7c7;
+  font-weight: 500;
   margin-bottom: 0.5em;
+  margin-top: -0.4em;
+  text-shadow: 0 2px 8px #000a;
+  opacity: 0.85;
+  text-align: left;
 }
 
 .modalGenres {
-  font-size: 1.08rem;
-  color: #a0a0a0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
   margin-bottom: 0.5em;
+  font-weight: 500;
+  font-size: 1.18rem;
+}
+
+.genreBadge {
+  background: linear-gradient(90deg, #232c4a 0%, #3a4a6a 100%);
+  color: #ffe082;
+  border-radius: 999px;
+  padding: 0.18em 0.95em;
+  font-size: 1.13em;
+  font-weight: 700;
+  box-shadow: 0 2px 8px #0005;
+  letter-spacing: 0.01em;
+  border: 1.5px solid #2a375a;
+  text-shadow: 0 1px 4px #000a;
 }
 
 .modalMeta {
-  font-size: 1.13rem;
-  color: #e0e0e0;
+  font-size: 1.22rem;
+  color: #ffe7c7;
   display: flex;
-  gap: 2em;
-  margin-bottom: 1.2em;
-  font-weight: 500;
+  gap: 1.5em;
+  margin-bottom: 0.7em;
+  font-weight: 600;
 }
 
 .modalOverview {
-  font-size: 1.18rem;
-  color: #eaeaea;
+  background: none;
+  color: #e3e7ef;
+  font-size: 1.48rem;
   line-height: 1.7;
   margin-bottom: 1.2em;
-  max-width: 700px;
+  max-width: 100%;
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: 0 2px 8px #000a;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  font-family: 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.overviewLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7em;
+  font-size: 1.28rem;
+  color: #e3e7ef;
+  text-shadow: 0 2px 8px #000a;
+}
+
+.directorLabel {
+  color: #ffb74d;
+  font-weight: 700;
+  margin-right: 0.5em;
+  text-shadow: 0 2px 8px #000a;
+}
+
+.directorName {
+  color: #fffde7;
+  font-weight: 600;
+  text-shadow: 0 2px 8px #000a;
 }
 
 .addFavBtn {
-  margin-top: 28px;
+  margin-top: 24px;
   padding: 8px 18px;
   background: linear-gradient(90deg, #140e9a 0%, #00e0a0 100%);
   color: #fff;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -208,18 +282,17 @@
 }
 
 .addedBtn {
-  margin-top: 28px;
+  margin-top: 24px;
   padding: 8px 18px;
   background: #ffdddd;
   color: #b00020;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   border: 1.5px solid #b00020;
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 2px 12px rgba(176,0,32,0.10);
   opacity: 1;
-  /* pointer-events: none; */
   transition: background 0.2s, color 0.2s, border 0.2s;
 }
 .addedBtn:hover {

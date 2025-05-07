@@ -2,6 +2,28 @@ import React, { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Utilidad para obtener el director desde los créditos de TMDB
+async function fetchDirector(data) {
+  if (!data) return null;
+  let tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || "TU_API_KEY";
+  let url = null;
+  if (data.media_type === "tv" || data.number_of_seasons) {
+    url = `https://api.themoviedb.org/3/tv/${data.id}/credits?api_key=${tmdbApiKey}`;
+  } else {
+    url = `https://api.themoviedb.org/3/movie/${data.id}/credits?api_key=${tmdbApiKey}`;
+  }
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const credits = await res.json();
+    if (credits.crew) {
+      const director = credits.crew.find(c => c.job === "Director");
+      return director ? director.name : null;
+    }
+  } catch {}
+  return null;
+}
+
 function getPlatformList(data) {
   // TMDB: data['watch/providers'] suele estar en data['watch/providers'] o data['watch_providers']
   // Pero en la API de detalle, hay que hacer otra petición a /movie/{id}/watch/providers
@@ -33,19 +55,39 @@ function getPlatformList(data) {
 export default function Modal({ open, onClose, data }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [isAdded, setIsAdded] = useState(null); // null = cargando, true/false = resuelto
+  const [externalId, setExternalId] = useState(null);
+  const [director, setDirector] = useState(null);
 
   useEffect(() => {
-    async function checkAuth() {
+    async function fetchExternalId() {
+      if (!data) return null;
+      if (data.imdb_id) return data.imdb_id;
+      if (data.media_type === "tv" || data.number_of_seasons) {
+        try {
+          const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || "TU_API_KEY";
+          const res = await fetch(`https://api.themoviedb.org/3/tv/${data.id}/external_ids?api_key=${tmdbApiKey}`);
+          if (res.ok) {
+            const ext = await res.json();
+            return ext.imdb_id;
+          }
+        } catch {}
+      }
+      return null;
+    }
+
+    async function checkAuthAndFavourite() {
+      setIsAdded(null);
+      setExternalId(null);
       try {
         const res = await fetch("/api/auth/me");
         setIsAuthenticated(res.ok);
       } catch {
         setIsAuthenticated(false);
       }
-    }
-    async function checkFavourite() {
-      if (!open || !data?.imdb_id) {
-        setIsAdded(null);
+      const extId = await fetchExternalId();
+      setExternalId(extId);
+      if (!open || !extId) {
+        setIsAdded(false);
         return;
       }
       try {
@@ -56,14 +98,14 @@ export default function Modal({ open, onClose, data }) {
         }
         const favs = await res.json();
         let favList = Array.isArray(favs.favourites) ? favs.favourites : (favs.favourites?.content || []);
-        setIsAdded(favList.some(f => f.external_id === data.imdb_id));
+        setIsAdded(favList.some(f => f.external_id === extId));
       } catch {
         setIsAdded(false);
       }
     }
-    if (open) {
-      checkAuth();
-      checkFavourite();
+    if (open && data) {
+      checkAuthAndFavourite();
+      fetchDirector(data).then(setDirector);
     }
   }, [open, data]);
 
@@ -72,21 +114,6 @@ export default function Modal({ open, onClose, data }) {
       e.preventDefault();
       alert("Debes registrarte o iniciar sesión para añadir a tu videoclub.");
       return;
-    }
-    let externalId = data?.imdb_id;
-    // Si es una serie y no hay imdb_id, buscarlo en TMDB
-    if (!externalId && (data?.media_type === "tv" || data?.number_of_seasons)) {
-      try {
-        // Reemplaza 'TU_API_KEY' por tu clave real o usa una variable de entorno/configuración
-        const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY ;
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${data.id}/external_ids?api_key=${tmdbApiKey}`);
-        if (res.ok) {
-          const ext = await res.json();
-          externalId = ext.imdb_id;
-        }
-      } catch {
-        // Si falla, externalId seguirá siendo undefined
-      }
     }
     if (!externalId) {
       alert("No se pudo obtener el IMDb ID del contenido.");
@@ -101,9 +128,8 @@ export default function Modal({ open, onClose, data }) {
     })
       .then(res => {
         if (res.ok) {
-          setIsAdded(true); // Cambia el estado antes del alert
+          setIsAdded(true);
           alert("Añadido a favoritos");
-          // Enviar notificación
           fetch("/api/user/notifications", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -126,17 +152,6 @@ export default function Modal({ open, onClose, data }) {
       alert("Debes registrarte o iniciar sesión para eliminar de tu videoclub.");
       return;
     }
-    let externalId = data?.imdb_id;
-    if (!externalId && (data?.media_type === "tv" || data?.number_of_seasons)) {
-      try {
-        const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || "TU_API_KEY";
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${data.id}/external_ids?api_key=${tmdbApiKey}`);
-        if (res.ok) {
-          const ext = await res.json();
-          externalId = ext.imdb_id;
-        }
-      } catch {}
-    }
     if (!externalId) {
       alert("No se pudo obtener el IMDb ID del contenido.");
       return;
@@ -152,7 +167,6 @@ export default function Modal({ open, onClose, data }) {
         if (res.ok) {
           setIsAdded(false);
           alert("Eliminado de tu videoclub");
-          // Notificación de eliminado
           fetch("/api/user/notifications", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -205,14 +219,28 @@ export default function Modal({ open, onClose, data }) {
               <button className={styles.modalClose} onClick={onClose}>×</button>
               <h2 className={styles.modalTitle}>{data?.title || data?.name}</h2>
               {data?.tagline && <div className={styles.modalTagline}>{data.tagline}</div>}
-              <div className={styles.modalGenres}>{data?.genres ? data.genres.map(g => g.name).join(", ") : ""}</div>
+              <div className={styles.modalGenres}>
+                {data?.genres && data.genres.map(g => (
+                  <span key={g.id} className={styles.genreBadge}>{g.name}</span>
+                ))}
+              </div>
               <div className={styles.modalMeta}>
                 <span>⭐ {data?.vote_average?.toFixed(1)}</span>
                 {data?.runtime && <span>⏱ {data.runtime} min</span>}
                 {data?.release_date && <span>📅 {data.release_date}</span>}
                 {data?.number_of_seasons && <span>📺 {data.number_of_seasons} temporadas</span>}
               </div>
-              <p className={styles.modalOverview}>{data?.overview}</p>
+              <div className={styles.modalOverview}>
+                {director && (
+                  <div className={styles.overviewLine}>
+                    <span className={styles.directorLabel}>Director:</span>
+                    <span className={styles.directorName}>{director}</span>
+                  </div>
+                )}
+                {data?.overview && data.overview.split('. ').map((line, i) => (
+                  <div key={i} className={styles.overviewLine}>{line.trim()}{line.endsWith('.') ? '' : '.'}</div>
+                ))}
+              </div>
               {/* Solo mostrar el botón si isAdded no es null (ya se comprobó) */}
               {isAdded !== null && (
                 <button
