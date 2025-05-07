@@ -123,6 +123,21 @@ export default function VideoclubPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ add: [], remove: toRemove })
     });
+
+    // Enviar notificación por cada eliminado
+    toRemove.forEach(({ external_id }) => {
+      // Busca el título en cards o movieMeta
+      const meta = movieMeta.find(m => m.external_id === external_id);
+      const title = meta?.title || "Contenido";
+      fetch("/api/user/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: `${title} has been removed from tu videoclub` })
+      }).then(() => {
+        window.dispatchEvent(new Event('notificationUpdate'));
+      });
+    });
+
     setSelectedIds([]);
     fetchFavourites(); // Refresca favoritos y, por efecto, cards y movieMeta
   };
