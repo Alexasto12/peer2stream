@@ -61,14 +61,27 @@ export default function Modal({ open, onClose, data }) {
     }
   }, [open, data]);
 
-  function handleAddClick(e) {
+  async function handleAddClick(e) {
     if (!isAuthenticated) {
       e.preventDefault();
       alert("Debes registrarte o iniciar sesión para añadir a tu videoclub.");
       return;
     }
-    // Obtener el externalId de IMDb
-    const externalId = data?.imdb_id;
+    let externalId = data?.imdb_id;
+    // Si es una serie y no hay imdb_id, buscarlo en TMDB
+    if (!externalId && (data?.media_type === "tv" || data?.number_of_seasons)) {
+      try {
+        // Reemplaza 'TU_API_KEY' por tu clave real o usa una variable de entorno/configuración
+        const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY ;
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${data.id}/external_ids?api_key=${tmdbApiKey}`);
+        if (res.ok) {
+          const ext = await res.json();
+          externalId = ext.imdb_id;
+        }
+      } catch {
+        // Si falla, externalId seguirá siendo undefined
+      }
+    }
     if (!externalId) {
       alert("No se pudo obtener el IMDb ID del contenido.");
       return;
@@ -89,6 +102,8 @@ export default function Modal({ open, onClose, data }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: `${data.title || data.name} has been added to your videoclub` })
+          }).then(() => {
+            window.dispatchEvent(new Event('notificationUpdate'));
           });
         } else {
           alert("Error al añadir a favoritos");
