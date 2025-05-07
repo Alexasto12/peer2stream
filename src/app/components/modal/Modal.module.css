@@ -210,17 +210,22 @@
 .addedBtn {
   margin-top: 28px;
   padding: 8px 18px;
-  background: #e0e0e0;
-  color: #222;
+  background: #ffdddd;
+  color: #b00020;
   font-size: 1rem;
   font-weight: 600;
-  border: none;
+  border: 1.5px solid #b00020;
   border-radius: 8px;
-  cursor: not-allowed;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-  opacity: 0.85;
-  pointer-events: none;
-  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(176,0,32,0.10);
+  opacity: 1;
+  /* pointer-events: none; */
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.addedBtn:hover {
+  background: #ffbdbd;
+  color: #fff;
+  border: 1.5px solid #ff1744;
 }
 
 .disabledBtn {

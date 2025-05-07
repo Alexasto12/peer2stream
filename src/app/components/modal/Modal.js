@@ -32,7 +32,7 @@ function getPlatformList(data) {
 
 export default function Modal({ open, onClose, data }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [isAdded, setIsAdded] = useState(false);
+  const [isAdded, setIsAdded] = useState(null); // null = cargando, true/false = resuelto
 
   useEffect(() => {
     async function checkAuth() {
@@ -44,10 +44,16 @@ export default function Modal({ open, onClose, data }) {
       }
     }
     async function checkFavourite() {
-      if (!open || !data?.imdb_id) return;
+      if (!open || !data?.imdb_id) {
+        setIsAdded(null);
+        return;
+      }
       try {
         const res = await fetch("/api/user/favourites/getFavourites/");
-        if (!res.ok) return;
+        if (!res.ok) {
+          setIsAdded(false);
+          return;
+        }
         const favs = await res.json();
         let favList = Array.isArray(favs.favourites) ? favs.favourites : (favs.favourites?.content || []);
         setIsAdded(favList.some(f => f.external_id === data.imdb_id));
@@ -114,6 +120,55 @@ export default function Modal({ open, onClose, data }) {
       });
   }
 
+  async function handleRemoveClick(e) {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      alert("Debes registrarte o iniciar sesión para eliminar de tu videoclub.");
+      return;
+    }
+    let externalId = data?.imdb_id;
+    if (!externalId && (data?.media_type === "tv" || data?.number_of_seasons)) {
+      try {
+        const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || "TU_API_KEY";
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${data.id}/external_ids?api_key=${tmdbApiKey}`);
+        if (res.ok) {
+          const ext = await res.json();
+          externalId = ext.imdb_id;
+        }
+      } catch {}
+    }
+    if (!externalId) {
+      alert("No se pudo obtener el IMDb ID del contenido.");
+      return;
+    }
+    fetch("/api/user/favourites/updateFavourites/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ remove: [{ external_id: externalId }] }),
+    })
+      .then(res => {
+        if (res.ok) {
+          setIsAdded(false);
+          alert("Eliminado de tu videoclub");
+          // Notificación de eliminado
+          fetch("/api/user/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: `${data.title || data.name} has been removed from My Videoclub` })
+          }).then(() => {
+            window.dispatchEvent(new Event('notificationUpdate'));
+          });
+        } else {
+          alert("Error al eliminar de favoritos");
+        }
+      })
+      .catch(() => {
+        alert("Error de red al eliminar de favoritos");
+      });
+  }
+
   return (
     <AnimatePresence>
       {open && (
@@ -158,17 +213,23 @@ export default function Modal({ open, onClose, data }) {
                 {data?.number_of_seasons && <span>📺 {data.number_of_seasons} temporadas</span>}
               </div>
               <p className={styles.modalOverview}>{data?.overview}</p>
-              <button
-                className={
-                  (isAdded ? styles.addedBtn : styles.addFavBtn) +
-                  (isAuthenticated === false ? ' ' + styles.disabledBtn : '')
-                }
-                title="Add to videoclub"
-                onClick={handleAddClick}
-                disabled={isAdded}
-              >
-                {isAdded ? "Added" : "Add"}
-              </button>
+              {/* Solo mostrar el botón si isAdded no es null (ya se comprobó) */}
+              {isAdded !== null && (
+                <button
+                  className={
+                    (isAdded ? styles.addedBtn : styles.addFavBtn) +
+                    (isAuthenticated === false ? ' ' + styles.disabledBtn : '')
+                  }
+                  title={isAdded ? "Remove from My Videoclub" : "Add to videoclub"}
+                  onClick={isAdded ? handleRemoveClick : handleAddClick}
+                  disabled={isAuthenticated === false}
+                >
+                  {isAdded ? "Remove from My Videoclub" : "Add"}
+                </button>
+              )}
+              {isAdded === null && (
+                <div style={{marginTop: 28, color: '#aaa'}}>Cargando estado...</div>
+              )}
               {isAuthenticated === false && (
                 <div className={styles.authWarningMsg}>
                   You must register or log in to add to your videoclub.
