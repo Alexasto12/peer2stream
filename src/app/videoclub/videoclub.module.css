@@ -70,3 +70,34 @@
     margin-bottom: 2rem;
     letter-spacing: 0.01em;
 }
+
+.cardWrapper {
+    cursor: pointer;
+    border-radius: 16px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.selectedCard {
+    background: #2d1a3a;
+    box-shadow: 0 0 0 2px #9b00d8;
+}
+
+.deleteBtn {
+    position: absolute;
+    right: 3em;
+    margin: 1.5rem auto 0 auto;
+    display: block;
+    background: #d100d8;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.7rem 2.2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.deleteBtn:hover {
+    background: #a000a0;
+}

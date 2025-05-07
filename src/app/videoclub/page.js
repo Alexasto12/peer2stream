@@ -13,11 +13,21 @@ export default function VideoclubPage() {
   const [movieMeta, setMovieMeta] = useState([]); // Nuevo estado para títulos y fechas
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("title"); // "title" o "date"
+  const [selectedIds, setSelectedIds] = useState([]); // selector de card para eliminarlas
 
   const dateYear = function (date) {
     let year = new Date(date)
     return year.getFullYear()
   }
+
+  // funcion para alternas la seleccion
+  const toggleSelect = (external_id) => {
+    setSelectedIds(prev =>
+      prev.includes(external_id)
+        ? prev.filter(id => id !== external_id)
+        : [...prev, external_id]
+    );
+  };
 
   // Opciones para el select
   const sortOptions = [
@@ -88,7 +98,10 @@ export default function VideoclubPage() {
             }
           });
       });
-      const results = (await Promise.all(promises)).filter(Boolean);
+      const results = (await Promise.all(promises)).filter(Boolean).map((item, idx) => ({
+        ...item,
+        external_id: favourites[idx].external_id
+      }));
       setCards(results);
       // Crear array auxiliar con título y fecha
       const meta = results.map(item => ({
@@ -102,6 +115,56 @@ export default function VideoclubPage() {
     };
     fetchAll();
   }, [favourites]);
+
+  // funcion para eliminar los seleccionados
+  const handleDeleteSelected = async () => {
+
+    console.log(cards)
+    
+    const toRemove = selectedIds.map(external_id => ({ external_id }));
+
+      console.log({
+        add: [],
+        remove: toRemove
+      });
+
+    await fetch("/api/user/favourites/updateFavourites/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ add: [], remove: toRemove })
+    });
+    
+    setSelectedIds([]);
+    fetchFavourites();
+  };
+
+  const fetchFavourites = () => {
+    fetch("/api/user/favourites/getFavourites/")
+      .then(res => {
+        if (res.status === 401) {
+          setIsLogged(false);
+          return null;
+        }
+        setIsLogged(true);
+        return res.json();
+      })
+      .then(data => {
+        let favs = [];
+        if (data && data.favourites) {
+          if (Array.isArray(data.favourites)) {
+            favs = data.favourites;
+          } else if (Array.isArray(data.favourites.content)) {
+            favs = data.favourites.content;
+          }
+        }
+        setFavourites(favs);
+      })
+      .catch(() => setFavourites([]));
+  };
+
+  useEffect(() => {
+    console.log("selectedIds changed:", selectedIds);
+  }, [selectedIds]);
 
   if (isLogged === null) {
     return <main style={{ paddingLeft: "220px", padding: "2rem" }}><p>Cargando...</p></main>;
@@ -129,20 +192,35 @@ export default function VideoclubPage() {
           className={styles.searchBar}
         />
         <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
+
+        {selectedIds.length > 0 && (
+          <button
+            className={styles.deleteBtn}
+            onClick={handleDeleteSelected}
+          >
+            Borrar seleccionados
+          </button>
+        )}
+
       </div>
       {loadingCards ? (
         <div className={styles.loadingMsg}>Cargando tus favoritos...</div>
       ) : (
         <div className={styles.cardsGrid}>
-          {filteredCards.map((item, idx) => (
-            <Card
-              key={item.id || idx}
-              id={item.id}
-              type={item.title ? "movie" : "tv"}
-              image={item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : "/file.svg"}
-              title={item.title || item.name}
-              release_date={dateYear(item.release_date) || dateYear(item.first_air_date)}
-            />
+          {cards.map(card => (
+            <div
+              key={card.external_id}
+              className={`${styles.cardWrapper} ${selectedIds.includes(card.external_id) ? styles.selectedCard : ""}`}
+              onClick={() => toggleSelect(card.external_id)}
+            >
+              <Card
+                id={card.id}
+                type={card.title ? "movie" : "tv"}
+                image={card.poster_path ? `https://image.tmdb.org/t/p/w500${card.poster_path}` : "/file.svg"}
+                title={card.title || card.name}
+                release_date={dateYear(card.release_date) || dateYear(card.first_air_date)}
+              />
+            </div>
           ))}
         </div>
       )}
