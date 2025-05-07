@@ -32,6 +32,7 @@ function getPlatformList(data) {
 
 export default function Modal({ open, onClose, data }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -42,14 +43,60 @@ export default function Modal({ open, onClose, data }) {
         setIsAuthenticated(false);
       }
     }
-    if (open) checkAuth();
-  }, [open]);
+    async function checkFavourite() {
+      if (!open || !data?.imdb_id) return;
+      try {
+        const res = await fetch("/api/user/favourites/getFavourites/");
+        if (!res.ok) return;
+        const favs = await res.json();
+        let favList = Array.isArray(favs.favourites) ? favs.favourites : (favs.favourites?.content || []);
+        setIsAdded(favList.some(f => f.external_id === data.imdb_id));
+      } catch {
+        setIsAdded(false);
+      }
+    }
+    if (open) {
+      checkAuth();
+      checkFavourite();
+    }
+  }, [open, data]);
 
   function handleAddClick(e) {
     if (!isAuthenticated) {
       e.preventDefault();
       alert("Debes registrarte o iniciar sesión para añadir a tu videoclub.");
+      return;
     }
+    // Obtener el externalId de IMDb
+    const externalId = data?.imdb_id;
+    if (!externalId) {
+      alert("No se pudo obtener el IMDb ID del contenido.");
+      return;
+    }
+    fetch("/api/user/favourites/updateFavourites/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ add: [{ external_id: externalId }] }),
+    })
+      .then(res => {
+        if (res.ok) {
+          setIsAdded(true); // Cambia el estado antes del alert
+          alert("Añadido a favoritos");
+          // Enviar notificación
+          fetch("/api/user/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: `${data.title || data.name} has been added to your videoclub` })
+          });
+        } else {
+          alert("Error al añadir a favoritos");
+        }
+      })
+      .catch(() => {
+        alert("Error de red al añadir a favoritos");
+      });
   }
 
   return (
@@ -97,17 +144,15 @@ export default function Modal({ open, onClose, data }) {
               </div>
               <p className={styles.modalOverview}>{data?.overview}</p>
               <button
-                className={styles.addFavBtn + (isAuthenticated === false ? ' ' + styles.disabledBtn : '')}
+                className={
+                  (isAdded ? styles.addedBtn : styles.addFavBtn) +
+                  (isAuthenticated === false ? ' ' + styles.disabledBtn : '')
+                }
                 title="Add to videoclub"
-                onClick={e => {
-                  if (isAuthenticated === false) {
-                    e.preventDefault();
-                  } else {
-                    handleAddClick(e);
-                  }
-                }}
+                onClick={handleAddClick}
+                disabled={isAdded}
               >
-                Add
+                {isAdded ? "Added" : "Add"}
               </button>
               {isAuthenticated === false && (
                 <div className={styles.authWarningMsg}>
