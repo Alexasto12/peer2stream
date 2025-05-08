@@ -24,6 +24,9 @@ export default function LoginPage() {
   const [regSuccess, setRegSuccess] = useState("");
   const [regCaptcha, setRegCaptcha] = useState("");
   const [regLoading, setRegLoading] = useState(false);
+  // Pregunta anti-bot aleatoria
+  const [captchaQuestion, setCaptchaQuestion] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
 
   // Validation state
   const [regUsernameError, setRegUsernameError] = useState("");
@@ -47,6 +50,29 @@ export default function LoginPage() {
   const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\?]{6,32}$/;
 
   const router = useRouter();
+
+  // Generar pregunta anti-bot aleatoria
+  const generateCaptcha = () => {
+    const ops = [
+      { op: "+", fn: (a, b) => a + b },
+      { op: "-", fn: (a, b) => a - b }
+    ];
+    const a = Math.floor(Math.random() * 8) + 2; // 2-9
+    const b = Math.floor(Math.random() * 8) + 1; // 1-8
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    let q = `What is ${a} ${op.op} ${b}? (anti-bot)`;
+    let ans = op.fn(a, b).toString();
+    setCaptchaQuestion(q);
+    setCaptchaAnswer(ans);
+    setRegCaptcha("");
+    setRegCaptchaError("");
+  };
+
+  // Mostrar nueva pregunta cada vez que se abre el modal
+  React.useEffect(() => {
+    if (showRegister) generateCaptcha();
+    // eslint-disable-next-line
+  }, [showRegister]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +114,7 @@ export default function LoginPage() {
       setRegError("Passwords do not match");
       return;
     }
-    if (regCaptcha.trim() !== "5") {
+    if (regCaptcha.trim() !== captchaAnswer) {
       setRegError("Captcha answer is incorrect");
       return;
     }
@@ -103,6 +129,7 @@ export default function LoginPage() {
       if (res.ok) {
         setRegSuccess("Registration successful! You can now log in.");
         setRegUsername(""); setRegEmail(""); setRegPassword(""); setRegRepeatPassword(""); setRegCaptcha("");
+        generateCaptcha();
       } else {
         setRegError(data.error || "Registration failed");
       }
@@ -158,7 +185,7 @@ export default function LoginPage() {
   };
   const handleCaptchaChange = (e) => {
     setRegCaptcha(e.target.value);
-    if (e.target.value.trim() !== "5") {
+    if (e.target.value.trim() !== captchaAnswer) {
       setRegCaptchaError("Captcha answer is incorrect");
     } else {
       setRegCaptchaError("");
@@ -245,7 +272,7 @@ export default function LoginPage() {
             <div className={styles.crystalErrorFixed}>{regRepeatPasswordError || '\u00A0'}</div>
           </div>
           <div className={styles.crystalFormGroup}>
-            <label>What is 2 + 3? (anti-bot)</label>
+            <label>{captchaQuestion || "What is 2 + 3? (anti-bot)"}</label>
             <input type="text" value={regCaptcha} onChange={handleCaptchaChange} required />
             <div className={styles.crystalErrorFixed}>{regCaptchaError || '\u00A0'}</div>
           </div>
