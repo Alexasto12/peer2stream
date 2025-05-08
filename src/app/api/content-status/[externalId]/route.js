@@ -9,7 +9,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // GET: Obtener un registro específico
 export async function GET(request, { params }) {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
+    const getCookie = await cookies();
+    const token = getCookie.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     let decoded;
     try {
@@ -26,7 +27,8 @@ export async function GET(request, { params }) {
 // PATCH: Actualizar un registro específico
 export async function PATCH(request, { params }) {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
+    const patchCookie = await cookies();
+    const token = patchCookie.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     let decoded;
     try {
@@ -53,7 +55,8 @@ export async function PATCH(request, { params }) {
 // DELETE: Eliminar un registro específico
 export async function DELETE(request, { params }) {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
+    const deleteCookie = await cookies();
+    const token = deleteCookie.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     let decoded;
     try {
