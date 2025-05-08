@@ -1,0 +1,21 @@
+.main {
+    padding-left: 220px;
+    /* O el ancho real de tu sidebar */
+    padding-top: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.section {
+    margin-bottom: 0.5em;
+    box-shadow: 0 4px 24px 0 #00000055;
+    border-radius: 18px;
+    padding: 5px;
+    transition: box-shadow 0.2s;
+}
