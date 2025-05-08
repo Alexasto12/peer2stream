@@ -11,13 +11,13 @@ export async function POST(req) {
   await connectToDatabase();
   const { email } = await req.json();
   if (!email) {
-    return NextResponse.json({ error: 'Email requerido' }, { status: 400 });
+    return NextResponse.json({ error: 'Email required' }, { status: 400 });
   }
 
   const user = await User.findOne({ email });
   if (!user) {
-    // Por seguridad, no revelar si el email existe o no
-    return NextResponse.json({ message: 'Si el email existe, se ha enviado un enlace de recuperación' });
+    // For security, do not reveal if the email exists or not
+    return NextResponse.json({ message: 'If the email exists, a recovery link has been sent' });
   }
 
   // Generar token JWT con expiración corta

@@ -15,12 +15,12 @@ export async function POST(req) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }
 
     const token = jwt.sign(
@@ -40,12 +40,12 @@ export async function POST(req) {
       maxAge: 60 * 60 * 24, // 1 día
     });
 
-    const res = NextResponse.json({ message: 'Login exitoso' });
+    const res = NextResponse.json({ message: 'Login successful' });
     res.headers.set('Set-Cookie', cookie);
     return res;
 
   } catch (error) {
     console.error('Login error:', error);
-    return NextResponse.json({ error: 'Error en el servidor' }, { status: 500 });
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
