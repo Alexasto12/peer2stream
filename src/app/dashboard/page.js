@@ -2,9 +2,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Dashboard.module.css";
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
@@ -21,98 +18,41 @@ export default function DashboardPage() {
   const [userMsgType, setUserMsgType] = useState(null); // 'success' | 'error'
   const [settingsMsgType, setSettingsMsgType] = useState(null);
   const [securityMsgType, setSecurityMsgType] = useState(null);
-  const [userMsgHide, setUserMsgHide] = useState(false);
-  const [settingsMsgHide, setSettingsMsgHide] = useState(false);
-  const [securityMsgHide, setSecurityMsgHide] = useState(false);
-  const [editUser, setEditUser] = useState(false);
   const [editUsername, setEditUsername] = useState(false);
   const usernameInputRef = useRef(null);
+  const [activeSection, setActiveSection] = useState("perfil");
   const router = useRouter();
 
-  // Orden de las cards (guardado en localStorage)
-  const defaultOrder = ['user', 'preferences', 'security'];
-  const [cardOrder, setCardOrder] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('dashboardCardOrder');
-      if (saved) return JSON.parse(saved);
+  // Validation state for dashboard
+  const [usernameError, setUsernameError] = useState("");
+  const [oldPasswordError, setOldPasswordError] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
+
+  // Regex for validation
+  const usernameRegex = /^[a-zA-Z0-9_\- ]{3,20}$/;
+  const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=]{6,32}$/;
+
+  // Username validation on keyup
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+    if (!usernameRegex.test(value)) {
+      setUsernameError("Username must be 3-20 characters, only letters, numbers, spaces, - and _");
+    } else {
+      setUsernameError("");
     }
-    return defaultOrder;
-  });
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('dashboardCardOrder', JSON.stringify(cardOrder));
-    }
-  }, [cardOrder]);
-
-  // Estado para colapsar/expandir cada card
-  const [collapsed, setCollapsed] = useState({ user: false, preferences: false, security: false });
-
-  const handleCollapse = (id) => {
-    setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Drag and drop handlers
-  function handleDragEnd(event) {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setCardOrder((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
+  // Password validation on keyup
+  const handleNewPasswordChange = (e) => {
+    const value = e.target.value;
+    setNewPassword(value);
+    if (value && !passwordRegex.test(value)) {
+      setNewPasswordError("Password must be 6-32 characters, allowed: letters, numbers, !@#$%^&*()_+-=");
+    } else {
+      setNewPasswordError("");
     }
-  }
-
-  // SortableCard component
-  function SortableCard({ id, children }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-      cursor: 'default',
-      position: 'relative',
-      minWidth: 0,
-      minHeight: 0,
-      width: '100%',
-      height: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1.2rem',
-    };
-    return (
-      <section ref={setNodeRef} style={style} {...attributes} className={styles.settingsSection}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <button
-            type="button"
-            className={styles.dragHandle}
-            aria-label="Mover"
-            tabIndex={0}
-            {...listeners}
-            style={{ marginRight: 8 }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <circle cx="6" cy="6" r="2" fill="#7b2ff2"/>
-              <circle cx="6" cy="12" r="2" fill="#7b2ff2"/>
-              <circle cx="6" cy="18" r="2" fill="#7b2ff2"/>
-              <circle cx="12" cy="6" r="2" fill="#7b2ff2"/>
-              <circle cx="12" cy="12" r="2" fill="#7b2ff2"/>
-              <circle cx="12" cy="18" r="2" fill="#7b2ff2"/>
-              <circle cx="18" cy="6" r="2" fill="#7b2ff2"/>
-              <circle cx="18" cy="12" r="2" fill="#7b2ff2"/>
-              <circle cx="18" cy="18" r="2" fill="#7b2ff2"/>
-            </svg>
-          </button>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 38 }}>
-            {children.title}
-          </div>
-          {children.collapseBtn}
-        </div>
-        {children.content}
-      </section>
-    );
-  }
+  };
 
   useEffect(() => {
     async function fetchUser() {
@@ -122,10 +62,10 @@ export default function DashboardPage() {
           const data = await res.json();
           setUser(data.user);
         } else {
-          setError("No se pudo cargar el usuario");
+          setError("Failed to load user");
         }
       } catch {
-        setError("Error de red");
+        setError("Network error");
       } finally {
         setLoading(false);
       }
@@ -157,20 +97,26 @@ export default function DashboardPage() {
     setSettings((prev) => ({ ...prev, notifications: newValue }));
     setSaving(true);
     setSettingsMsg("");
-    const res = await fetch("/api/user/settings/updateSettings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notifications: newValue }),
-    });
-    if (res.ok) {
-      setSettingsMsg("Ajuste guardado");
-      setSettingsMsgType("success");
-    } else {
-      setSettingsMsg("Error al guardar");
+    try {
+      const res = await fetch("/api/user/settings/updateSettings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notifications: newValue }),
+      });
+      if (res.ok) {
+        setSettingsMsg("Setting saved");
+        setSettingsMsgType("success");
+      } else {
+        const data = await res.json();
+        setSettingsMsg(data.error || data.message || "Failed to save");
+        setSettingsMsgType("error");
+      }
+    } catch (err) {
+      setSettingsMsg(err.message || "Network/server error");
       setSettingsMsgType("error");
     }
-    setTimeout(() => setSettingsMsgHide(true), 5000);
     setSaving(false);
+    setTimeout(() => setSettingsMsg(""), 4000);
   };
 
   const handleUserUpdate = async (e) => {
@@ -178,37 +124,35 @@ export default function DashboardPage() {
     setSaving(true);
     setUserMsg("");
     setUserMsgType(null);
-    setUserMsgHide(false);
     const body = {};
     if (username && username !== user.username) body.username = username;
-    if (oldPassword && newPassword) {
-      body.oldPassword = oldPassword;
-      body.password = newPassword;
-    }
     if (Object.keys(body).length === 0) {
-      setUserMsg("No hay cambios para guardar");
+      setUserMsg("No changes to save");
       setUserMsgType("error");
-      setTimeout(() => setUserMsgHide(true), 5000);
       setSaving(false);
+      setTimeout(() => setUserMsg(""), 4000);
       return;
     }
-    const res = await fetch("/api/auth/update", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setUserMsg("Datos actualizados");
-      setUserMsgType("success");
-      setOldPassword("");
-      setNewPassword("");
-    } else {
-      setUserMsg(data.error || "Error al actualizar");
+    try {
+      const res = await fetch("/api/auth/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUserMsg("Data updated");
+        setUserMsgType("success");
+      } else {
+        setUserMsg(data.error || data.message || "Failed to update");
+        setUserMsgType("error");
+      }
+    } catch (err) {
+      setUserMsg(err.message || "Network/server error");
       setUserMsgType("error");
     }
-    setTimeout(() => setUserMsgHide(true), 5000);
     setSaving(false);
+    setTimeout(() => setUserMsg(""), 4000);
   };
 
   const handleSettingsUpdate = async (e) => {
@@ -216,26 +160,30 @@ export default function DashboardPage() {
     setSaving(true);
     setSettingsMsg("");
     setSettingsMsgType(null);
-    setSettingsMsgHide(false);
-    const res = await fetch("/api/user/settings/updateSettings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prefered_lang: settings.prefered_lang,
-        prefered_quality: settings.prefered_quality,
-        notifications: settings.notifications,
-      }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setSettingsMsg("Preferencias guardadas");
-      setSettingsMsgType("success");
-    } else {
-      setSettingsMsg(data.error || "Error al guardar preferencias");
+    try {
+      const res = await fetch("/api/user/settings/updateSettings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prefered_lang: settings.prefered_lang,
+          prefered_quality: settings.prefered_quality,
+          notifications: settings.notifications,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSettingsMsg("Preferences saved");
+        setSettingsMsgType("success");
+      } else {
+        setSettingsMsg(data.error || data.message || "Failed to save preferences");
+        setSettingsMsgType("error");
+      }
+    } catch (err) {
+      setSettingsMsg(err.message || "Network/server error");
       setSettingsMsgType("error");
     }
-    setTimeout(() => setSettingsMsgHide(true), 5000);
     setSaving(false);
+    setTimeout(() => setSettingsMsg(""), 4000);
   };
 
   const handleSecurityUpdate = async (e) => {
@@ -243,271 +191,230 @@ export default function DashboardPage() {
     setSaving(true);
     setSecurityMsg("");
     setSecurityMsgType(null);
-    setSecurityMsgHide(false);
     const body = {};
     if (oldPassword && newPassword) {
       body.oldPassword = oldPassword;
       body.password = newPassword;
     }
     if (Object.keys(body).length === 0) {
-      setSecurityMsg("No hay cambios para guardar");
+      setSecurityMsg("No changes to save");
       setSecurityMsgType("error");
-      setTimeout(() => setSecurityMsgHide(true), 5000);
       setSaving(false);
+      setTimeout(() => setSecurityMsg(""), 4000);
       return;
     }
-    const res = await fetch("/api/auth/update", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setSecurityMsg("Contraseña actualizada");
-      setSecurityMsgType("success");
-      setOldPassword("");
-      setNewPassword("");
-    } else {
-      setSecurityMsg(data.error || "Error al actualizar");
+    try {
+      const res = await fetch("/api/auth/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSecurityMsg("Password updated");
+        setSecurityMsgType("success");
+        setOldPassword("");
+        setNewPassword("");
+      } else {
+        setSecurityMsg(data.error || data.message || "Failed to update");
+        setSecurityMsgType("error");
+      }
+    } catch (err) {
+      setSecurityMsg(err.message || "Network/server error");
       setSecurityMsgType("error");
     }
-    setTimeout(() => setSecurityMsgHide(true), 5000);
     setSaving(false);
+    setTimeout(() => setSecurityMsg(""), 4000);
   };
 
-  if (loading) return <main className={styles.dashboardMain}><p>Cargando...</p></main>;
+  if (loading) return <main className={styles.dashboardMain}><p>Loading...</p></main>;
   if (error) return <main className={styles.dashboardMain}><p className={styles.errorMsg}>{error}</p></main>;
   if (!user) return null;
 
   return (
-    <main className={styles.dashboardMain}>
-      <div className={styles.dashboardCard}>
-        <h1 className={styles.dashboardTitle}>Dashboard</h1>
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={cardOrder} strategy={verticalListSortingStrategy}>
-            <div className={styles.cardsGrid}>
-              {cardOrder.map((id) => {
-                const isCollapsed = collapsed[id];
-                if (id === 'user') return (
-                  <SortableCard id="user" key="user">
-                    {{
-                      title: <h2 className={styles.sectionTitle}>Usuario</h2>,
-                      collapseBtn: (
-                        <button
-                          className={styles.collapseBtn}
-                          type="button"
-                          onClick={() => handleCollapse('user')}
-                          aria-label={isCollapsed ? 'Expandir' : 'Colapsar'}
-                          tabIndex={0}
-                        >
-                          {isCollapsed ? (
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M7 10l5 5 5-5z"/></svg>
-                          ) : (
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M7 14l5-5 5 5z"/></svg>
-                          )}
-                        </button>
-                      ),
-                      content: !isCollapsed && (
-                        <>
-                          <form className={styles.settingsForm} onSubmit={handleUserUpdate}>
-                            <div className={styles.formGroup} style={{flexDirection: 'row', alignItems: 'center', gap: '0.5rem'}}>
-                              <label htmlFor="username" style={{flex: '0 0 90px'}}>Usuario</label>
-                              <input
-                                id="username"
-                                name="username"
-                                type="text"
-                                className={styles.input}
-                                value={username}
-                                onChange={e => setUsername(e.target.value)}
-                                autoComplete="username"
-                                disabled={!editUsername}
-                                style={{flex: 1}}
-                                ref={usernameInputRef}
-                              />
-                              <button
-                                type="button"
-                                className={styles.editIconBtn}
-                                onClick={() => {
-                                  setEditUsername(e => {
-                                    const next = !e;
-                                    setTimeout(() => {
-                                      if (!e && usernameInputRef.current) {
-                                        usernameInputRef.current.focus();
-                                        usernameInputRef.current.select();
-                                      }
-                                    }, 0);
-                                    return next;
-                                  });
-                                }}
-                                aria-label={editUsername ? "Cancelar edición" : "Editar usuario"}
-                                tabIndex={0}
-                                style={{marginLeft: 8, background: editUsername ? '#351effb9' : 'transparent'}}
-                              >
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="#fff" d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
-                              </button>
-                            </div>
-                            <button className={styles.dashboardBtn} type="submit" disabled={saving}>
-                              {saving ? "Guardando..." : "Guardar usuario"}
-                            </button>
-                            {userMsg && (
-                              <div className={
-                                `${styles.userMsg} ${userMsgType === 'success' ? styles['userMsg--success'] : ''} ${userMsgType === 'error' ? styles['userMsg--error'] : ''} ${userMsgHide ? styles['userMsg--hide'] : ''}`
-                              }>
-                                {userMsg}
-                              </div>
-                            )}
-                          </form>
-                        </>
-                      )
+    <main className={styles.dashboardMainClassic}>
+      <div className={styles.dashboardContainer}>
+        <h1 className={styles.dashboardTitle}>Settings</h1>
+        <nav className={styles.settingsMenu}>
+          <ul>
+            <li className={activeSection === "perfil" ? styles.active : ""}>
+              <button type="button" onClick={() => setActiveSection("perfil")}>Profile</button>
+            </li>
+            <li className={activeSection === "preferencias" ? styles.active : ""}>
+              <button type="button" onClick={() => setActiveSection("preferencias")}>Preferences</button>
+            </li>
+            <li className={activeSection === "seguridad" ? styles.active : ""}>
+              <button type="button" onClick={() => setActiveSection("seguridad")}>Security</button>
+            </li>
+          </ul>
+        </nav>
+        <section className={styles.settingsContent}>
+          {activeSection === "perfil" && (
+            <form className={styles.settingsForm} onSubmit={handleUserUpdate} autoComplete="off">
+              <h2 className={styles.sectionTitle}>Profile</h2>
+              <div className={styles.formGroup}>
+                <label htmlFor="username">Username</label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    className={styles.input}
+                    value={username}
+                    onChange={handleUsernameChange}
+                    autoComplete="username"
+                    disabled={!editUsername}
+                    ref={usernameInputRef}
+                  />
+                  <button
+                    type="button"
+                    className={styles.editIconBtn}
+                    onClick={() => {
+                      setEditUsername(e => {
+                        const next = !e;
+                        setTimeout(() => {
+                          if (!e && usernameInputRef.current) {
+                            usernameInputRef.current.focus();
+                            usernameInputRef.current.select();
+                          }
+                        }, 0);
+                        return next;
+                      });
                     }}
-                  </SortableCard>
-                );
-                if (id === 'preferences') return (
-                  <SortableCard id="preferences" key="preferences">
-                    {{
-                      title: <h2 className={styles.sectionTitle}>Preferencias de usuario</h2>,
-                      collapseBtn: (
-                        <button
-                          className={styles.collapseBtn}
-                          type="button"
-                          onClick={() => handleCollapse('preferences')}
-                          aria-label={isCollapsed ? 'Expandir' : 'Colapsar'}
-                          tabIndex={0}
-                        >
-                          {isCollapsed ? (
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M7 10l5 5 5-5z"/></svg>
-                          ) : (
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M7 14l5-5 5 5z"/></svg>
-                          )}
-                        </button>
-                      ),
-                      content: !isCollapsed && (
-                        <>
-                          <form className={styles.settingsForm} onSubmit={handleSettingsUpdate}>
-                            <div className={styles.formGroup}>
-                              <label htmlFor="prefered_lang">Idioma preferido</label>
-                              <select
-                                id="prefered_lang"
-                                name="prefered_lang"
-                                className={styles.input}
-                                value={settings.prefered_lang || "es"}
-                                onChange={e => setSettings(s => ({ ...s, prefered_lang: e.target.value }))}
-                              >
-                                <option value="es">Español</option>
-                                <option value="en">Inglés</option>
-                              </select>
-                            </div>
-                            <div className={styles.formGroup}>
-                              <label htmlFor="prefered_quality">Calidad preferida</label>
-                              <select
-                                id="prefered_quality"
-                                name="prefered_quality"
-                                className={styles.input}
-                                value={settings.prefered_quality || "1080p"}
-                                onChange={e => setSettings(s => ({ ...s, prefered_quality: e.target.value }))}
-                              >
-                                <option value="1080p">1080p</option>
-                                <option value="720p">720p</option>
-                                <option value="480p">480p</option>
-                              </select>
-                            </div>
-                            <div className={styles.formGroup}>
-                              <label htmlFor="notifications">Notificaciones</label>
-                              <div className={styles.toggleWrapper}>
-                                <input
-                                  id="notifications"
-                                  name="notifications"
-                                  type="checkbox"
-                                  checked={!!settings.notifications}
-                                  onChange={handleToggleNotifications}
-                                  className={styles.toggle}
-                                />
-                                <span className={styles.toggleLabel}>{settings.notifications ? "Activadas" : "Desactivadas"}</span>
-                              </div>
-                            </div>
-                            <button className={styles.dashboardBtn} type="submit" disabled={saving}>
-                              {saving ? "Guardando..." : "Guardar preferencias"}
-                            </button>
-                            {settingsMsg && (
-                              <div className={
-                                `${styles.userMsg} ${settingsMsgType === 'success' ? styles['userMsg--success'] : ''} ${settingsMsgType === 'error' ? styles['userMsg--error'] : ''} ${settingsMsgHide ? styles['userMsg--hide'] : ''}`
-                              }>
-                                {settingsMsg}
-                              </div>
-                            )}
-                          </form>
-                        </>
-                      )
-                    }}
-                  </SortableCard>
-                );
-                if (id === 'security') return (
-                  <SortableCard id="security" key="security">
-                    {{
-                      title: <h2 className={styles.sectionTitle}>Seguridad y cuenta</h2>,
-                      collapseBtn: (
-                        <button
-                          className={styles.collapseBtn}
-                          type="button"
-                          onClick={() => handleCollapse('security')}
-                          aria-label={isCollapsed ? 'Expandir' : 'Colapsar'}
-                          tabIndex={0}
-                        >
-                          {isCollapsed ? (
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M7 10l5 5 5-5z"/></svg>
-                          ) : (
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M7 14l5-5 5 5z"/></svg>
-                          )}
-                        </button>
-                      ),
-                      content: !isCollapsed && (
-                        <>
-                          <form className={styles.settingsForm} onSubmit={handleSecurityUpdate}>
-                            <div className={styles.formGroup}>
-                              <label htmlFor="oldPassword">Contraseña actual</label>
-                              <input
-                                id="oldPassword"
-                                name="oldPassword"
-                                type="password"
-                                className={styles.input}
-                                value={oldPassword}
-                                onChange={e => setOldPassword(e.target.value)}
-                                autoComplete="current-password"
-                              />
-                            </div>
-                            <div className={styles.formGroup}>
-                              <label htmlFor="newPassword">Nueva contraseña</label>
-                              <input
-                                id="newPassword"
-                                name="newPassword"
-                                type="password"
-                                className={styles.input}
-                                value={newPassword}
-                                onChange={e => setNewPassword(e.target.value)}
-                                autoComplete="new-password"
-                              />
-                            </div>
-                            <button className={styles.dashboardBtn} type="submit" disabled={saving}>
-                              {saving ? "Guardando..." : "Guardar cambios"}
-                            </button>
-                            {securityMsg && (
-                              <div className={
-                                `${styles.userMsg} ${securityMsgType === 'success' ? styles['userMsg--success'] : ''} ${securityMsgType === 'error' ? styles['userMsg--error'] : ''} ${securityMsgHide ? styles['userMsg--hide'] : ''}`
-                              }>
-                                {securityMsg}
-                              </div>
-                            )}
-                          </form>
-                        </>
-                      )
-                    }}
-                  </SortableCard>
-                );
-                return null;
-              })}
-            </div>
-          </SortableContext>
-        </DndContext>
+                    aria-label={editUsername ? "Cancel edit" : "Edit username"}
+                    style={{ background: editUsername ? '#351effb9' : 'transparent' }}
+                  >
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="#7b2ff2" d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                  </button>
+                </div>
+                {usernameError && <div className={styles.inputError}>{usernameError}</div>}
+              </div>
+              <button className={styles.dashboardBtn} type="submit" disabled={saving || !!usernameError}>
+                {saving ? "Saving..." : "Save username"}
+              </button>
+              {userMsg && (
+                <div className={
+                  `${styles.userMsg} ${userMsgType === 'success' ? styles['userMsg--success'] : ''} ${userMsgType === 'error' ? styles['userMsg--error'] : ''}`
+                }>
+                  {userMsg}
+                </div>
+              )}
+            </form>
+          )}
+          {activeSection === "preferencias" && (
+            <form className={styles.settingsForm} onSubmit={handleSettingsUpdate} autoComplete="off">
+              <h2 className={styles.sectionTitle}>Preferences</h2>
+              <div className={styles.formGroup}>
+                <label htmlFor="prefered_lang">Preferred language</label>
+                <select
+                  id="prefered_lang"
+                  name="prefered_lang"
+                  className={styles.input}
+                  value={settings.prefered_lang || "en"}
+                  onChange={e => setSettings(s => ({ ...s, prefered_lang: e.target.value }))}
+                >
+                  <option value="es">Spanish</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="prefered_quality">Preferred quality</label>
+                <select
+                  id="prefered_quality"
+                  name="prefered_quality"
+                  className={styles.input}
+                  value={settings.prefered_quality || "1080p"}
+                  onChange={e => setSettings(s => ({ ...s, prefered_quality: e.target.value }))}
+                >
+                  <option value="1080p">1080p</option>
+                  <option value="720p">720p</option>
+                  <option value="480p">480p</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="notifications">Notifications</label>
+                <div className={styles.toggleWrapper}>
+                  <input
+                    id="notifications"
+                    name="notifications"
+                    type="checkbox"
+                    checked={!!settings.notifications}
+                    onChange={handleToggleNotifications}
+                    className={styles.toggle}
+                  />
+                  <span className={styles.toggleLabel}>{settings.notifications ? "Enabled" : "Disabled"}</span>
+                </div>
+              </div>
+              <button className={styles.dashboardBtn} type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save"}
+              </button>
+              {settingsMsg && (
+                <div className={
+                  `${styles.userMsg} ${settingsMsgType === 'success' ? styles['userMsg--success'] : ''} ${settingsMsgType === 'error' ? styles['userMsg--error'] : ''}`
+                }>
+                  {settingsMsg}
+                </div>
+              )}
+            </form>
+          )}
+          {activeSection === "seguridad" && (
+            <form className={styles.settingsForm} onSubmit={handleSecurityUpdate} autoComplete="off">
+              <h2 className={styles.sectionTitle}>Security</h2>
+              <div className={styles.formGroup}>
+                <label htmlFor="oldPassword">Current password</label>
+                <input
+                  id="oldPassword"
+                  name="oldPassword"
+                  type="password"
+                  className={styles.input}
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+                {oldPasswordError && <div className={styles.inputError}>{oldPasswordError}</div>}
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="newPassword">New password</label>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  className={styles.input}
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
+                  autoComplete="new-password"
+                />
+                {newPasswordError && <div className={styles.inputError}>{newPasswordError}</div>}
+              </div>
+              <button className={styles.dashboardBtn} type="submit" disabled={saving || !!newPasswordError}>
+                {saving ? "Saving..." : "Save changes"}
+              </button>
+              {securityMsg && (
+                <div className={
+                  `${styles.userMsg} ${securityMsgType === 'success' ? styles['userMsg--success'] : ''} ${securityMsgType === 'error' ? styles['userMsg--error'] : ''}`
+                }>
+                  {securityMsg}
+                </div>
+              )}
+            </form>
+          )}
+        </section>
+        <button className={styles.logoutBtn} onClick={async () => {
+          await fetch("/api/auth/logout", { method: "POST" });
+          router.push("/login");
+        }}>
+          Log out
+        </button>
+        <footer className={styles.dashboardFooter}>
+          <div className={styles.footerRowCentered}>
+            <ul className={styles.footerLinks}>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Terms & Conditions</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Cookie Policy</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Contact</a></li>
+            </ul>
+          </div>
+        </footer>
       </div>
     </main>
   );
