@@ -179,8 +179,8 @@ export default function VideoclubPage() {
       <main className={styles.centeredMain}>
         <div className={styles.centeredBox}>
           <h1 className={styles.title}>My Videoclub</h1>
-          <p className={styles.centeredMsg}>You must log in to view My videoclub</p>
-          <a href="/login" className={styles.loginBtn}>Log in</a>
+          <p className={styles.centeredMsg}>You must log in to view My Videoclub</p>
+          <a href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</a>
         </div>
       </main>
     );

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import Card from "@/app/components/card/Card";
 import TrendingCarousel from "@/app/components/trending/TrendingCarousel";
 
 export default function HomePage() {
@@ -22,24 +21,45 @@ export default function HomePage() {
     fetchTrending();
   }, []);
 
-  const dateYear = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    return d.getFullYear();
-  };
+  // Estado para autenticación
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        setIsAuthenticated(res.ok);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  if (!isAuthenticated) {
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>Home</h1>
+          <p className={styles.centeredMsg}>You must log in to view the Home page</p>
+          <a href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</a>
+          <p className={styles.centeredMsg}>Or explore some content</p>
+          <a href="/discover" className={styles.loginBtn}>{'>'} Go to Discover {'<'}</a>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.main}>
 
       <h1 className={styles.title}>Continue Watching</h1>
       <section className={styles.section}>
-        {/* Aquí puedes añadir contenido relacionado */}
         <TrendingCarousel />
       </section>
 
       <h1 className={styles.title}>For You</h1>
       <section className={styles.section}>
-
         <TrendingCarousel />
       </section>
 
