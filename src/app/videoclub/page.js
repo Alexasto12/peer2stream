@@ -191,7 +191,7 @@ export default function VideoclubPage() {
       <main className={styles.centeredMain}>
         <div className={styles.centeredBox}>
           <h1 className={styles.title}>My Videoclub</h1>
-          <p className={styles.centeredMsg}>You don't have any content saved in My Videoclub {":("}</p>
+          <p className={styles.centeredMsg}>You don&apos;t have any content saved in My Videoclub {":("}</p>
         </div>
       </main>
     );
@@ -202,7 +202,7 @@ export default function VideoclubPage() {
       <main className={styles.centeredMain}>
         <div className={styles.centeredBox}>
           <h1 className={styles.title}>My Videoclub</h1>
-          <p className={styles.centeredMsg}>You don't have any content saved in My Videoclub {":("}</p>
+          <p className={styles.centeredMsg}>You don&apos;t have any content saved in My Videoclub {":("}</p>
         </div>
       </main>
     );
