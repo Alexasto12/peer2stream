@@ -22,6 +22,14 @@
   }
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+
 body {
   background: linear-gradient(120deg, var(--background-gradient-1), var(--background-gradient-2), var(--background-gradient-3));
   background-size: 300% 300%;
