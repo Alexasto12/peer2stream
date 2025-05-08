@@ -10,12 +10,12 @@ export async function POST(req) {
     const { username, email, password } = body;
 
     if (!username || !email || !password) {
-      return NextResponse.json({ error: 'Faltan campos' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return NextResponse.json({ error: 'El email ya está registrado' }, { status: 409 });
+      return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,11 +28,11 @@ export async function POST(req) {
 
     await newUser.save();
 
-    return NextResponse.json({ message: 'Usuario registrado correctamente' });
+    return NextResponse.json({ message: 'User registered successfully' });
   } catch (error) {
-    console.error('❌ Registro error completo:', error);
+    console.error('Full registration error:', error);
     return NextResponse.json({
-      error: error.message || 'Error en el servidor',
+      error: error.message || 'Server error',
       raw: JSON.stringify(error),
     }, { status: 500 });
   }
