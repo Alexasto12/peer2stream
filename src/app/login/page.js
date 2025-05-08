@@ -235,7 +235,7 @@ export default function LoginPage() {
           <button type="submit" className={styles.loginButton}>Iniciar sesión</button>
         </form>
         <div style={{ marginTop: 16, textAlign: "center" }}>
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <a href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
             Register
           </a>
