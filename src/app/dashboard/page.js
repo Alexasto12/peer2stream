@@ -28,6 +28,15 @@ export default function DashboardPage() {
   const [oldPasswordError, setOldPasswordError] = useState("");
   const [newPasswordError, setNewPasswordError] = useState("");
 
+  // Password strength checks (igual que registro)
+  const [passwordChecks, setPasswordChecks] = useState({
+    length: false,
+    upper: false,
+    lower: false,
+    number: false,
+    symbol: false
+  });
+
   // Regex for validation
   const usernameRegex = /^[a-zA-Z0-9_\- ]{3,20}$/;
   const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=]{6,32}$/;
@@ -37,7 +46,7 @@ export default function DashboardPage() {
     const value = e.target.value;
     setUsername(value);
     if (!usernameRegex.test(value)) {
-      setUsernameError("Username must be 3-20 characters, only letters, numbers, spaces, - and _");
+      setUsernameError("Use 3-20 characters, use letters, numbers, spaces, - or _");
     } else {
       setUsernameError("");
     }
@@ -47,8 +56,15 @@ export default function DashboardPage() {
   const handleNewPasswordChange = (e) => {
     const value = e.target.value;
     setNewPassword(value);
+    setPasswordChecks({
+      length: value.length >= 8,
+      upper: /[A-Z]/.test(value),
+      lower: /[a-z]/.test(value),
+      number: /[0-9]/.test(value),
+      symbol: /[!@#$%^&*()_+\-=]/.test(value)
+    });
     if (value && !passwordRegex.test(value)) {
-      setNewPasswordError("Password must be 6-32 characters, allowed: letters, numbers, !@#$%^&*()_+-=");
+      setNewPasswordError("Password does not meet requirements");
     } else {
       setNewPasswordError("");
     }
@@ -240,11 +256,11 @@ export default function DashboardPage() {
             <li className={activeSection === "perfil" ? styles.active : ""}>
               <button type="button" onClick={() => setActiveSection("perfil")}>Profile</button>
             </li>
-            <li className={activeSection === "preferencias" ? styles.active : ""}>
-              <button type="button" onClick={() => setActiveSection("preferencias")}>Preferences</button>
-            </li>
             <li className={activeSection === "seguridad" ? styles.active : ""}>
               <button type="button" onClick={() => setActiveSection("seguridad")}>Security</button>
+            </li>
+            <li className={activeSection === "preferencias" ? styles.active : ""}>
+              <button type="button" onClick={() => setActiveSection("preferencias")}>Preferences</button>
             </li>
           </ul>
         </nav>
@@ -284,7 +300,7 @@ export default function DashboardPage() {
                     aria-label={editUsername ? "Cancel edit" : "Edit username"}
                     style={{ background: editUsername ? '#351effb9' : 'transparent' }}
                   >
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="#7b2ff2" d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                    <svg width="30" height="30" fill="none" viewBox="0 0 24 24"><path fill="#ffff" d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
                   </button>
                 </div>
                 {usernameError && <div className={styles.inputError}>{usernameError}</div>}
@@ -297,6 +313,72 @@ export default function DashboardPage() {
                   `${styles.userMsg} ${userMsgType === 'success' ? styles['userMsg--success'] : ''} ${userMsgType === 'error' ? styles['userMsg--error'] : ''}`
                 }>
                   {userMsg}
+                </div>
+              )}
+            </form>
+          )}
+          {activeSection === "seguridad" && (
+            <form className={styles.settingsForm} onSubmit={handleSecurityUpdate} autoComplete="off">
+              <h2 className={styles.sectionTitle}>Security</h2>
+              <div className={styles.formGroup}>
+                <label htmlFor="oldPassword">Current password</label>
+                <input
+                  id="oldPassword"
+                  name="oldPassword"
+                  type="password"
+                  className={styles.input}
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+                {oldPasswordError && <div className={styles.inputError}>{oldPasswordError}</div>}
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="newPassword">New password</label>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  className={styles.input}
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
+                  autoComplete="new-password"
+                />
+                {/* Lista de requisitos de contraseña */}
+                <ul style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  margin: '0.3em 0 0.2em 0',
+                  fontSize: '0.98em',
+                  color: '#444',
+                  lineHeight: 1.5
+                }}>
+                  <li style={{ color: passwordChecks.length ? '#1fa463' : '#c62828', textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+                    {passwordChecks.length ? '✔' : '✖'} At least 8 characters
+                  </li>
+                  <li style={{ color: passwordChecks.upper ? '#1fa463' : '#c62828', textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+                    {passwordChecks.upper ? '✔' : '✖'} One uppercase letter
+                  </li>
+                  <li style={{ color: passwordChecks.lower ? '#1fa463' : '#c62828', textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+                    {passwordChecks.lower ? '✔' : '✖'} One lowercase letter
+                  </li>
+                  <li style={{ color: passwordChecks.number ? '#1fa463' : '#c62828', textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+                    {passwordChecks.number ? '✔' : '✖'} One number
+                  </li>
+                  <li style={{ color: passwordChecks.symbol ? '#1fa463' : '#c62828', textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+                    {passwordChecks.symbol ? '✔' : '✖'} One symbol (!@#$%^&*()_+-=)
+                  </li>
+                </ul>
+                {newPasswordError && <div className={styles.inputError}>{newPasswordError}</div>}
+              </div>
+              <button className={styles.dashboardBtn} type="submit" disabled={saving || !!newPasswordError}>
+                {saving ? "Saving..." : "Save changes"}
+              </button>
+              {securityMsg && (
+                <div className={
+                  `${styles.userMsg} ${securityMsgType === 'success' ? styles['userMsg--success'] : ''} ${securityMsgType === 'error' ? styles['userMsg--error'] : ''}`
+                }>
+                  {securityMsg}
                 </div>
               )}
             </form>
@@ -348,54 +430,6 @@ export default function DashboardPage() {
               <button className={styles.dashboardBtn} type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save"}
               </button>
-              {settingsMsg && (
-                <div className={
-                  `${styles.userMsg} ${settingsMsgType === 'success' ? styles['userMsg--success'] : ''} ${settingsMsgType === 'error' ? styles['userMsg--error'] : ''}`
-                }>
-                  {settingsMsg}
-                </div>
-              )}
-            </form>
-          )}
-          {activeSection === "seguridad" && (
-            <form className={styles.settingsForm} onSubmit={handleSecurityUpdate} autoComplete="off">
-              <h2 className={styles.sectionTitle}>Security</h2>
-              <div className={styles.formGroup}>
-                <label htmlFor="oldPassword">Current password</label>
-                <input
-                  id="oldPassword"
-                  name="oldPassword"
-                  type="password"
-                  className={styles.input}
-                  value={oldPassword}
-                  onChange={e => setOldPassword(e.target.value)}
-                  autoComplete="current-password"
-                />
-                {oldPasswordError && <div className={styles.inputError}>{oldPasswordError}</div>}
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="newPassword">New password</label>
-                <input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  className={styles.input}
-                  value={newPassword}
-                  onChange={handleNewPasswordChange}
-                  autoComplete="new-password"
-                />
-                {newPasswordError && <div className={styles.inputError}>{newPasswordError}</div>}
-              </div>
-              <button className={styles.dashboardBtn} type="submit" disabled={saving || !!newPasswordError}>
-                {saving ? "Saving..." : "Save changes"}
-              </button>
-              {securityMsg && (
-                <div className={
-                  `${styles.userMsg} ${securityMsgType === 'success' ? styles['userMsg--success'] : ''} ${securityMsgType === 'error' ? styles['userMsg--error'] : ''}`
-                }>
-                  {securityMsg}
-                </div>
-              )}
             </form>
           )}
         </section>
