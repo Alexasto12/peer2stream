@@ -9,13 +9,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // GET: Obtener todos los registros del usuario autenticado
 export async function GET() {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
-    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    const getCookie = await cookies();
+    const token = getCookie.get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     let decoded;
     try {
         decoded = jwt.verify(token, JWT_SECRET);
     } catch {
-        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
     const status = await ContentStatus.find({ userId: decoded.id });
     return NextResponse.json(status);
@@ -24,13 +25,14 @@ export async function GET() {
 // POST: Crear un nuevo registro
 export async function POST(req) {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
-    if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    const postCookie = await cookies();
+    const token = postCookie.get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     let decoded;
     try {
         decoded = jwt.verify(token, JWT_SECRET);
     } catch {
-        return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
     const data = await req.json();
     data.userId = decoded.id;

@@ -8,7 +8,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function PATCH(req) {
   await connectToDatabase();
-  const token = cookies().get('token')?.value;
+  const patchCookie = await cookies();
+  const token = patchCookie.get('token')?.value;
   if (!token) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
