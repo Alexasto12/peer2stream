@@ -9,7 +9,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // GET: Obtener todos los registros del usuario autenticado
 export async function GET() {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
+    const getCookie = await cookies();
+    const token = getCookie.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     let decoded;
     try {
@@ -24,7 +25,8 @@ export async function GET() {
 // POST: Crear un nuevo registro
 export async function POST(req) {
     await connectToDatabase();
-    const token = cookies().get('token')?.value;
+    const postCookie = await cookies();
+    const token = postCookie.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     let decoded;
     try {
