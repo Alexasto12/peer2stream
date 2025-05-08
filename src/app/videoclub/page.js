@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Card from "@/app/components/card/Card";
 import CustomSelect from "../components/customSelect/CustomSelect";
+import Modal from "@/app/components/modal/Modal";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./videoclub.module.css";
 
 export default function VideoclubPage() {
@@ -14,6 +16,9 @@ export default function VideoclubPage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("title"); // "title" o "date"
   const [selectedIds, setSelectedIds] = useState([]); // selector de card para eliminarlas
+  // Estado para el modal y la card seleccionada
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
 
   const dateYear = function (date) {
     let year = new Date(date)
@@ -132,7 +137,7 @@ export default function VideoclubPage() {
       fetch("/api/user/notifications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: `${title} has been removed from tu videoclub` })
+        body: JSON.stringify({ message: `${title} has been removed from My Videoclub` })
       }).then(() => {
         window.dispatchEvent(new Event('notificationUpdate'));
       });
@@ -142,27 +147,73 @@ export default function VideoclubPage() {
     fetchFavourites(); // Refresca favoritos y, por efecto, cards y movieMeta
   };
 
+  // Handler para abrir el modal y cargar info detallada y proveedores
+  const handleCardClick = async (card) => {
+    setModalOpen(true);
+    setModalData(null); // Mostrar loading
+    const BASE_URL = "https://api.themoviedb.org/3";
+    const endpoint = card.type === "movie" ? "movie" : "tv";
+    const query = new URLSearchParams({ api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY }).toString();
+    // 1. Obtener detalles
+    const res = await fetch(`${BASE_URL}/${endpoint}/${card.id}?${query}`);
+    const data = await res.json();
+    // 2. Obtener proveedores
+    let providers = [];
+    try {
+      const provRes = await fetch(`${BASE_URL}/${endpoint}/${card.id}/watch/providers?${query}`);
+      const provData = await provRes.json();
+      if (provData.results && provData.results.ES && provData.results.ES.flatrate) {
+        providers = provData.results.ES.flatrate;
+      }
+    } catch { }
+    data.watchProviders = providers;
+    setModalData(data);
+  };
+
   useEffect(() => {
     // console.log("selectedIds changed:", selectedIds);
   }, [selectedIds]);
 
-  if (isLogged === null) {
-    return <main style={{ paddingLeft: "220px", padding: "2rem" }}><p>Cargando...</p></main>;
-  }
   if (!isLogged) {
-    return <main style={{ paddingLeft: "220px", padding: "2rem" }}><h1>Videoclub</h1><p>Debes iniciar sesión para ver tu videoclub.</p></main>;
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>My Videoclub</h1>
+          <p className={styles.centeredMsg}>You must log in to view My videoclub</p>
+          <a href="/login" className={styles.loginBtn}>Log in</a>
+        </div>
+      </main>
+    );
   }
+
   if (favourites === null) {
-    return <main style={{ paddingLeft: "220px", padding: "2rem" }}><h1>Videoclub</h1><p>Cargando tus contenidos guardados...</p></main>;
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>My Videoclub</h1>
+          <p className={styles.centeredMsg}>You don't have any content saved in My Videoclub {":("}</p>
+        </div>
+      </main>
+    );
   }
+
+
   if (favourites.length === 0) {
-    return <main style={{ paddingLeft: "220px", padding: "2rem" }}><h1>Videoclub</h1><p>No tienes ningún contenido guardado en favoritos.</p></main>;
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>My Videoclub</h1>
+          <p className={styles.centeredMsg}>You don't have any content saved in My Videoclub {":("}</p>
+        </div>
+      </main>
+    );
   }
 
   return (
     <div className={styles.mainVideoclub}>
-      <h1 className={styles.title}>Videoclub</h1>
-      <p className={styles.subtitle}>Aquí puedes ver y gestionar tu colección de contenidos.</p>
+      <h1 className={styles.title}>My Videoclub</h1>
+      <p className={styles.subtitle}>Here you can view and manage your content collection</p>
+
       <div className={styles.controls}>
         <input
           type="text"
@@ -172,7 +223,6 @@ export default function VideoclubPage() {
           className={styles.searchBar}
         />
         <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
-
         {selectedIds.length > 0 && (
           <button
             className={styles.deleteBtn}
@@ -181,17 +231,19 @@ export default function VideoclubPage() {
             Borrar seleccionados
           </button>
         )}
-
       </div>
       {loadingCards ? (
         <div className={styles.loadingMsg}>Cargando tus favoritos...</div>
       ) : (
         <div className={styles.cardsGrid}>
           {filteredCards.map(card => (
-            <div
+            <motion.div
               key={card.external_id}
               className={`${styles.cardWrapper} ${selectedIds.includes(card.external_id) ? styles.selectedCard : ""}`}
               onClick={() => toggleSelect(card.external_id)}
+              layout
+              animate={selectedIds.includes(card.external_id) ? { scale: 1.04 } : { scale: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
             >
               <Card
                 id={card.id}
@@ -199,11 +251,17 @@ export default function VideoclubPage() {
                 image={card.poster_path ? `https://image.tmdb.org/t/p/w500${card.poster_path}` : "/file.svg"}
                 title={card.title || card.name}
                 release_date={dateYear(card.release_date) || dateYear(card.first_air_date)}
+                onFaviconClick={handleCardClick}
               />
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
+      <AnimatePresence>
+        {modalOpen && (
+          <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

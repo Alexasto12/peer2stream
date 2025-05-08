@@ -59,6 +59,7 @@
     color: #fff;
     margin-bottom: 0.5rem;
     letter-spacing: 0.01em;
+    white-space: nowrap;
 }
 
 .subtitle {
@@ -78,16 +79,37 @@
 }
 
 .selectedCard {
-    background: #2d1a3a;
-    box-shadow: 0 0 0 2px #9b00d8;
+    position: relative;
+    transform: scale(1.04);
+    transition: transform 0.2s;
+    z-index: 2;
+    background: rgba(255, 0, 0, 0.678);
+    border: 2px solid rgba(255, 0, 0, 0.678);
+    border-radius: 20px;
 }
+
+/* 
+.selectedCard::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 20px;
+  border: 2.5px solid rgba(255,255,255,0.7);
+  box-shadow: 0 0 0 2px rgba(255, 0, 43, 0.76), 0 0 12px 2px #fff4;
+  pointer-events: none;
+  z-index: 3;
+  transition: box-shadow 0.2s, border 0.2s;
+} */
 
 .deleteBtn {
     position: absolute;
     right: 3em;
     margin: 1.5rem auto 0 auto;
     display: block;
-    background: #d100d8;
+    background: rgba(255, 0, 0, 0.678);;
     color: #fff;
     border: none;
     border-radius: 999px;
@@ -99,5 +121,46 @@
 }
 
 .deleteBtn:hover {
-    background: #a000a0;
+    background: rgba(255, 0, 0, 0.678);
+}
+
+.centeredMain {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.centeredBox {
+    backdrop-filter: blur(10px);
+    background: linear-gradient(270deg, #240e88e5, #0a0891);
+    animation: gradient 15s ease infinite;
+    border-radius: 30px;
+    border: 2px solid rgba(255, 255, 255, 0.151);
+    box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 420px;
+    width: 100%;
+}
+
+.centeredMsg {
+    color: #bfc6e6;
+    font-size: 1.18rem;
+    margin-top: 1.2rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.title {
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
 }

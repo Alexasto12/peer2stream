@@ -4,74 +4,77 @@
   left: 1vw;
   bottom: 5.0vh;
   height: 80vh;
-width: 6.5%;
+  width: 6.5%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
   padding: 1.5rem 1rem 1.5rem 1rem;
-color: #fff;
-box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
-z-index: 1000;
-border-radius: 30px;
-border: 2px solid rgba(255, 255, 255, 0.151);
-backdrop-filter: blur(10px);
-background: linear-gradient(270deg, #2c139e8c,  #0a0891);
-background-size: 400% 400%;
-animation: gradient 15s ease infinite;
+  color: #fff;
+  box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
+  z-index: 1000;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.151);
+  backdrop-filter: blur(10px);
+  background: linear-gradient(270deg, #2c139e8c, #0a0891);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
 }
 
 @keyframes gradient {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .logoContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    margin-bottom: 2rem;
-    
-    background-color: rgba(0, 0, 0, 0);
-    border-radius: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 2rem;
 
-   
-  
-    
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 20%;
+
+
+
+
 }
 
 .logoIcon {
-    /* Triángulo tipo Play usando clip-path */
-    clip-path: polygon(18% 5%, 92% 50%, 16% 95%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0;
-    transform: scale(1.1);
-    flex-shrink: 0;
-    box-shadow: 0 6px 36px 0 #7a2ff2f0, 0 3px 0 #fff, 0 12px 48px 12px rgba(0, 0, 0, 0.733);
-    filter: contrast(1.15) brightness(1.2);
-    transition: box-shadow 0.3s, filter 0.3s, transform 0.2s;
-    border: 2px solid rgba(255, 255, 255, 0.151);
-    width: 100%;
-    height: 100%;
+  /* Triángulo tipo Play usando clip-path */
+  clip-path: polygon(18% 5%, 92% 50%, 16% 95%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+  transform: scale(1.1);
+  flex-shrink: 0;
+  box-shadow: 0 6px 36px 0 #7a2ff2f0, 0 3px 0 #fff, 0 12px 48px 12px rgba(0, 0, 0, 0.733);
+  filter: contrast(1.15) brightness(1.2);
+  transition: box-shadow 0.3s, filter 0.3s, transform 0.2s;
+  border: 2px solid rgba(255, 255, 255, 0.151);
+  width: 100%;
+  height: 100%;
 
- 
+
 }
+
 .logoIcon:hover {
-    box-shadow: 0 8px 32px 0 #7b2ff2cc, 0 2px 0 #fff;
-    filter: contrast(1.22) brightness(1.5);
-    transform: scale(1.2);
-    
+  box-shadow: 0 8px 32px 0 #7b2ff2cc, 0 2px 0 #fff;
+  filter: contrast(1.22) brightness(1.5);
+  transform: scale(1.2);
+
 }
 
 .navLinks {
@@ -86,11 +89,13 @@ animation: gradient 15s ease infinite;
   height: 100%;
 
 }
+
 .navLinks li {
   width: 100%;
   display: flex;
   justify-content: center;
 }
+
 .navLinks li a {
   color: #bbb;
   text-decoration: none;
@@ -104,16 +109,18 @@ animation: gradient 15s ease infinite;
   padding: 0.2rem 0.2rem;
   border-radius: 10px;
 }
+
 .navLinks li a:hover {
 
-    transition: transform 0.5s;
-    transform: scale(1.05);
+  transition: transform 0.5s;
+  transform: scale(1.05);
 
   background: rgba(255, 255, 255, 0.123);
-    box-shadow: 0 0 10px rgba(80, 7, 129, 0.2);
+  box-shadow: 0 0 10px rgba(80, 7, 129, 0.2);
 }
-.navLinks li a.active {
-    
 
-  background: rgba(255,255,255,0.123);
+.navLinks li a.active {
+
+
+  background: rgba(255, 255, 255, 0.123);
 }
