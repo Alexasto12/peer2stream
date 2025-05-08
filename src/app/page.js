@@ -1,10 +1,68 @@
-import React from "react";
+'use client'
+
+import React, { useEffect, useState } from "react";
+import styles from "./page.module.css";
+import TrendingCarousel from "@/app/components/trending/TrendingCarousel";
 
 export default function HomePage() {
+  // Trending state
+  const [trending, setTrending] = useState([]);
+  const [loadingTrending, setLoadingTrending] = useState(true);
+
+  useEffect(() => {
+    async function fetchTrending() {
+      setLoadingTrending(true);
+      const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+      const res = await fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`);
+      const data = await res.json();
+      setTrending(data.results || []);
+      setLoadingTrending(false);
+    }
+    fetchTrending();
+  }, []);
+
+  // Estado para autenticación
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        setIsAuthenticated(res.ok);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  if (!isAuthenticated) {
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>Home</h1>
+          <p className={styles.centeredMsg}>You must log in to view the Home page</p>
+          <a href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</a>
+          <p className={styles.centeredMsg}>Or explore some content</p>
+          <a href="/discover" className={styles.loginBtn}>{'>'} Go to Discover {'<'}</a>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main style={{ paddingLeft: "220px", padding: "2rem" }}>
-      <h1>Home</h1>
-      <p>Bienvenido a Peer2Stream. Explora y gestiona tu videoclub personal.</p>
+    <main className={styles.main}>
+
+      <h1 className={styles.title}>Continue Watching</h1>
+      <section className={styles.section}>
+        <TrendingCarousel />
+      </section>
+
+      <h1 className={styles.title}>For You</h1>
+      <section className={styles.section}>
+        <TrendingCarousel />
+      </section>
+
     </main>
   );
 }

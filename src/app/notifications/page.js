@@ -5,48 +5,47 @@ import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { FaGripVertical } from "react-icons/fa";
+import styles from "./NotificationCard.module.css";
 
 function NotificationCard({ notification, onDelete, style, selected, onSelect, dragHandleProps, isDragging }) {
+  const msg = notification.message || '';
+  let variant = styles.default;
+  if (msg.includes("removed")) variant = styles.removed;
+  else if (msg.includes("added")) variant = styles.added;
+  let before = msg;
+  let after = '';
+  const idx = msg.indexOf(' has been ');
+  if (idx !== -1) {
+    before = msg.slice(0, idx);
+    after = msg.slice(idx);
+  }
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: "#222",
-        color: "#fff",
-        borderRadius: "10px",
-        padding: "1.5rem 2rem",
-        marginBottom: "1rem",
-        width: "100%",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        fontSize: "1.1rem",
-        opacity: isDragging ? 0.5 : 1,
-        ...style,
-      }}
+      className={[
+        styles.notificationCard,
+        variant,
+        isDragging ? styles.isDragging : ''
+      ].join(' ')}
+      style={style}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", flex: 1 }}>
+      <div className={styles.notificationCardContent}>
         <span {...dragHandleProps} style={{ display: 'flex', alignItems: 'center' }}>
-          <FaGripVertical style={{ cursor: "grab", opacity: 0.7, fontSize: "1.5rem" }} />
+          <FaGripVertical style={{ cursor: "grab", opacity: 0.7, fontSize: "2.1rem" }} />
         </span>
         <input
           type="checkbox"
           checked={selected}
           onChange={onSelect}
-          style={{ accentColor: "#00bcd4", width: 18, height: 18 }}
+          style={{ accentColor: msg.includes("removed") ? "#e53935" : msg.includes("added") ? "#00e676" : "#1976d2", width: 22, height: 22 }}
         />
-        <span>{notification.message}</span>
+        <span>
+          <span className={styles.notificationCardTitle}>{before}</span>
+          <span className={styles.notificationCardAfter}>{after}</span>
+        </span>
       </div>
       <button
         onClick={() => onDelete(notification._id)}
-        style={{
-          background: "transparent",
-          border: "none",
-          color: "#fff",
-          fontSize: "1.5rem",
-          cursor: "pointer",
-          marginLeft: "1.5rem",
-        }}
+        className={styles.notificationCardButton}
         aria-label="Eliminar notificación"
         title="Eliminar"
       >
@@ -200,9 +199,9 @@ export default function NotificationsPage({ setNotificationCount }) {
       <div style={{
         background: "rgba(30, 30, 40, 0.7)",
         borderRadius: "18px",
-        padding: "2.5rem 2rem 2rem 2rem",
+        padding: "2.2rem 1.2rem 1.2rem 1.2rem",
         marginBottom: "2.5rem",
-        maxWidth: 900,
+        maxWidth: 1200,
         margin: "0 auto 2.5rem auto",
         boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
         textAlign: "center"
@@ -212,8 +211,8 @@ export default function NotificationsPage({ setNotificationCount }) {
           fontSize: "2.5rem",
           margin: 0,
           letterSpacing: "-1px",
-          color: "#fff",
-          textShadow: "0 2px 8px #0007"
+          color: "#7ecbff",
+          textShadow: "0 2px 8px #0007, 0 0 8px #1a237e99"
         }}>Tus notificaciones</h1>
         <p style={{
           color: "#cfd8dc",
@@ -230,30 +229,66 @@ export default function NotificationsPage({ setNotificationCount }) {
         display: "flex",
         justifyContent: "center",
       }}>
-        <div style={{
-          width: "90%",
-          maxWidth: "90%",
-        }}>
-          <button
-            onClick={handleDeleteSelected}
-            disabled={selected.length === 0}
-            style={{
-              marginBottom: "1.5rem",
-              background: selected.length === 0 ? "#444" : "#e53935",
-              color: selected.length === 0 ? "#bbb" : "#fff",
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.7rem 1.5rem",
-              fontWeight: 500,
-              fontSize: "1.05rem",
-              cursor: selected.length === 0 ? "not-allowed" : "pointer",
-              boxShadow: "0 2px 8px #0002",
-              opacity: selected.length === 0 ? 0.7 : 1,
-              transition: "all 0.2s"
-            }}
-          >
-            Borrar seleccionadas
-          </button>
+        <div
+          className={styles.notificationsScroll}
+          style={{
+            width: "90%",
+            maxWidth: "90%",
+            height: "67vh",
+            overflowY: "auto",
+            paddingRight: "10px",
+          }}
+        >
+          <div style={{
+            width: "90%",
+            maxWidth: "90%",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "1.5rem"
+          }}>
+            <button
+              onClick={() => {
+                if (selected.length === notifications.length) setSelected([]);
+                else setSelected(notifications.map(n => n._id));
+              }}
+              style={{
+                background: selected.length === notifications.length ? "#444" : "#1976d2",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.7rem 1.5rem",
+                fontWeight: 500,
+                fontSize: "1.05rem",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px #0002",
+                marginRight: 0,
+                transition: "all 0.2s"
+              }}
+            >
+              {selected.length === notifications.length ? "Deselect all" : "Select all"}
+            </button>
+            <button
+              onClick={handleDeleteSelected}
+              disabled={selected.length === 0}
+              style={{
+                background: selected.length === 0 ? "#444" : "#e53935",
+                color: selected.length === 0 ? "#bbb" : "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.7rem 1.5rem",
+                fontWeight: 500,
+                fontSize: "1.05rem",
+                cursor: selected.length === 0 ? "not-allowed" : "pointer",
+                boxShadow: "0 2px 8px #0002",
+                opacity: selected.length === 0 ? 0.7 : 1,
+                transition: "all 0.2s"
+              }}
+            >
+              Delete selected
+            </button>
+          </div>
           <DndContext
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}

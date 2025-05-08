@@ -7,6 +7,7 @@ import styles from "./discover.module.css";
 import { motion } from 'framer-motion';
 import CustomSelect from "@/app/components/customSelect/CustomSelect";
 import SearchBar from "../components/searchBar/SearchBar";
+import Modal from "@/app/components/modal/Modal";
 
 export default function DiscoverPage() {
 
@@ -28,12 +29,27 @@ export default function DiscoverPage() {
   const [provider, setProvider] = useState("");
   const [providers, setProviders] = useState([]);
 
+  // Mapeo de motes para simplificar nombres largos de proveedores
+  const providerNicknames = {
+    "Netflix": "Netflix",
+    "Amazon Prime Video": "Prime",
+    "Disney Plus": "Disney",
+    "Crunchyroll": "Crunchyroll",
+    "Movistar Plus+": "Movistar",
+    "Max": "HBO",
+    "Apple TV+": "Apple TV"
+  };
+
   // Estado para búsqueda
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchMode, setSearchMode] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const debounceTimeout = useRef();
+
+  // Estado para el modal y la película seleccionada
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
 
   // Nueva función para búsqueda con debounce y sugerencias
   const handleSearchInput = (e) => {
@@ -72,6 +88,78 @@ export default function DiscoverPage() {
     setSearchMode(true);
   };
 
+  // Handler para abrir el modal y cargar info detallada y proveedores
+  const handleFaviconClick = async ({ id, type }) => {
+    setModalOpen(true);
+    setModalData(null); // Mostrar loading
+    const BASE_URL = "https://api.themoviedb.org/3";
+    const endpoint = type === 'movie' ? 'movie' : 'tv';
+    const query = new URLSearchParams({ api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY }).toString();
+    // 1. Obtener detalles
+    const res = await fetch(`${BASE_URL}/${endpoint}/${id}?${query}`);
+    const data = await res.json();
+    // 2. Obtener proveedores
+    let providers = [];
+    try {
+      const provRes = await fetch(`${BASE_URL}/${endpoint}/${id}/watch/providers?${query}`);
+      const provData = await provRes.json();
+      // España (ES) por defecto
+      if (provData.results && provData.results.ES && provData.results.ES.flatrate) {
+        // Filtrar plataformas principales y evitar redundancias
+        const mainPlatforms = [
+          "Netflix",
+          "Amazon Prime",
+          "Prime Video",
+          "Disney+",
+          "HBO",
+          "Apple TV+",
+          "Movistar+",
+          "Filmin",
+          "SkyShowtime",
+          "Crunchyroll"
+        ];
+        const nicknameMap = {
+          "Netflix": "Netflix",
+          "Amazon Prime Video": "Prime Video",
+          "Amazon Prime": "Prime Video",
+          "Prime Video": "Prime Video",
+          "Disney Plus": "Disney+",
+          "Disney+": "Disney+",
+          "HBO Max": "HBO",
+          "Max": "HBO",
+          "HBO": "HBO",
+          "Apple TV+": "Apple TV+",
+          "Movistar Plus+": "Movistar+",
+          "Movistar+": "Movistar+",
+          "Filmin": "Filmin",
+          "SkyShowtime": "SkyShowtime",
+          "Crunchyroll": "Crunchyroll"
+        };
+        const unique = {};
+        provData.results.ES.flatrate.forEach(p => {
+          // Normalizar nombre para evitar duplicados y aplicar mote
+          let name = p.provider_name;
+          if (name.toLowerCase().includes("netflix")) name = "Netflix";
+          if (name.toLowerCase().includes("amazon")) name = "Prime Video";
+          if (name.toLowerCase().includes("disney")) name = "Disney+";
+          if (name.toLowerCase().includes("hbo") || name.toLowerCase().includes("max")) name = "HBO";
+          if (name.toLowerCase().includes("apple")) name = "Apple TV+";
+          if (name.toLowerCase().includes("movistar")) name = "Movistar+";
+          if (name.toLowerCase().includes("filmin")) name = "Filmin";
+          if (name.toLowerCase().includes("skyshowtime")) name = "SkyShowtime";
+          if (name.toLowerCase().includes("crunchyroll")) name = "Crunchyroll";
+          const nickname = nicknameMap[name] || name;
+          if (mainPlatforms.includes(nickname) && !unique[nickname]) {
+            unique[nickname] = { ...p, provider_name: nickname };
+          }
+        });
+        providers = Object.values(unique);
+      }
+    } catch {}
+    data.watchProviders = providers;
+    setModalData(data);
+  };
+
   // Cargar géneros y plataformas según tipo
   useEffect(() => {
 
@@ -102,9 +190,9 @@ export default function DiscoverPage() {
           "Amazon Prime Video",
           "Disney Plus",
           "Crunchyroll",
-          "Movistar Plus",
-          "HBO Max",
-          "Apple TV Plus"
+          "Movistar Plus+",
+          "Max",
+          "Apple TV+"
         ];
         const filtered = (data.results || []).filter(p =>
           allowedProviders.includes(p.provider_name)
@@ -246,6 +334,8 @@ export default function DiscoverPage() {
         setSuggestions={setSuggestions}
         handleSuggestionClick={handleSuggestionClick}
       />
+      {/* Modal para info de película/serie */}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
 
       {/* Modern minimalist filter bar */}
       <motion.div
@@ -258,7 +348,7 @@ export default function DiscoverPage() {
         <motion.div
           layout
           transition={{ type: 'spring', stiffness: 70, damping: 18 }}
-          className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+          className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
         >
           <CustomSelect
             id="type-select"
@@ -284,7 +374,7 @@ export default function DiscoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
-                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
                 <CustomSelect
                   id="genre-select"
@@ -302,14 +392,14 @@ export default function DiscoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
-                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
                 <CustomSelect
                   id="platform-select"
                   label="Platform"
                   value={provider}
                   onChange={setProvider}
-                  options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: p.provider_name }))]}
+                  options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
                   className="min-w-[120px]"
                 />
               </motion.div>
@@ -320,7 +410,7 @@ export default function DiscoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
-                className="bg-[#23232b] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
               >
                 <CustomSelect
                   id="order-select"
@@ -358,6 +448,7 @@ export default function DiscoverPage() {
             title={item.title || item.name}
             release_date={item.release_date || item.first_air_date ? dateYear(item.release_date || item.first_air_date) : ""}
             className="!h-[420px] !w-full"
+            onFaviconClick={handleFaviconClick}
           />
         ))}
       </div>
