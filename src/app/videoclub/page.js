@@ -197,7 +197,6 @@ export default function VideoclubPage() {
     );
   }
 
-
   if (favourites.length === 0) {
     return (
       <main className={styles.centeredMain}>

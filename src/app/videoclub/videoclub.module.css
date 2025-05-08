@@ -169,3 +169,7 @@
 .loginBtn{
     font-weight: bold;
 }
+
+.loginBtn:hover{
+    text-decoration: underline;
+}
