@@ -7,6 +7,7 @@ import Image from "next/image";
 import EyeIcon from "@mui/icons-material/VisibilityOutlined";
 import EyeOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import RegisterModal from "../components/RegisterModal/RegisterModal";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -84,6 +85,10 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       if (res.ok) {
+        // Emitir evento para que la NavBar se actualice al hacer login
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('authChanged'));
+        }
         router.push("/dashboard");
       } else {
         const data = await res.json();
@@ -130,6 +135,10 @@ export default function LoginPage() {
         setRegSuccess("Registration successful! You can now log in.");
         setRegUsername(""); setRegEmail(""); setRegPassword(""); setRegRepeatPassword(""); setRegCaptcha("");
         generateCaptcha();
+        // Emitir evento para que la NavBar se actualice si el registro también inicia sesión automáticamente
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('authChanged'));
+        }
       } else {
         setRegError(data.error || "Registration failed");
       }
