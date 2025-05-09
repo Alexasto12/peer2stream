@@ -217,21 +217,23 @@
   align-items: center;
   gap: 0.5rem;
 }
-.toggle {
-  appearance: none;
-  width: 2.1rem;
-  height: 1.1rem;
-  background: #bbb;
-  border-radius: 1rem;
-  position: relative;
-  outline: none;
-  transition: background 0.2s;
-  cursor: pointer;
+:global(input.toggle) {
+  appearance: none !important;
+  width: 2.1rem !important;
+  height: 1.1rem !important;
+  background: #bbb !important;
+  border-radius: 1rem !important;
+  position: relative !important;
+  outline: none !important;
+  transition: background 0.2s !important;
+  cursor: pointer !important;
+  border: none !important;
+  box-shadow: none !important;
 }
-.toggle:checked {
-  background: linear-gradient(90deg, #7b2ff2 0%, #351eff 100%);
+:global(input.toggle:checked) {
+  background: linear-gradient(90deg, #7b2ff2 0%, #351eff 100%) !important;
 }
-.toggle::before {
+:global(input.toggle::before) {
   content: "";
   position: absolute;
   left: 0.15rem;
@@ -243,7 +245,7 @@
   transition: transform 0.2s;
   box-shadow: 0 2px 8px #50078110;
 }
-.toggle:checked::before {
+:global(input.toggle:checked::before) {
   transform: translateX(0.85rem);
 }
 .toggleLabel {
