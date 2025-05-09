@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Login.module.css";
-import Image from "next/image";
 import EyeIcon from "@mui/icons-material/VisibilityOutlined";
 import EyeOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import RegisterModal from "../components/RegisterModal/RegisterModal";
@@ -204,17 +203,18 @@ export default function LoginPage() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.formCard}>
-        <Image src="/file.svg" alt="Logo" width={112} height={80} className={styles.logo} priority />
-        <div className={styles.welcome}>Bienvenido</div>
-        <div className={styles.loginTitle}>Login</div>
-        <div className={styles.loginDesc}>Accede a tu cuenta para gestionar tu videoclub.</div>
+        <div className={styles.welcome}>Welcome To</div>
+        <h1 className={styles.crystalFormTitle}>
+          PEER2STREAM
+        </h1>
+        <div className={styles.loginDesc}>Access your account to manage My videoclub.</div>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <div className={styles.formGroup}>
             <label>Email:</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div className={styles.formGroup}>
-            <label>Contraseña:</label>
+            <label>Password:</label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <input
                 type={showPassword ? "text" : "password"}
@@ -231,23 +231,25 @@ export default function LoginPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  color: "#888"
+                  color: showPassword ? "#222" : "#222",
+                  opacity: 0.85
                 }}
                 tabIndex={0}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOffIcon fontSize="small" /> : <EyeIcon fontSize="small" />}
               </span>
             </div>
           </div>
           {error && <div className={styles.error}>{error}</div>}
-          <button type="submit" className={styles.loginButton}>Iniciar sesión</button>
+          <button type="submit" className={styles.loginButton}>Log In</button>
         </form>
         <div style={{ marginTop: 16, textAlign: "center" }}>
-          Don&apos;t have an account?{' '}
-          <Link href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
-            Register
-          </Link>
+          <strong>Don&apos;t have an account?{' '}
+            <Link href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
+              Register
+            </Link>
+          </strong>
         </div>
       </div>
       <RegisterModal open={showRegister} onClose={() => { setShowRegister(false); setRegError(""); setRegSuccess(""); }}>

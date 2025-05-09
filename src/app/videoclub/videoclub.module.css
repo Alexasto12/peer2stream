@@ -134,7 +134,7 @@
 
 .centeredBox {
     backdrop-filter: blur(10px);
-    background: linear-gradient(270deg, #240e88e5, #0a0891);
+    background: linear-gradient(270deg, rgba(255, 255, 255, 0.13),#0a089157, #0a0891be);
     animation: gradient 15s ease infinite;
     border-radius: 30px;
     border: 2px solid rgba(255, 255, 255, 0.151);
@@ -166,10 +166,10 @@
     white-space: nowrap;
 }
 
-.loginBtn{
+.loginBtn {
     font-weight: bold;
 }
 
-.loginBtn:hover{
+.loginBtn:hover {
     text-decoration: underline;
 }
