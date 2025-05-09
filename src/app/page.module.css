@@ -19,6 +19,8 @@
     border-radius: 18px;
     padding: 5px;
     transition: box-shadow 0.2s;
+    background-color: #1d009c96;
+    /* padding-bottom: 15px; */
 }
 
 .centeredMain {
@@ -54,10 +56,10 @@
     font-weight: 500;
 }
 
-.loginBtn{
+.loginBtn {
     font-weight: bold;
 }
 
-.loginBtn:hover{
+.loginBtn:hover {
     text-decoration: underline;
 }
