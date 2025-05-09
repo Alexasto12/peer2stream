@@ -2,14 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import TrendingCarousel from "@/app/components/trending/TrendingCarousel";
 import RecommendedCarousel from "@/app/components/recommended/RecommendedCarousel";
 import Link from "next/link";
 
 export default function HomePage() {
-  // Trending state
-  const [trending, setTrending] = useState([]);
-  const [loadingTrending, setLoadingTrending] = useState(true);
+ 
 
   useEffect(() => {
     async function fetchTrending() {
@@ -57,7 +54,8 @@ export default function HomePage() {
 
       <h1 className={styles.title}>Continue Watching</h1>
       <section className={styles.section}>
-        <TrendingCarousel />
+             <RecommendedCarousel 
+        />
       </section>
 
       <h1 className={styles.title}>For You</h1>

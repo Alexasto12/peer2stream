@@ -52,8 +52,8 @@ export default function SearchBar({
           value={searchQuery}
           onChange={handleSearchInput}
           placeholder="Search movies or series..."
-          className="block w-full rounded-full border border-gray-700 bg-[#18181b] py-3 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          autoComplete="off"
+          className="block w-full rounded-full border border-gray-700 bg-[#18181b] py-3 pl-10 pr-4 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          autoComplete="on"
         />
         <AnimatePresence>
           {suggestions.length > 0 && (

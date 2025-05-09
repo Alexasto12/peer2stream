@@ -1,7 +1,6 @@
 .main {
     padding-left: 220px;
-    /* O el ancho real de tu sidebar */
-    padding-top: 2rem;
+    padding-top: 1rem;
     padding-right: 2rem;
     padding-bottom: 2rem;
 }
@@ -14,17 +13,18 @@
 }
 
 .section {
-    margin-bottom: 0.5em;
+
     box-shadow: 0 4px 24px 0 #00000055;
     border-radius: 18px;
-    padding: 5px;
+
     transition: box-shadow 0.2s;
     background-color: #1d009c96;
     /* padding-bottom: 15px; */
+    min-height: 300px; /* Aumenta la altura mínima de la sección */
 }
 
 .centeredMain {
-    min-height: 100vh;
+    
     display: flex;
     flex-direction: column;
     align-items: center;

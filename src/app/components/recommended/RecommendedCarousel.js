@@ -117,10 +117,7 @@ export default function RecommendedCarousel() {
             ) : recommended.length === 0 ? (
                 <div className={styles.loading}>No hay recomendaciones disponibles.</div>
             ) : (
-                <div className={styles.carouselContainer} style={{ position: 'relative' }}>
-                    {/* Blur overlays */}
-                    <div className={styles.blurLeft} />
-                    <div className={styles.blurRight} />
+                <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}
                         onClick={handlePrev}
                         onMouseEnter={() => startAutoScroll("left")}
@@ -132,7 +129,6 @@ export default function RecommendedCarousel() {
                     <div
                         className={styles.carousel}
                         ref={carouselRef}
-                        style={{ overflowX: 'auto', scrollBehavior: 'smooth', display: 'flex', height: '325px' }}
                     >
                         {recommended.filter(item => item.poster_path)
                             .map((item, idx) => (
