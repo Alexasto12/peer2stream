@@ -42,8 +42,16 @@ export default function NavBarWrapper({ children }) {
       }
     };
     window.addEventListener('notificationUpdate', handleNotificationUpdate);
+    // Nuevo: escuchar cambios de autenticación
+    const handleAuthChanged = () => {
+      fetch("/api/auth/me", { credentials: "include" })
+        .then((res) => setIsLoggedIn(res.ok))
+        .catch(() => setIsLoggedIn(false));
+    };
+    window.addEventListener('authChanged', handleAuthChanged);
     return () => {
       window.removeEventListener('notificationUpdate', handleNotificationUpdate);
+      window.removeEventListener('authChanged', handleAuthChanged);
     };
   }, [isLoggedIn]);
 

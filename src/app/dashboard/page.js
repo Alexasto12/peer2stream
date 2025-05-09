@@ -436,6 +436,10 @@ export default function DashboardPage() {
         </section>
         <button className={styles.logoutBtn} onClick={async () => {
           await fetch("/api/auth/logout", { method: "POST" });
+          // Emitir evento para que la NavBar se actualice al hacer logout
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('authChanged'));
+          }
           router.push("/login");
         }}>
           Log out
