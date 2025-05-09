@@ -26,22 +26,19 @@ export default function RecommendedCarousel() {
             const { externalId } = filtered[0];
             const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
             let allResults = [];
-            let totalPagesApi = 1;
-            // Fetch first page to get total_pages
-            const firstRes = await fetch(`https://api.themoviedb.org/3/movie/${externalId}/similar?api_key=${apiKey}&page=1`);
-            const firstData = await firstRes.json();
-            if (firstData.results) allResults = allResults.concat(firstData.results);
-            if (firstData.total_pages) totalPagesApi = firstData.total_pages;
-            // Fetch more pages (up to 5 for performance)
-            for (let p = 2; p <= totalPagesApi && p <= 5; p++) {
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${externalId}/similar?api_key=${apiKey}&page=${p}`);
-                const data = await res.json();
-                if (data.results) allResults = allResults.concat(data.results);
-            }
+            // Fetch both movie and tv similar endpoints
+            const [movieRes, tvRes] = await Promise.all([
+                fetch(`https://api.themoviedb.org/3/movie/${externalId}/similar?api_key=${apiKey}&page=1`),
+                fetch(`https://api.themoviedb.org/3/tv/${externalId}/similar?api_key=${apiKey}&page=1`)
+            ]);
+            const movieData = await movieRes.json();
+            const tvData = await tvRes.json();
+            if (movieData.results) allResults = allResults.concat(movieData.results.map(r => ({ ...r, _mediaType: 'movie' })));
+            if (tvData.results) allResults = allResults.concat(tvData.results.map(r => ({ ...r, _mediaType: 'tv' })));
             // Filtrar y ordenar
             const sorted = allResults
                 .filter(item => {
-                    const year = item.release_date ? new Date(item.release_date).getFullYear() : null;
+                    const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
                     return !year || year >= 1980;
                 })
                 .sort((a, b) => b.vote_average - a.vote_average);
