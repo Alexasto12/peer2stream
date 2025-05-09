@@ -1,15 +1,17 @@
 .navbar {
   position: fixed;
-  top: 10vh;
+  top: 16vh;
   left: 1vw;
   bottom: 5.0vh;
-  height: 80vh;
-  width: 6.5%;
+  height: 65vh;
+  
+  min-width: 95.5px;
+  max-width: 133px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 1.5rem 1rem 1.5rem 1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.5rem 1rem 0.5rem;
   color: #fff;
   box-shadow: 2px 20px 16px rgba(0, 0, 0, 0.479);
   z-index: 1000;
@@ -35,20 +37,43 @@
   }
 }
 
+@keyframes shine {
+  0% {
+   filter: brightness(1);
+   transform: scale(1);
+  }
+  20% {
+   filter: brightness(1.2);
+   transform: scale(1.1);
+  }
+  40% {
+   filter: brightness(1.5);
+   transform: scale(1.2);
+  }
+  60% {
+   filter: brightness(1.2);
+   transform: scale(1.1);
+  }
+  100% {
+   filter: brightness(1);
+   transform: scale(1);
+  }
+}
+
+.favicon-shine {
+  animation: shine 50s  infinite;
+}
+
 .logoContainer {
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  margin-bottom: 2rem;
+  margin-bottom: 1.2rem;
 
   background-color: rgba(0, 0, 0, 0);
   border-radius: 20%;
-
-
-
-
 }
 
 .logoIcon {
@@ -57,24 +82,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0;
+  margin-bottom: 0.2rem;
   transform: scale(1.1);
   flex-shrink: 0;
   box-shadow: 0 6px 36px 0 #7a2ff2f0, 0 3px 0 #fff, 0 12px 48px 12px rgba(0, 0, 0, 0.733);
   filter: contrast(1.15) brightness(1.2);
   transition: box-shadow 0.3s, filter 0.3s, transform 0.2s;
   border: 2px solid rgba(255, 255, 255, 0.151);
-  width: 100%;
-  height: 100%;
-
-
+  width: 52.8px !important;
+  height: 52.8px !important;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 61.6px;
+  max-height: 61.6px;
 }
 
 .logoIcon:hover {
   box-shadow: 0 8px 32px 0 #7b2ff2cc, 0 2px 0 #fff;
   filter: contrast(1.22) brightness(1.5);
   transform: scale(1.2);
-
 }
 
 .navLinks {
@@ -82,12 +108,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4rem;
+  justify-content: center;
+  gap: 3.2rem;
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-
 }
 
 .navLinks li {
@@ -96,31 +122,32 @@
   justify-content: center;
 }
 
-.navLinks li a {
+.navLinks li a, .navLinks li :global(svg) {
   color: #bbb;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s, background 0.2s;
-  font-size: 5.5rem;
+  font-size: 2.86rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90%;
+  width: 52.8px;
+  height: 52.8px;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 61.6px;
+  max-height: 61.6px;
   padding: 0.2rem 0.2rem;
   border-radius: 10px;
 }
 
 .navLinks li a:hover {
-
   transition: transform 0.5s;
   transform: scale(1.05);
-
   background: rgba(255, 255, 255, 0.123);
   box-shadow: 0 0 10px rgba(80, 7, 129, 0.2);
 }
 
 .navLinks li a.active {
-
-
   background: rgba(255, 255, 255, 0.123);
 }
