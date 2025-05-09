@@ -25,6 +25,7 @@
   flex-direction: column;
   align-items: center;
   min-height: 620px;
+  overflow-x: hidden;
 }
 
 .settingsMenu {
@@ -118,6 +119,7 @@
   flex-direction: column;
   gap: 0.2rem;
   margin-bottom: 0.3rem;
+
 }
 
 .formGroup label {
@@ -282,6 +284,11 @@
   font-size: 1.08rem;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   animation: none;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  transform-origin: center;
+  contain: layout paint;
 }
 .userMsg--success {
   background: linear-gradient(90deg, #1fa463 0%, #3edb8a 100%);
@@ -292,7 +299,7 @@
   color: #ff3b3b;
   border: 1.5px solid #ff3b3b;
   box-shadow: 0 2px 12px #ff3b3b22;
-  animation: bounceIn 0.5s cubic-bezier(.68,-0.55,.27,1.55);
+  animation: bounceIn 0.5s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -309,8 +316,15 @@
   z-index: 2;
   pointer-events: none;
   /* Prevent scroll jump */
+  max-width: 90%;
+  max-height: 4.5em;
+  overflow: visible;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  transform-origin: center;
+  contain: layout paint;
 }
 .userMsg--error::before {
   content: '';
@@ -323,13 +337,17 @@
   opacity: 0.85;
 }
 
+body.modal-open, body.user-msg-open {
+  overflow: hidden !important;
+}
+
 @keyframes bounceIn {
   0% {
     transform: scale(0.7);
     opacity: 0.2;
   }
   60% {
-    transform: scale(1.15);
+    transform: scale(1.01);
     opacity: 1;
   }
   80% {
@@ -346,6 +364,7 @@
   text-align: center;
   margin-bottom: 1rem;
   font-weight: 500;
+  overflow: visible;
 }
 
 .dashboardFooter {
@@ -407,17 +426,7 @@
   display: flex;
   align-items: center;
 }
-.githubLink {
-  color: #bfc6e6;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.githubLink:hover {
-  color: #7b2ff2;
-}
+
 
 @media (max-width: 900px) {
   .dashboardMainClassic {
