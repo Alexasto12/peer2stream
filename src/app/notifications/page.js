@@ -361,7 +361,7 @@ export default function NotificationsPage({ setNotificationCount }) {
               letterSpacing: '0.5px',
               textShadow: '0 2px 8px #0007',
             }}>
-              You dont have any Notifications
+              You don&apos;t have any Notifications
             </div>
           )}
         </div>
