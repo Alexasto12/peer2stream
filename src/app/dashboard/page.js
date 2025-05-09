@@ -423,7 +423,7 @@ export default function DashboardPage() {
                     type="checkbox"
                     checked={!!settings.notifications}
                     onChange={handleToggleNotifications}
-                    className={styles.toggle}
+                    className="toggle"
                   />
                   <span className={styles.toggleLabel}>{settings.notifications ? "Enabled" : "Disabled"}</span>
                 </div>
