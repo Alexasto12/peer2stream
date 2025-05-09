@@ -2,6 +2,7 @@
     width: 100%;
     padding-top: 0.1rem;
     padding-bottom: 0.1rem;
+
 }
 
 .carouselContainer {
@@ -12,11 +13,13 @@
     width: 100%;
     max-width: none;
     margin: 0 auto;
+    /* Asegura que los hijos absolutos se posicionen respecto a este contenedor */
+    z-index: 0;
 }
 
 .carousel {
     display: flex;
-    gap: 1.2rem;
+    gap: 1.8rem;
     align-items: center;
     justify-content: flex-start;
     position: relative;
@@ -28,12 +31,7 @@
     padding-right: 0;
     scroll-behavior: smooth;
     scrollbar-width: none;
-    /* Oculta la barra de scroll en Firefox */
-}
-
-.carousel::-webkit-scrollbar {
-    display: none;
-    /* Oculta la barra de scroll en Chrome, Safari y Opera */
+    z-index: 1; /* Asegura que el blur esté por encima */
 }
 
 .cardItem {
@@ -46,7 +44,6 @@
     display: flex;
     align-items: stretch;
 }
-
 
 .arrow {
     background: #010141be;
@@ -71,4 +68,30 @@
     color: #fff;
     text-align: center;
     padding: 2rem 0;
+}
+
+.blurLeft {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 440px;
+    height: 100%;
+    z-index: 20;
+    pointer-events: none;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    background: linear-gradient(to right, rgba(20,20,40,0.25) 60%, rgba(20,20,40,0.0) 100%);
+}
+
+.blurRight {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 440px;
+    height: 100%;
+    z-index: 20;
+    pointer-events: none;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    background: linear-gradient(to left, rgba(20,20,40,0.25) 60%, rgba(20,20,40,0.0) 100%);
 }

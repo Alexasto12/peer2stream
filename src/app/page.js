@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import TrendingCarousel from "@/app/components/trending/TrendingCarousel";
+import RecommendedCarousel from "@/app/components/recommended/RecommendedCarousel";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -61,7 +62,7 @@ export default function HomePage() {
 
       <h1 className={styles.title}>For You</h1>
       <section className={styles.section}>
-        <TrendingCarousel />
+        <RecommendedCarousel />
       </section>
 
     </main>
