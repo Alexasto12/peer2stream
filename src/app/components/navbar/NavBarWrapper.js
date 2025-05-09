@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar";
+import Image from "next/image";
+import styles from "./NavBar.module.css";
 
 export default function NavBarWrapper({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -57,6 +59,19 @@ export default function NavBarWrapper({ children }) {
 
   return (
     <>
+      <div className={styles["favicon-shine"]} style={{
+        position: 'fixed',
+        top: '2vh',
+        zIndex: 1100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '7.125%',
+        minWidth: 85.5,
+        maxWidth: 133,
+      }}>
+        <Image src="/favicon.ico" alt="Logo" width={84} height={84} />
+      </div>
       <NavBar isLoggedIn={isLoggedIn} notificationCount={notificationCount} />
       {children && React.cloneElement(children, { setNotificationCount })}
     </>
