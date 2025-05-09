@@ -6,6 +6,7 @@ import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { FaGripVertical } from "react-icons/fa";
 import styles from "./NotificationCard.module.css";
+import Link from "next/link";
 
 function NotificationCard({ notification, onDelete, style, selected, onSelect, dragHandleProps, isDragging }) {
   const msg = notification.message || '';
@@ -80,6 +81,30 @@ export default function NotificationsPage({ setNotificationCount }) {
   const [selected, setSelected] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [isLogged, setIsLogged] = useState(null);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(res => {
+        if (res.ok) {
+          setIsLogged(true);
+          return res.json();
+        } else {
+          setIsLogged(false);
+          return null;
+        }
+      })
+      .then(data => {
+        console.log(data)
+        // Corregido: ahora toma el username correctamente del objeto devuelto y pone la primera letra en mayúscula
+        if (data && data.user && data.user.username) {
+          const username = data.user.username;
+          setUsername(username.charAt(0).toUpperCase() + username.slice(1));
+        }
+      })
+      .catch(() => setIsLogged(false));
+  }, []);
 
   useEffect(() => {
     fetch("/api/user/notifications", { credentials: "include" })
@@ -194,6 +219,18 @@ export default function NotificationsPage({ setNotificationCount }) {
     }
   }
 
+  if (isLogged === false) {
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>Notifications</h1>
+          <p className={styles.centeredMsg}>You must log in to view your Notifications</p>
+          <Link href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main style={{ paddingLeft: "220px", padding: "2rem", marginLeft: "2.5rem" }}>
       <div style={{
@@ -206,14 +243,17 @@ export default function NotificationsPage({ setNotificationCount }) {
         boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
         textAlign: "center"
       }}>
-        <h1 style={{
-          fontWeight: 700,
-          fontSize: "2.5rem",
-          margin: 0,
-          letterSpacing: "-1px",
-          color: "#7ecbff",
-          textShadow: "0 2px 8px #0007, 0 0 8px #1a237e99"
-        }}>Tus notificaciones</h1>
+        {isLogged && (
+          <h1 style={{
+            fontWeight: 700,
+            fontSize: "2.5rem",
+            margin: 0,
+            letterSpacing: "-1px",
+            color: "#7ecbff",
+            textShadow: "0 2px 8px #0007, 0 0 8px #1a237e99"
+          }}><strong>{username}</strong> Notifications</h1>
+        )}
+
         <p style={{
           color: "#cfd8dc",
           fontSize: "1.2rem",
@@ -221,7 +261,7 @@ export default function NotificationsPage({ setNotificationCount }) {
           marginBottom: 0,
           textShadow: "0 1px 4px #0006"
         }}>
-          Aquí verás tus notificaciones importantes y podrás gestionarlas fácilmente.
+          Here you'll see your important notifications and can easily manage them.
         </p>
       </div>
       <div style={{
@@ -239,56 +279,58 @@ export default function NotificationsPage({ setNotificationCount }) {
             paddingRight: "10px",
           }}
         >
-          <div style={{
-            width: "90%",
-            maxWidth: "90%",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "1.5rem"
-          }}>
-            <button
-              onClick={() => {
-                if (selected.length === notifications.length) setSelected([]);
-                else setSelected(notifications.map(n => n._id));
-              }}
-              style={{
-                background: selected.length === notifications.length ? "#444" : "#1976d2",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "0.7rem 1.5rem",
-                fontWeight: 500,
-                fontSize: "1.05rem",
-                cursor: "pointer",
-                boxShadow: "0 2px 8px #0002",
-                marginRight: 0,
-                transition: "all 0.2s"
-              }}
-            >
-              {selected.length === notifications.length ? "Deselect all" : "Select all"}
-            </button>
-            <button
-              onClick={handleDeleteSelected}
-              disabled={selected.length === 0}
-              style={{
-                background: selected.length === 0 ? "#444" : "#e53935",
-                color: selected.length === 0 ? "#bbb" : "#fff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "0.7rem 1.5rem",
-                fontWeight: 500,
-                fontSize: "1.05rem",
-                cursor: selected.length === 0 ? "not-allowed" : "pointer",
-                boxShadow: "0 2px 8px #0002",
-                opacity: selected.length === 0 ? 0.7 : 1,
-                transition: "all 0.2s"
-              }}
-            >
-              Delete selected
-            </button>
-          </div>
+          {notifications.length > 0 && (
+            <div style={{
+              width: "90%",
+              maxWidth: "90%",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem"
+            }}>
+              <button
+                onClick={() => {
+                  if (selected.length === notifications.length) setSelected([]);
+                  else setSelected(notifications.map(n => n._id));
+                }}
+                style={{
+                  background: selected.length === notifications.length ? "#444" : "#1976d2",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.7rem 1.5rem",
+                  fontWeight: 500,
+                  fontSize: "1.05rem",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px #0002",
+                  marginRight: 0,
+                  transition: "all 0.2s"
+                }}
+              >
+                {selected.length === notifications.length ? "Deselect all" : "Select all"}
+              </button>
+              <button
+                onClick={handleDeleteSelected}
+                disabled={selected.length === 0}
+                style={{
+                  background: selected.length === 0 ? "#444" : "#e53935",
+                  color: selected.length === 0 ? "#bbb" : "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.7rem 1.5rem",
+                  fontWeight: 500,
+                  fontSize: "1.05rem",
+                  cursor: selected.length === 0 ? "not-allowed" : "pointer",
+                  boxShadow: "0 2px 8px #0002",
+                  opacity: selected.length === 0 ? 0.7 : 1,
+                  transition: "all 0.2s"
+                }}
+              >
+                Delete selected
+              </button>
+            </div>
+          )}
           <DndContext
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
@@ -306,6 +348,22 @@ export default function NotificationsPage({ setNotificationCount }) {
               ))}
             </SortableContext>
           </DndContext>
+          {notifications.length === 0 && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '40vh',
+              color: '#b0bec5',
+              fontSize: '1.5rem',
+              fontWeight: 500,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              textShadow: '0 2px 8px #0007',
+            }}>
+              You dont have any Notifications
+            </div>
+          )}
         </div>
       </div>
       {showConfirm && (
@@ -331,7 +389,7 @@ export default function NotificationsPage({ setNotificationCount }) {
             textAlign: "center"
           }}>
             <h2 style={{ margin: 0, fontWeight: 600, fontSize: "1.5rem" }}>
-              ¿Seguro que quieres borrar {Array.isArray(pendingDelete) ? `estas ${pendingDelete.length} notificaciones` : 'esta notificación'}?
+              ¿Surely you want to delete {Array.isArray(pendingDelete) ? `this ${pendingDelete.length} notifications` : 'this notification'}?
             </h2>
             <div style={{ marginTop: "2rem", display: "flex", gap: 24, justifyContent: "center" }}>
               <button
@@ -350,7 +408,7 @@ export default function NotificationsPage({ setNotificationCount }) {
                   cursor: "pointer"
                 }}
               >
-                Sí, borrar
+                Yes, delete
               </button>
               <button
                 onClick={() => { setShowConfirm(false); setPendingDelete(null); }}
@@ -365,7 +423,7 @@ export default function NotificationsPage({ setNotificationCount }) {
                   cursor: "pointer"
                 }}
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
