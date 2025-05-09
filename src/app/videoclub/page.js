@@ -6,6 +6,7 @@ import CustomSelect from "../components/customSelect/CustomSelect";
 import Modal from "@/app/components/modal/Modal";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./videoclub.module.css";
+import Link from "next/link";
 
 export default function VideoclubPage() {
   const [isLogged, setIsLogged] = useState(null); // null: loading, false: not logged, true: logged
@@ -180,7 +181,7 @@ export default function VideoclubPage() {
         <div className={styles.centeredBox}>
           <h1 className={styles.title}>My Videoclub</h1>
           <p className={styles.centeredMsg}>You must log in to view My Videoclub</p>
-          <a href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</a>
+          <Link href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</Link>
         </div>
       </main>
     );

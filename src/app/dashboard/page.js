@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Dashboard.module.css";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
@@ -103,7 +104,7 @@ export default function DashboardPage() {
           const data = await res.json();
           setSettings(data.settings || { notifications: true });
         }
-      } catch {}
+      } catch { }
     }
     fetchSettings();
   }, []);
@@ -300,7 +301,7 @@ export default function DashboardPage() {
                     aria-label={editUsername ? "Cancel edit" : "Edit username"}
                     style={{ background: editUsername ? '#351effb9' : 'transparent' }}
                   >
-                    <svg width="30" height="30" fill="none" viewBox="0 0 24 24"><path fill="#ffff" d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+                    <svg width="30" height="30" fill="none" viewBox="0 0 24 24"><path fill="#ffff" d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" /></svg>
                   </button>
                 </div>
                 {usernameError && <div className={styles.inputError}>{usernameError}</div>}
@@ -442,10 +443,10 @@ export default function DashboardPage() {
         <footer className={styles.dashboardFooter}>
           <div className={styles.footerRowCentered}>
             <ul className={styles.footerLinks}>
-              <li><a href="#" target="_blank" rel="noopener noreferrer">Terms & Conditions</a></li>
-              <li><a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
-              <li><a href="#" target="_blank" rel="noopener noreferrer">Cookie Policy</a></li>
-              <li><a href="#" target="_blank" rel="noopener noreferrer">Contact</a></li>
+              <li><Link href="#" target="_blank" rel="noopener noreferrer">Terms & Conditions</Link></li>
+              <li><Link href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</Link></li>
+              <li><Link href="#" target="_blank" rel="noopener noreferrer">Cookie Policy</Link></li>
+              <li><Link href="#" target="_blank" rel="noopener noreferrer">Contact</Link></li>
             </ul>
           </div>
         </footer>

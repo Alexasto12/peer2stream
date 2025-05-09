@@ -236,9 +236,9 @@ export default function LoginPage() {
         </form>
         <div style={{ marginTop: 16, textAlign: "center" }}>
           Don&apos;t have an account?{' '}
-          <a href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
+          <Link href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
             Register
-          </a>
+          </Link>
         </div>
       </div>
       <RegisterModal open={showRegister} onClose={() => { setShowRegister(false); setRegError(""); setRegSuccess(""); }}>
