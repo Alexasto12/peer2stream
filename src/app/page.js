@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import TrendingCarousel from "@/app/components/trending/TrendingCarousel";
+import Link from "next/link";
 
 export default function HomePage() {
   // Trending state
@@ -42,9 +43,9 @@ export default function HomePage() {
         <div className={styles.centeredBox}>
           <h1 className={styles.title}>Home</h1>
           <p className={styles.centeredMsg}>You must log in to view the Home page</p>
-          <a href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</a>
+          <Link href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</Link>
           <p className={styles.centeredMsg}>Or explore some content</p>
-          <a href="/discover" className={styles.loginBtn}>{'>'} Go to Discover {'<'}</a>
+          <Link href="/discover" className={styles.loginBtn}>{'>'} Go to Discover {'<'}</Link>
         </div>
       </main>
     );
