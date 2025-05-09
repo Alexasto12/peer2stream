@@ -33,7 +33,7 @@ html, body {
 body {
   background: linear-gradient(120deg, var(--background-gradient-1), var(--background-gradient-2), var(--background-gradient-3));
   background-size: 300% 300%;
-  animation: layout-gradient 30s ease-in-out infinite;
+  animation: layout-gradient 45s ease-in-out infinite;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
