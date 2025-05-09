@@ -26,15 +26,24 @@ export default function RecommendedCarousel() {
             const { externalId } = filtered[0];
             const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
             let allResults = [];
-            // Fetch both movie and tv similar endpoints
-            const [movieRes, tvRes] = await Promise.all([
-                fetch(`https://api.themoviedb.org/3/movie/${externalId}/similar?api_key=${apiKey}&page=1`),
-                fetch(`https://api.themoviedb.org/3/tv/${externalId}/similar?api_key=${apiKey}&page=1`)
+            // Fetch first 5 pages of both movie and tv similar endpoints
+            const fetchPages = async (type) => {
+                let results = [];
+                for (let page = 1; page <= 5; page++) {
+                    const res = await fetch(`https://api.themoviedb.org/3/${type}/${externalId}/similar?api_key=${apiKey}&page=${page}`);
+                    const data = await res.json();
+                    if (data.results) {
+                        results = results.concat(data.results.map(r => ({ ...r, _mediaType: type === 'movie' ? 'movie' : 'tv' })));
+                    }
+                    if (!data.results || data.results.length === 0) break;
+                }
+                return results;
+            };
+            const [movieResults, tvResults] = await Promise.all([
+                fetchPages('movie'),
+                fetchPages('tv')
             ]);
-            const movieData = await movieRes.json();
-            const tvData = await tvRes.json();
-            if (movieData.results) allResults = allResults.concat(movieData.results.map(r => ({ ...r, _mediaType: 'movie' })));
-            if (tvData.results) allResults = allResults.concat(tvData.results.map(r => ({ ...r, _mediaType: 'tv' })));
+            allResults = allResults.concat(movieResults, tvResults);
             // Filtrar y ordenar
             const sorted = allResults
                 .filter(item => {
@@ -127,18 +136,21 @@ export default function RecommendedCarousel() {
                         className={styles.carousel}
                         ref={carouselRef}
                     >
-                        {recommended.filter(item => item.poster_path)
-                            .map((item, idx) => (
-                                <div className={styles.cardItem} key={`${item.id}-${idx}`}>
-                                    <Card
-                                        id={item.id}
-                                        type={"movie"}
-                                        image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                                        title={item.title || item.name}
-                                        release_date={dateYear(item.release_date || item.first_air_date)}
-                                    />
-                                </div>
-                            ))}
+                        {Array.from(new Map(
+                            recommended.filter(item => item.poster_path)
+                                .map(item => [`${item._mediaType}-${item.id}`, item])
+                        ).values())
+                        .map((item, idx) => (
+                            <div className={styles.cardItem} key={`${item.id}-${idx}`}>
+                                <Card
+                                    id={item.id}
+                                    type={item._mediaType}
+                                    image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                                    title={item.title || item.name}
+                                    release_date={dateYear(item.release_date || item.first_air_date)}
+                                />
+                            </div>
+                        ))}
                     </div>
                     <button className={`${styles.arrow} ${styles.arrowRight}`}
                         onClick={handleNext}
