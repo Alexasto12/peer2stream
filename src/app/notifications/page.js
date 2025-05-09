@@ -261,7 +261,7 @@ export default function NotificationsPage({ setNotificationCount }) {
           marginBottom: 0,
           textShadow: "0 1px 4px #0006"
         }}>
-          Here you'll see your important notifications and can easily manage them.
+          Here you&apos;ll see your important notifications and can easily manage them.
         </p>
       </div>
       <div style={{
