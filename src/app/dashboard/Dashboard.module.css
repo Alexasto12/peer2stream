@@ -217,37 +217,6 @@
   align-items: center;
   gap: 0.5rem;
 }
-:global(input.toggle) {
-  appearance: none !important;
-  width: 2.1rem !important;
-  height: 1.1rem !important;
-  background: #bbb !important;
-  border-radius: 1rem !important;
-  position: relative !important;
-  outline: none !important;
-  transition: background 0.2s !important;
-  cursor: pointer !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-:global(input.toggle:checked) {
-  background: linear-gradient(90deg, #7b2ff2 0%, #351eff 100%) !important;
-}
-:global(input.toggle::before) {
-  content: "";
-  position: absolute;
-  left: 0.15rem;
-  top: 0.13rem;
-  width: 0.85rem;
-  height: 0.85rem;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.2s;
-  box-shadow: 0 2px 8px #50078110;
-}
-:global(input.toggle:checked::before) {
-  transform: translateX(0.85rem);
-}
 .toggleLabel {
   color: #ffffff;
   font-size: 1.08rem;
