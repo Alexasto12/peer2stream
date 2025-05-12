@@ -6,10 +6,10 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 export default function RecommendedCarousel() {
     const [recommended, setRecommended] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [current, setCurrent] = useState(0);
-    const [visibleCards] = useState(6);
     const carouselRef = useRef(null);
-    const scrollInterval = useRef(null);
+    const isDragging = useRef(false);
+    const startX = useRef(0);
+    const scrollLeft = useRef(0);
 
     useEffect(() => {
         async function fetchRecommended() {
@@ -26,7 +26,6 @@ export default function RecommendedCarousel() {
             const { externalId } = filtered[0];
             const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
             let allResults = [];
-            // Fetch first 5 pages of both movie and tv similar endpoints
             const fetchPages = async (type) => {
                 let results = [];
                 for (let page = 1; page <= 5; page++) {
@@ -44,13 +43,12 @@ export default function RecommendedCarousel() {
                 fetchPages('tv')
             ]);
             allResults = allResults.concat(movieResults, tvResults);
-            // Filtrar y ordenar
             const sorted = allResults
                 .filter(item => {
                     const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
-                    return !year || year >= 1980;
+                    return (!year || year >= 1980) && (item.vote_average === undefined || item.vote_average >= 6.8);
                 })
-                .sort((a, b) => b.vote_average - a.vote_average);
+                .sort(() => Math.random() - 0.5);
             setRecommended(sorted);
             setLoading(false);
         }
@@ -63,58 +61,49 @@ export default function RecommendedCarousel() {
         return d.getFullYear();
     };
 
-    const animateScroll = (index) => {
+    // Flechas: scroll horizontal nativo
+    const scrollByCards = (direction) => {
         if (!carouselRef.current) return;
-        const cardWidth = carouselRef.current.firstChild?.offsetWidth;
-        carouselRef.current.scrollTo({
-            left: cardWidth * index,
-            behavior: "smooth"
+        const card = carouselRef.current.querySelector(`.${styles.cardItem}`);
+        if (!card) return;
+        const cardWidth = card.offsetWidth + 24; // 24px gap aprox
+        carouselRef.current.scrollBy({
+            left: direction === 'left' ? -cardWidth * 2 : cardWidth * 2,
+            behavior: 'smooth'
         });
     };
 
-    const handlePrev = () => {
-        setCurrent((prev) => {
-            const next = Math.max(prev - 1, 0);
-            animateScroll(next);
-            return next;
-        });
+    // Drag horizontal
+    const handleMouseDown = (e) => {
+        if (!carouselRef.current) return;
+        isDragging.current = true;
+        startX.current = e.pageX || e.touches?.[0]?.pageX;
+        scrollLeft.current = carouselRef.current.scrollLeft;
+        document.body.style.userSelect = 'none';
     };
-
-    const handleNext = () => {
-        setCurrent((prev) => {
-            const next = Math.min(prev + 1, recommended.length - visibleCards);
-            animateScroll(next);
-            return next;
-        });
+    const handleMouseMove = (e) => {
+        if (!isDragging.current || !carouselRef.current) return;
+        const x = e.pageX || e.touches?.[0]?.pageX;
+        const walk = (x - startX.current);
+        carouselRef.current.scrollLeft = scrollLeft.current - walk;
     };
-
-    const startAutoScroll = (direction) => {
-        if (scrollInterval.current) return;
-        scrollInterval.current = setInterval(() => {
-            if (direction === "left") {
-                setCurrent((prev) => {
-                    const next = Math.max(prev - 1, 0);
-                    animateScroll(next);
-                    if (next === 0) stopAutoScroll();
-                    return next;
-                });
-            } else {
-                setCurrent((prev) => {
-                    const next = Math.min(prev + 1, recommended.length - visibleCards);
-                    animateScroll(next);
-                    if (next >= recommended.length - visibleCards) stopAutoScroll();
-                    return next;
-                });
-            }
-        }, 500);
+    const handleMouseUp = () => {
+        isDragging.current = false;
+        document.body.style.userSelect = '';
     };
-
-    const stopAutoScroll = () => {
-        if (scrollInterval.current) {
-            clearInterval(scrollInterval.current);
-            scrollInterval.current = null;
-        }
-    };
+    useEffect(() => {
+        if (!isDragging.current) return;
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchmove', handleMouseMove);
+        window.addEventListener('touchend', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleMouseMove);
+            window.removeEventListener('touchend', handleMouseUp);
+        };
+    }, [isDragging.current]);
 
     return (
         <div className={styles.carouselWrapper}>
@@ -125,16 +114,17 @@ export default function RecommendedCarousel() {
             ) : (
                 <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}
-                        onClick={handlePrev}
-                        onMouseEnter={() => startAutoScroll("left")}
-                        onMouseLeave={stopAutoScroll}
-                        disabled={current === 0}
+                        onClick={() => scrollByCards('left')}
+                        aria-label="Scroll left"
                     >
                         <FaArrowLeft />
                     </button>
                     <div
                         className={styles.carousel}
                         ref={carouselRef}
+                        style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
+                        onMouseDown={handleMouseDown}
+                        onTouchStart={handleMouseDown}
                     >
                         {Array.from(new Map(
                             recommended.filter(item => item.poster_path)
@@ -153,10 +143,8 @@ export default function RecommendedCarousel() {
                         ))}
                     </div>
                     <button className={`${styles.arrow} ${styles.arrowRight}`}
-                        onClick={handleNext}
-                        onMouseEnter={() => startAutoScroll("right")}
-                        onMouseLeave={stopAutoScroll}
-                        disabled={current >= recommended.length - visibleCards}
+                        onClick={() => scrollByCards('right')}
+                        aria-label="Scroll right"
                     >
                         <FaArrowRight />
                     </button>
