@@ -1,0 +1,123 @@
+.carouselWrapper {
+    width: 100%;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    margin-bottom: 1rem;
+}
+
+.carouselContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    max-width: none;
+
+    margin: 0 auto;
+    /* Asegura que los hijos absolutos se posicionen respecto a este contenedor */
+    z-index: 0;
+
+}
+
+.carouselContainer::before,
+.carouselContainer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 48px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.carouselContainer::before {
+    left: 0;
+    background: linear-gradient(to right,
+            rgba(18, 2, 50, 1) 0%,
+            rgba(18, 2, 60, 1) 15%,
+            rgba(18, 2, 70, 0.99) 30%,
+            rgba(18, 2, 80, 0.98) 45%,
+            rgba(18, 2, 90, 0.863) 60%,
+            rgba(18, 2, 100, 0.719) 75%,
+            rgba(10, 1, 40, 0.233) 87%,
+            rgba(0, 0, 0, 0) 100%);
+    filter: blur(2px);
+    border-radius: 20px;
+    width: 115px;
+}
+
+.carouselContainer::after {
+    right: 0;
+    background: linear-gradient(to left,
+            rgba(18, 2, 50, 1) 0%,
+            rgba(18, 2, 60, 1) 15%,
+            rgba(18, 2, 70, 0.99) 30%,
+            rgba(18, 2, 80, 0.98) 45%,
+            rgba(18, 2, 90, 0.863) 60%,
+            rgba(18, 2, 100, 0.719) 75%,
+            rgba(10, 1, 40, 0.233) 87%,
+            rgba(0, 0, 0, 0) 100%);
+    filter: blur(2px);
+
+    border-radius: 20px;
+    width: 115px;
+
+}
+
+.carousel {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    overflow-x: auto;
+    height: 90%;
+    max-height: 420px;
+    overflow-y: hidden;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    padding: 1px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    z-index: 1;
+}
+
+.cardItem {
+    flex: 1 1 0;
+    min-height: 0;
+
+    width: 100%;
+    max-width: 230px;
+    min-height: 320px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: stretch;
+    transform: scale(0.95);
+}
+
+.arrow {
+    background: #010141be;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 0.5rem;
+    transition: background 0.2s;
+    z-index: 3;
+}
+
+.arrow:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.loading {
+    color: #fff;
+    text-align: center;
+    padding: 2rem 0;
+}
