@@ -13,6 +13,11 @@
     padding-bottom: 2rem;
 }
 
+.mainVideoclubScrollable {
+    height: 100vh;
+    overflow-y: auto;
+}
+
 .cardsGrid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));

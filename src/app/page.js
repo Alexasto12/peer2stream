@@ -50,8 +50,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className={styles.main}>
-
+    <main className={`${styles.main} ${styles.mainScrollable}`}>
       <h1 className={styles.title}>Continue Watching</h1>
       <section className={styles.section}>
         <RecommendedCarousel
