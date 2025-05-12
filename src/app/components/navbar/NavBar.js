@@ -2,7 +2,8 @@ import React from 'react';
 import styles from './NavBar.module.css';
 import Link from 'next/link';
 import Image from "next/image";
-import { FaHome, FaCompass, FaFilm, FaSignInAlt, FaUserCircle, FaBell } from "react-icons/fa";
+import { FaHome, FaCompass, FaSignInAlt, FaUserCircle, FaBell, FaCompactDisc } from "react-icons/fa";
+
 import { usePathname } from 'next/navigation';
 
 export default function NavBar({ isLoggedIn, notificationCount }) {
@@ -22,7 +23,7 @@ export default function NavBar({ isLoggedIn, notificationCount }) {
         </li>
         <li>
           <Link href="/videoclub" className={pathname.startsWith('/videoclub') ? styles.active : ''}>
-            <FaFilm title="Videoclub" alt="Videoclub" size={50} />
+            <FaCompactDisc title="My Videoclub" alt="My Videoclub" size={50} />
           </Link>
         </li>
         <li>
