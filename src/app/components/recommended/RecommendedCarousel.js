@@ -6,10 +6,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 export default function RecommendedCarousel() {
     const [recommended, setRecommended] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [current, setCurrent] = useState(0);
-    const [visibleCards] = useState(6);
     const carouselRef = useRef(null);
-    const scrollInterval = useRef(null);
     const isDragging = useRef(false);
     const startX = useRef(0);
     const scrollLeft = useRef(0);
@@ -29,7 +26,6 @@ export default function RecommendedCarousel() {
             const { externalId } = filtered[0];
             const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
             let allResults = [];
-            // Fetch first 5 pages of both movie and tv similar endpoints
             const fetchPages = async (type) => {
                 let results = [];
                 for (let page = 1; page <= 5; page++) {
@@ -47,14 +43,11 @@ export default function RecommendedCarousel() {
                 fetchPages('tv')
             ]);
             allResults = allResults.concat(movieResults, tvResults);
-            // Filtrar y ordenar
             const sorted = allResults
                 .filter(item => {
                     const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
-                    // Filtrar por año y por puntuación mínima
                     return (!year || year >= 1980) && (item.vote_average === undefined || item.vote_average >= 6.8);
                 })
-                // Ordenar aleatoriamente
                 .sort(() => Math.random() - 0.5);
             setRecommended(sorted);
             setLoading(false);
@@ -68,60 +61,19 @@ export default function RecommendedCarousel() {
         return d.getFullYear();
     };
 
-    const animateScroll = (index) => {
+    // Flechas: scroll horizontal nativo
+    const scrollByCards = (direction) => {
         if (!carouselRef.current) return;
-        const cardWidth = carouselRef.current.firstChild?.offsetWidth;
-        carouselRef.current.scrollTo({
-            left: cardWidth * index,
-            behavior: "smooth"
+        const card = carouselRef.current.querySelector(`.${styles.cardItem}`);
+        if (!card) return;
+        const cardWidth = card.offsetWidth + 24; // 24px gap aprox
+        carouselRef.current.scrollBy({
+            left: direction === 'left' ? -cardWidth * 2 : cardWidth * 2,
+            behavior: 'smooth'
         });
     };
 
-    const handlePrev = () => {
-        setCurrent((prev) => {
-            const next = Math.max(prev - 1, 0);
-            animateScroll(next);
-            return next;
-        });
-    };
-
-    const handleNext = () => {
-        setCurrent((prev) => {
-            const next = Math.min(prev + 1, recommended.length - visibleCards);
-            animateScroll(next);
-            return next;
-        });
-    };
-
-    const startAutoScroll = (direction) => {
-        if (scrollInterval.current) return;
-        scrollInterval.current = setInterval(() => {
-            if (direction === "left") {
-                setCurrent((prev) => {
-                    const next = Math.max(prev - 1, 0);
-                    animateScroll(next);
-                    if (next === 0) stopAutoScroll();
-                    return next;
-                });
-            } else {
-                setCurrent((prev) => {
-                    const next = Math.min(prev + 1, recommended.length - visibleCards);
-                    animateScroll(next);
-                    if (next >= recommended.length - visibleCards) stopAutoScroll();
-                    return next;
-                });
-            }
-        }, 500);
-    };
-
-    const stopAutoScroll = () => {
-        if (scrollInterval.current) {
-            clearInterval(scrollInterval.current);
-            scrollInterval.current = null;
-        }
-    };
-
-    // Free scroll handlers
+    // Drag horizontal
     const handleMouseDown = (e) => {
         if (!carouselRef.current) return;
         isDragging.current = true;
@@ -129,19 +81,16 @@ export default function RecommendedCarousel() {
         scrollLeft.current = carouselRef.current.scrollLeft;
         document.body.style.userSelect = 'none';
     };
-
     const handleMouseMove = (e) => {
         if (!isDragging.current || !carouselRef.current) return;
         const x = e.pageX || e.touches?.[0]?.pageX;
         const walk = (x - startX.current);
         carouselRef.current.scrollLeft = scrollLeft.current - walk;
     };
-
     const handleMouseUp = () => {
         isDragging.current = false;
         document.body.style.userSelect = '';
     };
-
     useEffect(() => {
         if (!isDragging.current) return;
         window.addEventListener('mousemove', handleMouseMove);
@@ -165,12 +114,8 @@ export default function RecommendedCarousel() {
             ) : (
                 <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}
-                        onClick={handlePrev}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleMouseDown}
-                        onMouseEnter={() => startAutoScroll("left")}
-                        onMouseLeave={stopAutoScroll}
-                        disabled={current === 0}
+                        onClick={() => scrollByCards('left')}
+                        aria-label="Scroll left"
                     >
                         <FaArrowLeft />
                     </button>
@@ -198,12 +143,8 @@ export default function RecommendedCarousel() {
                         ))}
                     </div>
                     <button className={`${styles.arrow} ${styles.arrowRight}`}
-                        onClick={handleNext}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleMouseDown}
-                        onMouseEnter={() => startAutoScroll("right")}
-                        onMouseLeave={stopAutoScroll}
-                        disabled={current >= recommended.length - visibleCards}
+                        onClick={() => scrollByCards('right')}
+                        aria-label="Scroll right"
                     >
                         <FaArrowRight />
                     </button>
