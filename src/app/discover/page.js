@@ -51,6 +51,10 @@ export default function DiscoverPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
 
+  // Estado para mostrar el filtro de blur
+  const [showBlur, setShowBlur] = useState(false);
+  const scrollableRef = useRef(null);
+
   // Nueva función para búsqueda con debounce y sugerencias
   const handleSearchInput = (e) => {
     const value = e.target.value;
@@ -321,36 +325,26 @@ export default function DiscoverPage() {
     };
   }, [handleObserver, searchMode, results]);
 
-  // Salir del modo búsqueda al pulsar Escape o hacer clic fuera del SearchBar
   useEffect(() => {
-    if (!searchMode) return;
-    // Handler para Escape
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setSearchMode(false);
-        setSearchQuery("");
-        setSuggestions([]);
-        setResults([]);
-      }
+    const handleScroll = () => {
+      if (!scrollableRef.current) return;
+      const el = scrollableRef.current;
+      // Solo mostrar blur si hay scroll y el usuario no está arriba del todo
+      const shouldBlur = el.scrollTop > 2 && el.scrollHeight > el.clientHeight;
+      setShowBlur(shouldBlur);
     };
-    // Handler para click fuera del SearchBar
-    const handleClick = (e) => {
-      // Busca el nodo del SearchBar
-      const searchBarNode = document.getElementById("search-bar-root");
-      if (searchBarNode && !searchBarNode.contains(e.target)) {
-        setSearchMode(false);
-        setSearchQuery("");
-        setSuggestions([]);
-        setResults([]);
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClick);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, [searchMode]);
+    const el = scrollableRef.current;
+    if (el) el.addEventListener('scroll', handleScroll);
+    return () => { if (el) el.removeEventListener('scroll', handleScroll); };
+  }, []);
+
+  // Resetear scroll y blur al cambiar filtros, endpoint o searchMode
+  useEffect(() => {
+    if (scrollableRef.current) {
+      scrollableRef.current.scrollTop = 0;
+    }
+    setShowBlur(false);
+  }, [endpoint, sortBy, orderDirection, genre, provider, searchMode]);
 
   return (
     <div className={styles.mainDiscover}>
@@ -371,108 +365,111 @@ export default function DiscoverPage() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
 
       {/* Modern minimalist filter bar */}
-      <motion.div
-        layout
-        transition={{ type: 'spring', stiffness: 70, damping: 18 }}
-        className={`w-full flex flex-wrap gap-4 justify-center items-center mb-5 ${styles.filtrosSticky} ${styles.filtrosFade}`}
-        style={{ minHeight: 80 }}
-      >
-        {/* Type selector: SIEMPRE visible */}
+      <div style={{ position: 'relative' }}>
         <motion.div
           layout
           transition={{ type: 'spring', stiffness: 70, damping: 18 }}
-          className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+          className={`w-full flex flex-wrap gap-4 justify-center items-center mb-5 ${styles.filtrosSticky} ${styles.filtrosFade}`}
+          style={{ minHeight: 80 }}
         >
-          <CustomSelect
-            id="type-select"
-            label="Type"
-            value={endpoint}
-            onChange={setEndpoint}
-            options={[
-              { value: "/trending/all/week", label: "All" },
-              { value: "/discover/movie", label: "Movies" },
-              { value: "/discover/tv", label: "Series" },
-            ]}
-            className="min-w-[150px]"
-          />
-        </motion.div>
-        {/* Contenedor de filtros condicionales con ancho fijo */}
-          <motion.div layout className={`flex gap-4 min-h-[64px] ${styles.filtrosFade}`} >
-            {showFilters && (
-              <>
-                <motion.div
-            key="genre"
+          {/* Type selector: SIEMPRE visible */}
+          <motion.div
             layout
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
+            transition={{ type: 'spring', stiffness: 70, damping: 18 }}
             className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-                >
+          >
             <CustomSelect
-              id="genre-select"
-              label="Genre"
-              value={genre}
-              onChange={setGenre}
-              options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
-              className="min-w-[120px]"
-            />
-                </motion.div>
-                <motion.div
-            key="platform"
-            layout
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
-            className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-                >
-            <CustomSelect
-              id="platform-select"
-              label="Platform"
-              value={provider}
-              onChange={setProvider}
-              options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
-              className="min-w-[120px]"
-            />
-                </motion.div>
-                <motion.div
-            key="order"
-            layout
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
-            className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-                >
-            <CustomSelect
-              id="order-select"
-              label="Order"
-              value={sortBy}
-              onChange={setSortBy}
+              id="type-select"
+              label="Type"
+              value={endpoint}
+              onChange={setEndpoint}
               options={[
-                { value: "popularity", label: "Popularity" },
-                { value: "release_date", label: "Date" },
-                { value: "vote_average", label: "Rating" },
+                { value: "/trending/all/week", label: "All" },
+                { value: "/discover/movie", label: "Movies" },
+                { value: "/discover/tv", label: "Series" },
               ]}
-              className="min-w-[120px]"
+              className="min-w-[150px]"
             />
-            <button
-              type="button"
-              className="ml-3 w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 bg-[#18181b] hover:bg-[#23232b] transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
-              aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
-            >
-              <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.4rem', color: '#fff' }}>▼</span>
-            </button>
-                </motion.div>
-              </>
-            )}
           </motion.div>
-              </motion.div>
+          {/* Contenedor de filtros condicionales con ancho fijo */}
+            <motion.div layout className={`flex gap-4 min-h-[64px] ${styles.filtrosFade}`} >
+              {showFilters && (
+                <>
+                  <motion.div
+              key="genre"
+              layout
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
+              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                  >
+              <CustomSelect
+                id="genre-select"
+                label="Genre"
+                value={genre}
+                onChange={setGenre}
+                options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
+                className="min-w-[120px]"
+              />
+                  </motion.div>
+                  <motion.div
+              key="platform"
+              layout
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
+              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                  >
+              <CustomSelect
+                id="platform-select"
+                label="Platform"
+                value={provider}
+                onChange={setProvider}
+                options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
+                className="min-w-[120px]"
+              />
+                  </motion.div>
+                  <motion.div
+              key="order"
+              layout
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
+              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                  >
+              <CustomSelect
+                id="order-select"
+                label="Order"
+                value={sortBy}
+                onChange={setSortBy}
+                options={[
+                  { value: "popularity", label: "Popularity" },
+                  { value: "release_date", label: "Date" },
+                  { value: "vote_average", label: "Rating" },
+                ]}
+                className="min-w-[120px]"
+              />
+              <button
+                type="button"
+                className="ml-3 w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 bg-[#18181b] hover:bg-[#23232b] transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
+                aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
+              >
+                <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.4rem', color: '#fff' }}>▼</span>
+              </button>
+                  </motion.div>
+                </>
+              )}
+            </motion.div>
+                </motion.div>
+        {showBlur && <div className={styles.filtrosBlurTop} />}
+      </div>
 
               {/* Contenedor scrollable solo para resultados */}
-      <div className={styles.mainDiscoverScrollable}>
+      <div className={styles.mainDiscoverScrollable} ref={scrollableRef}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-8">
           {results.filter(item => item.poster_path).map((item, idx) => (
             <Card

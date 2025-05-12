@@ -15,6 +15,7 @@
     padding: 2rem 2rem 2rem 2rem;
     scrollbar-width: thin;
     scrollbar-color: #6c47ff #18181b;
+
 }
 
 .mainDiscoverScrollable::-webkit-scrollbar {
@@ -143,24 +144,53 @@
     background: #555;
 }
 
-.filtrosFade {
-    position: relative;
-}
-
-.filtrosFade::after {
-    content: "";
+.filtrosBlurTop {
     position: absolute;
+    top: 100%;
     left: 0;
     right: 0;
-    /* Calcula el bottom para que el gradiente quede justo después del margin-bottom */
-    bottom: calc(-1 * var(--filtros-fade-margin, 3rem));
-    height: 50px;
+    margin: 0 auto;
+    transform: translate(-20px, -0);
+    width: 97%;
+    height: 150px; /* Más alto para un difuminado suave */
     pointer-events: none;
-    background: linear-gradient(to bottom, 
-        rgba(75, 0, 130, 0.8) 10%, 
-        rgba(75, 0, 130, 0.6) 40%, 
-        rgba(75, 0, 130, 0.4) 70%, 
-        rgba(75, 0, 130, 0)
+    z-index: 10;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.98) 0%,
+        rgba(40, 40, 46, 0.425) 60%,
+        rgba(69, 69, 78, 0) 100%
     );
-    z-index: 20;
+    backdrop-filter: blur(8px) ;
+    /* Sin border-radius para que el difuminado sea abierto */
 }
+
+.filtrosBlurTop, .filtrosBlurTopHidden {
+    transition: opacity 0.5s cubic-bezier(.4,0,.2,1), visibility 0.5s cubic-bezier(.4,0,.2,1), transform 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.filtrosBlurTop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    animation: blurFadeIn 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.filtrosBlurTopHidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+}
+
+@keyframes blurFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
