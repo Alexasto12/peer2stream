@@ -210,10 +210,9 @@ export default function VideoclubPage() {
   }
 
   return (
-    <div className={styles.mainVideoclub}>
+    <div className={`${styles.mainVideoclub} ${styles.mainVideoclubScrollable}`}>
       <h1 className={styles.title}>My Videoclub</h1>
       <p className={styles.subtitle}>Here you can view and manage your content collection</p>
-
       <div className={styles.controls}>
         <input
           type="text"

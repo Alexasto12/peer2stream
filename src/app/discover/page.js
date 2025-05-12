@@ -322,7 +322,7 @@ export default function DiscoverPage() {
   }, [handleObserver, searchMode, results]);
 
   return (
-    <div className={styles.mainDiscover}>
+    <div className={`${styles.mainDiscover} ${styles.mainDiscoverScrollable}`}>
       {/* Minimalist centered search bar, always visible */}
       <SearchBar
         searchQuery={searchQuery}

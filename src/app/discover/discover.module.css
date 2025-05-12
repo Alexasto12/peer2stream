@@ -6,6 +6,11 @@
     padding-bottom: 2rem;
 }
 
+.mainDiscoverScrollable {
+    height: 100vh;
+    overflow-y: auto;
+}
+
 .discoverForm {
     display: flex;
     gap: 1rem;

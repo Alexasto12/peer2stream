@@ -63,3 +63,9 @@
 .loginBtn:hover {
     text-decoration: underline;
 }
+
+.mainScrollable {
+    height: 100vh;
+    overflow-y: auto;
+    /* Para evitar doble scroll en body, puedes poner body { overflow: hidden } en globals.css si hace falta */
+}
