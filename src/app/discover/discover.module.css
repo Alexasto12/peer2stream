@@ -12,7 +12,7 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 2rem 2rem 2rem 2rem;
+    padding: 1rem 1rem 1rem 1rem;
     scrollbar-width: thin;
     scrollbar-color: #6c47ff #18181b;
 
@@ -150,8 +150,8 @@
     left: 0;
     right: 0;
     margin: 0 auto;
-    transform: translate(-20px, -0);
-    width: 97%;
+
+    width: 99%;
     height: 150px; /* Más alto para un difuminado suave */
     pointer-events: none;
     z-index: 10;
@@ -178,9 +178,10 @@
 
 .filtrosBlurTopHidden {
     opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    visibility: visible; /* Mantener visible durante el fadeout */
     transform: translateY(-10px);
+    animation: blurFadeOut 0.8s cubic-bezier(.4,0,.2,1); /* Duración aumentada */
+    /* visibility y pointer-events se deben manejar con JS si es necesario ocultar completamente */
 }
 
 @keyframes blurFadeIn {
@@ -191,6 +192,17 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes blurFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
     }
 }
 
