@@ -210,57 +210,61 @@ export default function VideoclubPage() {
   }
 
   return (
-    <div className={`${styles.mainVideoclub} ${styles.mainVideoclubScrollable}`}>
-      <h1 className={styles.title}>My Videoclub</h1>
-      <p className={styles.subtitle}>Here you can view and manage your content collection</p>
-      <div className={styles.controls}>
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar por título..."
-          className={styles.searchBar}
-        />
-        <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
-        {selectedIds.length > 0 && (
-          <button
-            className={styles.deleteBtn}
-            onClick={handleDeleteSelected}
-          >
-            Borrar seleccionados
-          </button>
-        )}
-      </div>
-      {loadingCards ? (
-        <div className={styles.loadingMsg}>Cargando tus favoritos...</div>
-      ) : (
-        <div className={styles.cardsGrid}>
-          {filteredCards.map(card => (
-            <motion.div
-              key={card.external_id}
-              className={`${styles.cardWrapper} ${selectedIds.includes(card.external_id) ? styles.selectedCard : ""}`}
-              onClick={() => toggleSelect(card.external_id)}
-              layout
-              animate={selectedIds.includes(card.external_id) ? { scale: 1.04 } : { scale: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+    <div className={styles.mainVideoclub}>
+      <div className={styles.mainVideoclubScrollable}>
+        <h1 className={styles.title}>My Videoclub</h1>
+        <p className={styles.subtitle}>Here you can view and manage your content collection</p>
+        <div className={styles.controls}>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por título..."
+            className={styles.searchBar}
+          />
+          <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
+          {selectedIds.length > 0 && (
+            <button
+              className={styles.deleteBtn}
+              onClick={handleDeleteSelected}
             >
-              <Card
-                id={card.id}
-                type={card.title ? "movie" : "tv"}
-                image={card.poster_path ? `https://image.tmdb.org/t/p/w500${card.poster_path}` : "/file.svg"}
-                title={card.title || card.name}
-                release_date={dateYear(card.release_date) || dateYear(card.first_air_date)}
-                onFaviconClick={handleCardClick}
-              />
-            </motion.div>
-          ))}
+              Borrar seleccionados
+            </button>
+          )}
         </div>
-      )}
-      <AnimatePresence>
-        {modalOpen && (
-          <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
+        {loadingCards ? (
+          <div className={styles.loadingMsg}>Cargando tus favoritos...</div>
+        ) : (
+          <div className={styles.gridScrollContainer}>
+            <div className={styles.cardsGrid}>
+              {filteredCards.map(card => (
+                <motion.div
+                  key={card.external_id}
+                  className={`${styles.cardWrapper} ${selectedIds.includes(card.external_id) ? styles.selectedCard : ""}`}
+                  onClick={() => toggleSelect(card.external_id)}
+                  layout
+                  animate={selectedIds.includes(card.external_id) ? { scale: 1.04 } : { scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                >
+                  <Card
+                    id={card.id}
+                    type={card.title ? "movie" : "tv"}
+                    image={card.poster_path ? `https://image.tmdb.org/t/p/w500${card.poster_path}` : "/file.svg"}
+                    title={card.title || card.name}
+                    release_date={dateYear(card.release_date) || dateYear(card.first_air_date)}
+                    onFaviconClick={handleCardClick}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {modalOpen && (
+            <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
