@@ -2,7 +2,7 @@
     width: 100%;
     padding-top: 0.1rem;
     padding-bottom: 0.1rem;
-
+    margin-bottom: 1rem;
 }
 
 .carouselContainer {
@@ -16,6 +16,7 @@
     margin: 0 auto;
     /* Asegura que los hijos absolutos se posicionen respecto a este contenedor */
     z-index: 0;
+    
 }
 
 .carouselContainer::before,
@@ -64,6 +65,7 @@
    
     border-radius: 20px;
     width: 115px;
+
 }
 
 .carousel {
