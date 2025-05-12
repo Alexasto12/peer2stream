@@ -1,14 +1,38 @@
 .mainDiscover {
     padding-left: 220px;
     /* O el ancho real de tu sidebar */
-    padding-top: 2rem;
-    padding-right: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .mainDiscoverScrollable {
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    padding: 2rem 2rem 2rem 2rem;
+    /* Scrollbar personalizada y fina */
+    scrollbar-width: thin;
+    scrollbar-color: #6c47ff #18181b;
+}
+
+.mainDiscoverScrollable::-webkit-scrollbar {
+    width: 7px;
+    background: #18181b;
+    border-radius: 8px;
+}
+
+.mainDiscoverScrollable::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6c47ff 40%, #140e9a 100%);
+    border-radius: 8px;
+    min-height: 40px;
+}
+
+.mainDiscoverScrollable::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #8f5fff 40%, #140e9a 100%);
 }
 
 .discoverForm {
@@ -82,7 +106,8 @@
     align-items: center;
     gap: 0.3rem;
     margin-left: 1rem;
-    margin-right: 2.5rem; /* Añadido margen derecho para alinear con las tarjetas */
+    margin-right: 2.5rem;
+    /* Añadido margen derecho para alinear con las tarjetas */
 }
 
 .searchInput {
@@ -119,4 +144,26 @@
 
 .resetButton:hover {
     background: #555;
+}
+
+.filtrosFade {
+    position: relative;
+}
+
+.filtrosFade::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    /* Calcula el bottom para que el gradiente quede justo después del margin-bottom */
+    bottom: calc(-1 * var(--filtros-fade-margin, 3rem));
+    height: 50px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, 
+        rgba(75, 0, 130, 0.8) 10%, 
+        rgba(75, 0, 130, 0.6) 40%, 
+        rgba(75, 0, 130, 0.4) 70%, 
+        rgba(75, 0, 130, 0)
+    );
+    z-index: 20;
 }
