@@ -321,6 +321,37 @@ export default function DiscoverPage() {
     };
   }, [handleObserver, searchMode, results]);
 
+  // Salir del modo búsqueda al pulsar Escape o hacer clic fuera del SearchBar
+  useEffect(() => {
+    if (!searchMode) return;
+    // Handler para Escape
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSearchMode(false);
+        setSearchQuery("");
+        setSuggestions([]);
+        setResults([]);
+      }
+    };
+    // Handler para click fuera del SearchBar
+    const handleClick = (e) => {
+      // Busca el nodo del SearchBar
+      const searchBarNode = document.getElementById("search-bar-root");
+      if (searchBarNode && !searchBarNode.contains(e.target)) {
+        setSearchMode(false);
+        setSearchQuery("");
+        setSuggestions([]);
+        setResults([]);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [searchMode]);
+
   return (
     <div className={styles.mainDiscover}>
       {/* Filtros y barra de búsqueda siempre visibles */}
@@ -333,6 +364,8 @@ export default function DiscoverPage() {
         suggestions={suggestions}
         setSuggestions={setSuggestions}
         handleSuggestionClick={handleSuggestionClick}
+        // Añadimos id para detectar clicks fuera
+        id="search-bar-root"
       />
       {/* Modal para info de película/serie */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
