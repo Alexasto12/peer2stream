@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar";
 import Image from "next/image";
 import styles from "./NavBar.module.css";
+import Link from 'next/link';
+
 
 export default function NavBarWrapper({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -59,6 +61,7 @@ export default function NavBarWrapper({ children }) {
 
   return (
     <>
+
       <div className={styles["favicon-shine"]} style={{
         position: 'fixed',
         top: '2vh',
@@ -70,10 +73,15 @@ export default function NavBarWrapper({ children }) {
         minWidth: 85.5,
         maxWidth: 133,
       }}>
-        <Image src="/favicon.ico" alt="Logo" width={84} height={84} />
+
+        <Link href="/">
+          <Image src="/favicon.ico" alt="Logo" width={84} height={84} />
+        </Link>
       </div>
+
       <NavBar isLoggedIn={isLoggedIn} notificationCount={notificationCount} />
       {children && React.cloneElement(children, { setNotificationCount })}
+
     </>
   );
 }
