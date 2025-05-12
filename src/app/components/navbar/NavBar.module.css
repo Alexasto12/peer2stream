@@ -180,3 +180,9 @@
   transition: background 0.2s;
   pointer-events: auto;
 }
+
+.logoutBtn:hover {
+  transform: scale(1.08);
+  filter: brightness(1.2);
+  transition: scale 0.5s, filter 0.5s;
+}

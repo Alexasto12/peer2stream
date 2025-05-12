@@ -7,11 +7,6 @@ import { FaHome, FaCompass, FaFilm, FaSignInAlt, FaUserCircle, FaBell } from "re
 export default function NavBar({ isLoggedIn, notificationCount }) {
   return (
     <nav className={styles.navbar}>
-      {/* <Link href="/">
-        <div className={styles.logoContainer}>
-          <Image src="/favicon.ico" alt="Logo" width={60} height={60} className={styles.logoIcon} />
-        </div>
-      </Link> */}
       <ul className={styles.navLinks}>
         <li><Link href="/"><FaHome title="Home" alt="Home" size={50} /></Link></li>
         <li><Link href="/discover"><FaCompass title="Discover" alt="Discover" size={50} /></Link></li>
