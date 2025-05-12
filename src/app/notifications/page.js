@@ -225,107 +225,41 @@ export default function NotificationsPage({ setNotificationCount }) {
         <div className={styles.centeredBox}>
           <h1 className={styles.title}>Notifications</h1>
           <p className={styles.centeredMsg}>You must log in to view your Notifications</p>
-          <Link href="/login" className={styles.loginBtn}>{'>'} Log in {'<'}</Link>
+          <Link href="/login" className={styles.loginBtn}>Log in</Link>
         </div>
       </main>
     );
   }
 
   return (
-    <main style={{ paddingLeft: "220px", padding: "2rem", marginLeft: "2.5rem" }}>
-      <div style={{
-        background: "rgba(30, 30, 40, 0.7)",
-        borderRadius: "18px",
-        padding: "2.2rem 1.2rem 1.2rem 1.2rem",
-        marginBottom: "2.5rem",
-        maxWidth: 1200,
-        margin: "0 auto 2.5rem auto",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
-        textAlign: "center"
-      }}>
+    <main className={styles.notificationsMain}>
+      <div className={styles.notificationsHeaderBox}>
         {isLogged && (
-          <h1 style={{
-            fontWeight: 700,
-            fontSize: "2.5rem",
-            margin: 0,
-            letterSpacing: "-1px",
-            color: "#7ecbff",
-            textShadow: "0 2px 8px #0007, 0 0 8px #1a237e99"
-          }}><strong>{username}</strong> Notifications</h1>
+          <h1 className={styles.notificationsHeaderTitle}><strong>{username}</strong> Notifications</h1>
         )}
-
-        <p style={{
-          color: "#cfd8dc",
-          fontSize: "1.2rem",
-          marginTop: "1rem",
-          marginBottom: 0,
-          textShadow: "0 1px 4px #0006"
-        }}>
+        <p className={styles.notificationsHeaderDesc}>
           Here you&apos;ll see your important notifications and can easily manage them.
         </p>
       </div>
-      <div style={{
-        marginTop: "2rem",
-        display: "flex",
-        justifyContent: "center",
-      }}>
+      <div style={{ marginTop: "2rem", display: "flex", justifyContent: "center" }}>
         <div
-          className={styles.notificationsScroll}
-          style={{
-            width: "90%",
-            maxWidth: "90%",
-            height: "67vh",
-            overflowY: "auto",
-            paddingRight: "10px",
-          }}
+          className={`${styles.notificationsScroll} ${styles.notificationsScrollCustom}`}
         >
           {notifications.length > 0 && (
-            <div style={{
-              width: "90%",
-              maxWidth: "90%",
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "1.5rem"
-            }}>
+            <div className={styles.notificationsToolbar}>
               <button
                 onClick={() => {
                   if (selected.length === notifications.length) setSelected([]);
                   else setSelected(notifications.map(n => n._id));
                 }}
-                style={{
-                  background: selected.length === notifications.length ? "#444" : "#1976d2",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.7rem 1.5rem",
-                  fontWeight: 500,
-                  fontSize: "1.05rem",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 8px #0002",
-                  marginRight: 0,
-                  transition: "all 0.2s"
-                }}
+                className={`${styles.notificationsBtn} ${selected.length === notifications.length ? styles.notificationsBtnSelectAll : styles.notificationsBtnSelect}`}
               >
                 {selected.length === notifications.length ? "Deselect all" : "Select all"}
               </button>
               <button
                 onClick={handleDeleteSelected}
                 disabled={selected.length === 0}
-                style={{
-                  background: selected.length === 0 ? "#444" : "#e53935",
-                  color: selected.length === 0 ? "#bbb" : "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.7rem 1.5rem",
-                  fontWeight: 500,
-                  fontSize: "1.05rem",
-                  cursor: selected.length === 0 ? "not-allowed" : "pointer",
-                  boxShadow: "0 2px 8px #0002",
-                  opacity: selected.length === 0 ? 0.7 : 1,
-                  transition: "all 0.2s"
-                }}
+                className={`${styles.notificationsBtn} ${selected.length === 0 ? styles.notificationsBtnDeleteDisabled : styles.notificationsBtnDelete}`}
               >
                 Delete selected
               </button>
@@ -349,79 +283,31 @@ export default function NotificationsPage({ setNotificationCount }) {
             </SortableContext>
           </DndContext>
           {notifications.length === 0 && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '40vh',
-              color: '#b0bec5',
-              fontSize: '1.5rem',
-              fontWeight: 500,
-              textAlign: 'center',
-              letterSpacing: '0.5px',
-              textShadow: '0 2px 8px #0007',
-            }}>
+            <div className={styles.notificationsEmpty}>
               You don&apos;t have any Notifications
             </div>
           )}
         </div>
       </div>
       {showConfirm && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          background: "rgba(0,0,0,0.45)",
-          zIndex: 1000,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-          <div style={{
-            background: "#23232b",
-            color: "#fff",
-            borderRadius: "14px",
-            padding: "2.5rem 2.5rem 2rem 2.5rem",
-            minWidth: 320,
-            boxShadow: "0 4px 24px #0007",
-            textAlign: "center"
-          }}>
-            <h2 style={{ margin: 0, fontWeight: 600, fontSize: "1.5rem" }}>
+        <div className={styles.notificationsModalOverlay}>
+          <div className={styles.notificationsModalBox}>
+            <h2 className={styles.notificationsModalTitle}>
               ¿Surely you want to delete {Array.isArray(pendingDelete) ? `this ${pendingDelete.length} notifications` : 'this notification'}?
             </h2>
-            <div style={{ marginTop: "2rem", display: "flex", gap: 24, justifyContent: "center" }}>
+            <div className={styles.notificationsModalActions}>
               <button
                 onClick={() => {
                   if (Array.isArray(pendingDelete)) confirmDeleteSelected();
                   else confirmDelete();
                 }}
-                style={{
-                  background: "#e53935",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.7rem 1.5rem",
-                  fontWeight: 600,
-                  fontSize: "1.1rem",
-                  cursor: "pointer"
-                }}
+                className={styles.notificationsModalBtnDelete}
               >
                 Yes, delete
               </button>
               <button
                 onClick={() => { setShowConfirm(false); setPendingDelete(null); }}
-                style={{
-                  background: "#333",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.7rem 1.5rem",
-                  fontWeight: 600,
-                  fontSize: "1.1rem",
-                  cursor: "pointer"
-                }}
+                className={styles.notificationsModalBtnCancel}
               >
                 Cancel
               </button>
