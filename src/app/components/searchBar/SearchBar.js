@@ -42,7 +42,7 @@ export default function SearchBar({
   };
 
   return (
-    <div className="w-full flex justify-center mt-2 mb-8 relative">
+    <div id="search-bar-root" className="w-full flex justify-center mt-2 mb-8 relative">
       <div className="relative w-full max-w-3xl">
         <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
