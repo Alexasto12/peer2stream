@@ -5,6 +5,7 @@ import styles from "./Dashboard.module.css";
 import Link from "next/link";
 
 export default function DashboardPage() {
+  const [isLogged, setIsLogged] = useState(null); // null: loading, false: not logged, true: logged
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -77,9 +78,13 @@ export default function DashboardPage() {
         const res = await fetch("/api/auth/me");
         if (res.ok) {
           const data = await res.json();
+          setIsLogged(true);
           setUser(data.user);
+          console.log(isLogged);
+
         } else {
-          setError("Failed to load user");
+          setIsLogged(false);
+          console.log(isLogged);
         }
       } catch {
         setError("Network error");
@@ -246,6 +251,17 @@ export default function DashboardPage() {
 
   if (loading) return <main className={styles.dashboardMain}><p>Loading...</p></main>;
   if (error) return <main className={styles.dashboardMain}><p className={styles.errorMsg}>{error}</p></main>;
+  if (isLogged === false) {
+    return (
+      <main className={styles.centeredMain}>
+        <div className={styles.centeredBox}>
+          <h1 className={styles.title}>Dashboard</h1>
+          <p className={styles.centeredMsg}>You must log in to enter to your Dashboard</p>
+          <Link href="/login" className={styles.loginBtn}>Log in</Link>
+        </div>
+      </main>
+    );
+  }
   if (!user) return null;
 
   return (
