@@ -183,6 +183,8 @@ export default function Modal({ open, onClose, data }) {
       });
   }
 
+  const MAX_OVERVIEW_PARAGRAPHS = 3;
+
   return (
     <AnimatePresence>
       {open && (
@@ -237,9 +239,11 @@ export default function Modal({ open, onClose, data }) {
                     <span className={styles.directorName}>{director}</span>
                   </div>
                 )}
-                {data?.overview && data.overview.split('. ').map((line, i) => (
-                  <div key={i} className={styles.overviewLine}>{line.trim()}{line.endsWith('.') ? '' : '.'}</div>
-                ))}
+                {data?.overview && data.overview.split('. ').map((line, i) =>
+                  i < MAX_OVERVIEW_PARAGRAPHS ? (
+                    <p key={i} className={styles.overviewLine}>{line.trim()}{line.endsWith('.') ? '' : '.'}</p>
+                  ) : null
+                )}
               </div>
               {/* Solo mostrar el botón si isAdded no es null (ya se comprobó) */}
               {isAdded !== null && (
