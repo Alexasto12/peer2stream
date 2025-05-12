@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import RecommendedCarousel from "@/app/components/recommended/RecommendedCarousel";
 import Link from "next/link";
+import ContinueWatchingCarousel from "@/app/components/continueWatching/ContinueWatchingCarousel";
 
 export default function HomePage() {
 
@@ -47,7 +48,7 @@ export default function HomePage() {
     <main className={styles.main}>
       <h1 className={styles.title}>Continue Watching</h1>
       <section className={styles.section}>
-        <RecommendedCarousel />
+        <ContinueWatchingCarousel />
       </section>
 
       <h1 className={styles.title}>
@@ -56,7 +57,6 @@ export default function HomePage() {
       <section className={styles.section}>
         <RecommendedCarousel />
       </section>
-
     </main>
   );
 }
