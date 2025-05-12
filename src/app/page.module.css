@@ -1,15 +1,36 @@
 .main {
     padding-left: 220px;
-    padding-top: 1rem;
+    padding-top: 2rem;
     padding-right: 2rem;
     padding-bottom: 2rem;
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 0.5em;
-    letter-spacing: 2px;
+    font-family: 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 0.35em;
+    letter-spacing: 0.09em;
+    color: #ffffff;
+    text-shadow: 0 2px 12px #140e9a33, 0 4px 0 #09095ea8;
+    position: relative;
+    padding-left: 0.2em;
+    padding-bottom: 0.32em;
+    background: none;
+    line-height: 1.18;
+    transition: color 2s, text-shadow 0.2s;
+}
+.title::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0.2em;
+    bottom: 0;
+    width: 75em;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #4d04c2 0%, #351eff00 100%);
+    opacity: 0.65;
 }
 
 .section {
