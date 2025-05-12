@@ -151,3 +151,32 @@
 .navLinks li a.active {
   background: rgba(255, 255, 255, 0.123);
 }
+
+.logoutBtnContainer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1300;
+  padding: 18px 24px 0 0;
+
+  pointer-events: none;
+}
+
+.logoutBtn {
+  background: none;
+  border: 1px solid #dfdfdfa1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: #e53935;
+  font-size: 60px;
+  padding: 10px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.377);
+  border-radius: 20px;
+  background: linear-gradient(270deg, #2c139e8c, #0a0891);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  transition: background 0.2s;
+  pointer-events: auto;
+}
