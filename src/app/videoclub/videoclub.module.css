@@ -6,16 +6,44 @@
 }
 
 .mainVideoclub {
+    display: flex;
+    flex-direction: column;
     padding-left: 220px;
-    /* O el ancho real de tu sidebar */
     padding-top: 2rem;
     padding-right: 2rem;
     padding-bottom: 2rem;
+    height: 100vh;
 }
 
 .mainVideoclubScrollable {
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #6c47ff #18181b;
+    display: flex;
+    flex-direction: column;
+    padding-left: 220px;
+    padding-top: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+    height: 100vh;
+}
+
+.mainVideoclubScrollable::-webkit-scrollbar {
+    width: 7px;
+    background: #18181b;
+    border-radius: 8px;
+}
+
+.mainVideoclubScrollable::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6c47ff 40%, #140e9a 100%);
+    border-radius: 8px;
+    min-height: 40px;
+}
+
+.mainVideoclubScrollable::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #8f5fff 40%, #140e9a 100%);
 }
 
 .cardsGrid {
