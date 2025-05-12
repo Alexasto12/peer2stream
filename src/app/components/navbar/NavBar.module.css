@@ -150,6 +150,11 @@
 
 .navLinks li a.active {
   background: rgba(255, 255, 255, 0.123);
+  filter: brightness(1.45);
+  transition: transform 0.5s;
+  transform: scale(1.07);
+  box-shadow: 0 0 10px rgba(80, 7, 129, 0.2);
+
 }
 
 .logoutBtnContainer {
@@ -184,5 +189,5 @@
 .logoutBtn:hover {
   transform: scale(1.08);
   filter: brightness(1.2);
-  transition: scale 0.5s, filter 0.5s;
+  transition: scale 0.5s, filter 0.s;
 }

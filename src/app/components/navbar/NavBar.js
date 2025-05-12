@@ -3,16 +3,30 @@ import styles from './NavBar.module.css';
 import Link from 'next/link';
 import Image from "next/image";
 import { FaHome, FaCompass, FaFilm, FaSignInAlt, FaUserCircle, FaBell } from "react-icons/fa";
+import { usePathname } from 'next/navigation';
 
 export default function NavBar({ isLoggedIn, notificationCount }) {
+  const pathname = usePathname();
   return (
     <nav className={styles.navbar}>
       <ul className={styles.navLinks}>
-        <li><Link href="/"><FaHome title="Home" alt="Home" size={50} /></Link></li>
-        <li><Link href="/discover"><FaCompass title="Discover" alt="Discover" size={50} /></Link></li>
-        <li><Link href="/videoclub"><FaFilm title="Videoclub" alt="Videoclub" size={50} /></Link></li>
         <li>
-          <Link href={isLoggedIn ? "/dashboard" : "/login"}>
+          <Link href="/" className={pathname === '/' ? styles.active : ''}>
+            <FaHome title="Home" alt="Home" size={50} />
+          </Link>
+        </li>
+        <li>
+          <Link href="/discover" className={pathname.startsWith('/discover') ? styles.active : ''}>
+            <FaCompass title="Discover" alt="Discover" size={50} />
+          </Link>
+        </li>
+        <li>
+          <Link href="/videoclub" className={pathname.startsWith('/videoclub') ? styles.active : ''}>
+            <FaFilm title="Videoclub" alt="Videoclub" size={50} />
+          </Link>
+        </li>
+        <li>
+          <Link href={isLoggedIn ? "/dashboard" : "/login"} className={pathname.startsWith('/dashboard') || pathname.startsWith('/login') ? styles.active : ''}>
             {isLoggedIn ? (
               <FaUserCircle title="Dashboard" alt="Dashboard" size={50} />
             ) : (
@@ -21,7 +35,7 @@ export default function NavBar({ isLoggedIn, notificationCount }) {
           </Link>
         </li>
         <li style={{ position: 'relative' }}>
-          <Link href="/notifications">
+          <Link href="/notifications" className={pathname.startsWith('/notifications') ? styles.active : ''}>
             <FaBell title="Notifications" alt="Notifications" size={50} />
             {notificationCount > 0 && (
               <span style={{
