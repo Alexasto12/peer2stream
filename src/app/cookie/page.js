@@ -1,5 +1,6 @@
 import styles from "./Cookie.module.css";
 import React from "react";
+import Link from "next/link";
 
 export default function CookiePolicyPage() {
     return (
@@ -42,6 +43,11 @@ export default function CookiePolicyPage() {
                         If you have any questions about our use of cookies, please contact us through the site's contact form.
                     </p>
                 </section>
+                <div className={styles.backToDashboardBottomWrapper}>
+                    <Link href="/dashboard" className={styles.backToDashboard}>
+                        <span aria-hidden="true" style={{fontSize: '1.3em', marginRight: 8}}>←</span> Back to Dashboard
+                    </Link>
+                </div>
             </div>
         </div>
     );

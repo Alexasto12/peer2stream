@@ -463,10 +463,10 @@ export default function DashboardPage() {
         <footer className={styles.dashboardFooter}>
           <div className={styles.footerRowCentered}>
             <ul className={styles.footerLinks}>
-              <li><Link href="/terms" target="_blank" rel="noopener noreferrer">Terms & Conditions</Link></li>
-              <li><Link href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link></li>
-              <li><Link href="/cookie" target="_blank" rel="noopener noreferrer">Cookie Policy</Link></li>
-              <li><Link href="/contact" target="_blank" rel="noopener noreferrer">Contact</Link></li>
+              <li><Link href="/terms">Terms & Conditions</Link></li>
+              <li><Link href="/privacy">Privacy Policy</Link></li>
+              <li><Link href="/cookie">Cookie Policy</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
             </ul>
           </div>
         </footer>

@@ -1,5 +1,6 @@
 import styles from "./Terms.module.css";
 import React from "react";
+import Link from "next/link";
 
 export default function TermsPage() {
     return (
@@ -36,6 +37,11 @@ export default function TermsPage() {
                         If you have any questions about these Terms & Conditions, you can contact us through the site's contact form.
                     </p>
                 </section>
+                <div className={styles.backToDashboardBottomWrapper}>
+                    <Link href="/dashboard" className={styles.backToDashboard}>
+                        <span aria-hidden="true" style={{fontSize: '1.3em', marginRight: 8}}>←</span> Back to Dashboard
+                    </Link>
+                </div>
             </div>
         </div>
     );

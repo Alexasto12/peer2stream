@@ -1,4 +1,5 @@
 import styles from './Contact.module.css';
+import Link from "next/link";
 
 export default function ContactPage() {
     return (
@@ -14,6 +15,11 @@ export default function ContactPage() {
                         <button className={styles.contactButton}>Send email</button>
                     </a>
                 </section>
+            <div className={styles.backToDashboardBottomWrapper}>
+                <Link href="/dashboard" className={styles.backToDashboard}>
+                    <span aria-hidden="true" style={{fontSize: '1.3em', marginRight: 8}}>←</span> Back to Dashboard
+                </Link>
+            </div>
             </div>
         </main>
     );

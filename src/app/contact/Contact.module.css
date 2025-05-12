@@ -4,6 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* background: #09090b; */
 }
 
 .contactContainer {
@@ -18,7 +19,6 @@
     color: #fff;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
 }
 
@@ -32,26 +32,14 @@
 .contactSection {
     margin-bottom: 1.5rem;
     width: 100%;
-text-align: center;
+}
+
+.contactSectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
 .contactSectionText {
     color: #d4d4d8;
-    text-align: center;
-}
-
-.contactButton {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    transition: background 0.2s;
-}
-.contactButton:hover {
-    background: #1d4ed8;
 }
