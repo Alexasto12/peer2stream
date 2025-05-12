@@ -10,6 +10,9 @@ export default function RecommendedCarousel() {
     const [visibleCards] = useState(6);
     const carouselRef = useRef(null);
     const scrollInterval = useRef(null);
+    const isDragging = useRef(false);
+    const startX = useRef(0);
+    const scrollLeft = useRef(0);
 
     useEffect(() => {
         async function fetchRecommended() {
@@ -48,9 +51,11 @@ export default function RecommendedCarousel() {
             const sorted = allResults
                 .filter(item => {
                     const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
-                    return !year || year >= 1980;
+                    // Filtrar por año y por puntuación mínima
+                    return (!year || year >= 1980) && (item.vote_average === undefined || item.vote_average >= 6.8);
                 })
-                .sort((a, b) => b.vote_average - a.vote_average);
+                // Ordenar aleatoriamente
+                .sort(() => Math.random() - 0.5);
             setRecommended(sorted);
             setLoading(false);
         }
@@ -116,6 +121,41 @@ export default function RecommendedCarousel() {
         }
     };
 
+    // Free scroll handlers
+    const handleMouseDown = (e) => {
+        if (!carouselRef.current) return;
+        isDragging.current = true;
+        startX.current = e.pageX || e.touches?.[0]?.pageX;
+        scrollLeft.current = carouselRef.current.scrollLeft;
+        document.body.style.userSelect = 'none';
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging.current || !carouselRef.current) return;
+        const x = e.pageX || e.touches?.[0]?.pageX;
+        const walk = (x - startX.current);
+        carouselRef.current.scrollLeft = scrollLeft.current - walk;
+    };
+
+    const handleMouseUp = () => {
+        isDragging.current = false;
+        document.body.style.userSelect = '';
+    };
+
+    useEffect(() => {
+        if (!isDragging.current) return;
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchmove', handleMouseMove);
+        window.addEventListener('touchend', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleMouseMove);
+            window.removeEventListener('touchend', handleMouseUp);
+        };
+    }, [isDragging.current]);
+
     return (
         <div className={styles.carouselWrapper}>
             {loading ? (
@@ -126,6 +166,8 @@ export default function RecommendedCarousel() {
                 <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}
                         onClick={handlePrev}
+                        onMouseDown={handleMouseDown}
+                        onTouchStart={handleMouseDown}
                         onMouseEnter={() => startAutoScroll("left")}
                         onMouseLeave={stopAutoScroll}
                         disabled={current === 0}
@@ -135,6 +177,9 @@ export default function RecommendedCarousel() {
                     <div
                         className={styles.carousel}
                         ref={carouselRef}
+                        style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
+                        onMouseDown={handleMouseDown}
+                        onTouchStart={handleMouseDown}
                     >
                         {Array.from(new Map(
                             recommended.filter(item => item.poster_path)
@@ -154,6 +199,8 @@ export default function RecommendedCarousel() {
                     </div>
                     <button className={`${styles.arrow} ${styles.arrowRight}`}
                         onClick={handleNext}
+                        onMouseDown={handleMouseDown}
+                        onTouchStart={handleMouseDown}
                         onMouseEnter={() => startAutoScroll("right")}
                         onMouseLeave={stopAutoScroll}
                         disabled={current >= recommended.length - visibleCards}

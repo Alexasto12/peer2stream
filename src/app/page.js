@@ -7,27 +7,21 @@ import Link from "next/link";
 
 export default function HomePage() {
 
-
-  // useEffect(() => {
-  //   async function fetchTrending() {
-  //     setLoadingTrending(true);
-  //     const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-  //     const res = await fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`);
-  //     const data = await res.json();
-  //     setTrending(data.results || []);
-  //     setLoadingTrending(false);
-  //   }
-  //   fetchTrending();
-  // }, []);
-
   // Estado para autenticación
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     async function checkAuth() {
       try {
         const res = await fetch('/api/auth/me');
-        setIsAuthenticated(res.ok);
+        if (res.ok) {
+          const data = await res.json();
+          setIsAuthenticated(true);
+          setUser(data.user);
+        } else {
+          setIsAuthenticated(false);
+        }
       } catch {
         setIsAuthenticated(false);
       }
@@ -56,7 +50,9 @@ export default function HomePage() {
         <RecommendedCarousel />
       </section>
 
-      <h1 className={styles.title}>For You</h1>
+      <h1 className={styles.title}>
+        {user ? `Recommended for ${user.username.charAt(0).toUpperCase() + user.username.slice(1)}` : 'Recommended for you'}
+      </h1>
       <section className={styles.section}>
         <RecommendedCarousel />
       </section>
