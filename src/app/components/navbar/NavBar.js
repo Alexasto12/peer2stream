@@ -5,6 +5,7 @@ import Image from "next/image";
 import { FaHome, FaCompass, FaSignInAlt, FaUserCircle, FaBell, FaCompactDisc } from "react-icons/fa";
 
 import { usePathname } from 'next/navigation';
+import { InvertColors } from '@mui/icons-material';
 
 export default function NavBar({ isLoggedIn, notificationCount }) {
   const pathname = usePathname();
@@ -23,7 +24,14 @@ export default function NavBar({ isLoggedIn, notificationCount }) {
         </li>
         <li>
           <Link href="/videoclub" className={pathname.startsWith('/videoclub') ? styles.active : ''}>
-            <FaCompactDisc title="My Videoclub" alt="My Videoclub" size={50} />
+            <Image
+              src="/movie.svg"
+              alt="My Videoclub"
+              title="My Videoclub"
+              width={50}
+              height={50}
+              style={{ filter: 'invert(1)' }}
+            />
           </Link>
         </li>
         <li>
