@@ -5,7 +5,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import nodemailer from 'nodemailer';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const RESET_TOKEN_EXPIRATION = '1h'; // 1 hora
+const RESET_TOKEN_EXPIRATION = '15m'; // 15 minutos
 
 export async function POST(req) {
   await connectToDatabase();
@@ -49,5 +49,5 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Error enviando el email de recuperación' }, { status: 500 });
   }
 
-  return NextResponse.json({ message: 'Si el email existe, se ha enviado un enlace de recuperación' });
+  return NextResponse.json({ message: 'If the email exists, a recovery link will be sent' });
 }
