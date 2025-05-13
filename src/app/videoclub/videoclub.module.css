@@ -72,6 +72,7 @@
 .cardsGrid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
+    padding: 15px;
     gap: 1.2rem;
     margin-top: 2rem;
 }
