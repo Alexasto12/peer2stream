@@ -34,7 +34,7 @@ export default function HomePage() {
     return (
       <main className={styles.centeredMain}>
         <div className={styles.centeredBox}>
-          <h1 className={styles.title}>Home</h1>
+          <h1 className={styles.titleNotLogged}>Home</h1>
           <p className={styles.centeredMsg}>You must log in to view the Home page</p>
           <Link href="/login" className={styles.loginBtn}>Log in</Link>
           <p className={styles.centeredMsg}>Or explore some content</p>
