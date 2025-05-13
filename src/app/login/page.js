@@ -230,6 +230,7 @@ export default function LoginPage() {
     }
   };
 
+  const newLocal = <div className={styles.loginDesc}>Sign in to your account to unlock all features.</div>;
   return (
     <div className={styles.loginContainer}>
       <div className={styles.formCard}>
@@ -237,7 +238,7 @@ export default function LoginPage() {
         <h1 className={styles.crystalFormTitle}>
           PEER2STREAM
         </h1>
-        <div className={styles.loginDesc}>Access your account to manage My videoclub.</div>
+        {newLocal}
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <div className={styles.formGroup}>
             <label>Email:</label>
@@ -275,13 +276,13 @@ export default function LoginPage() {
           <button type="submit" className={styles.loginButton}>Log In</button>
         </form>
         <div style={{ marginTop: 8, textAlign: "center" }}>
-          <Link href="#" onClick={e => { e.preventDefault(); setShowForgot(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.98em' }}>
+          <Link href="#" className={styles.Link} onClick={e => { e.preventDefault(); setShowForgot(true); }}>
             Forgot your password?
           </Link>
         </div>
         <div style={{ marginTop: 16, textAlign: "center" }}>
           <strong>Don&apos;t have an account?{' '}
-            <Link href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
+            <Link href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} className={styles.Link}> 
               Register
             </Link>
           </strong>
