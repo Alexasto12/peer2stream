@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import Card from "@/app/components/card/Card";
+import Modal from "@/app/components/modal/Modal";
 import styles from "./RecommendedCarousel.module.css";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 export default function RecommendedCarousel() {
     const [recommended, setRecommended] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState(null);
     const carouselRef = useRef(null);
-    const isDragging = useRef(false);
+  
     const startX = useRef(0);
     const scrollLeft = useRef(0);
 
@@ -61,6 +64,31 @@ export default function RecommendedCarousel() {
         return d.getFullYear();
     };
 
+    // Handler para abrir el modal y cargar info detallada y proveedores
+    const handleFaviconClick = async ({ id, type }) => {
+        setModalOpen(true);
+        setModalData(null); // Mostrar loading
+        const BASE_URL = "https://api.themoviedb.org/3";
+        const endpoint = type === 'movie' ? 'movie' : 'tv';
+        const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+        // 1. Obtener detalles
+        const res = await fetch(`${BASE_URL}/${endpoint}/${id}?api_key=${apiKey}&language=es-ES`);
+        const data = await res.json();
+        // 2. Obtener proveedores
+        let watchProviders = [];
+        try {
+            const provRes = await fetch(`${BASE_URL}/${endpoint}/${id}/watch/providers?api_key=${apiKey}`);
+            const provData = await provRes.json();
+            if (provData.results && (provData.results.ES || provData.results.US)) {
+                const prov = provData.results.ES || provData.results.US;
+                if (prov.flatrate) watchProviders = prov.flatrate;
+                else if (prov.rent) watchProviders = prov.rent;
+                else if (prov.buy) watchProviders = prov.buy;
+            }
+        } catch {}
+        setModalData({ ...data, media_type: type, watchProviders });
+    };
+
     // Flechas: scroll horizontal nativo
     const scrollByCards = (direction) => {
         if (!carouselRef.current) return;
@@ -73,37 +101,6 @@ export default function RecommendedCarousel() {
         });
     };
 
-    // Drag horizontal
-    const handleMouseDown = (e) => {
-        if (!carouselRef.current) return;
-        isDragging.current = true;
-        startX.current = e.pageX || e.touches?.[0]?.pageX;
-        scrollLeft.current = carouselRef.current.scrollLeft;
-        document.body.style.userSelect = 'none';
-    };
-    const handleMouseMove = (e) => {
-        if (!isDragging.current || !carouselRef.current) return;
-        const x = e.pageX || e.touches?.[0]?.pageX;
-        const walk = (x - startX.current);
-        carouselRef.current.scrollLeft = scrollLeft.current - walk;
-    };
-    const handleMouseUp = () => {
-        isDragging.current = false;
-        document.body.style.userSelect = '';
-    };
-    useEffect(() => {
-        if (!isDragging.current) return;
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-        window.addEventListener('touchmove', handleMouseMove);
-        window.addEventListener('touchend', handleMouseUp);
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('touchmove', handleMouseMove);
-            window.removeEventListener('touchend', handleMouseUp);
-        };
-    }, [isDragging.current]);
 
     return (
         <div className={styles.carouselWrapper}>
@@ -122,9 +119,7 @@ export default function RecommendedCarousel() {
                     <div
                         className={styles.carousel}
                         ref={carouselRef}
-                        style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleMouseDown}
+                       
                     >
                         {Array.from(new Map(
                             recommended.filter(item => item.poster_path)
@@ -138,6 +133,7 @@ export default function RecommendedCarousel() {
                                     image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
                                     title={item.title || item.name}
                                     release_date={dateYear(item.release_date || item.first_air_date)}
+                                    onFaviconClick={handleFaviconClick}
                                 />
                             </div>
                         ))}
@@ -150,6 +146,7 @@ export default function RecommendedCarousel() {
                     </button>
                 </div>
             )}
+            <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
         </div>
     );
 }
