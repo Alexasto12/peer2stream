@@ -297,8 +297,8 @@
 .addedBtn {
   margin-top: 24px;
   padding: 8px 18px;
-  background: #ffdddd;
-  color: #b00020;
+  background: linear-gradient(90deg, #b00020 0%, #ffbdbd 100%);
+  color: #fff;
   font-size: 1rem;
   font-weight: 700;
   border: 1.5px solid #b00020;
@@ -309,9 +309,9 @@
   transition: background 0.2s, color 0.2s, border 0.2s;
 }
 .addedBtn:hover {
-  background: #ffbdbd;
-  color: #fff;
-  border: 1.5px solid #ff1744;
+  background: linear-gradient(90deg, #ff1744 0%, #b00020 100%);
+  color: #fffde7;
+  border: 1.5px solid #ff5252;
 }
 
 .disabledBtn {
@@ -331,6 +331,62 @@
   font-weight: 500;
   text-align: center;
   max-width: 350px;
+}
+
+.successMsg {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  margin-top: 0;
+  background: linear-gradient(90deg, #00e0a0 0%, #140e9a 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 18px;
+  text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+  min-width: 120px;
+  width: fit-content;
+  align-self: center;
+  animation: fadeInOut 2.2s;
+}
+
+.removeMsg {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  margin-top: 0;
+  background: linear-gradient(90deg, #b00020 0%, #ffbdbd 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 18px;
+  text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 12px rgba(176,0,32,0.13);
+  width: fit-content;
+  align-self: center;
+  animation: fadeInOut 2.2s;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.authMsgFullWidth {
+  min-width: 120px;
+  max-width: 220px;
+  width: fit-content;
+  padding: 8px 18px;
+  display: inline-block;
 }
 
 .modalEnter {
