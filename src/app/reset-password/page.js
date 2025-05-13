@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./reset.module.css";
 import Visibility from "@mui/icons-material/Visibility";
@@ -37,13 +37,7 @@ export default function ResetPasswordPage() {
             number: /[0-9]/.test(password),
             symbol: /[!@#$%^&*()_+\-=\?]/.test(password),
         });
-        if (password && !passwordRegex.test(password)) {
-            setPasswordError(
-                "Password must be 8-32 chars, allowed: !@#$%^&*()_+-=?"
-            );
-        } else {
-            setPasswordError("");
-        }
+        
         if (repeatPassword && password !== repeatPassword) {
             setRepeatPasswordError("Passwords do not match");
         } else {
@@ -92,94 +86,96 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <div className={styles.loginContainer}>
-            <div className={styles.formCard}>
-                <h2 className={styles.crystalFormTitle}>
-                    Reset Password
-                </h2>
-                <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-                    <div className={styles.crystalFormGroup}>
-                        <label>New Password</label>
-                        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                required
-                                maxLength={32}
-                                style={{ flex: 1, paddingRight: 36 }}
-                            />
-                            <span
-                                onClick={() => setShowPassword((prev) => !prev)}
-                                style={{
-                                    position: "absolute",
-                                    right: 10,
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    cursor: "pointer",
-                                    color: showPassword ? "#fff" : "#fff",
-                                    opacity: 0.85
-                                }}
-                                tabIndex={0}
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                                {showPassword ? (
-                                    <VisibilityOff />
-                                ) : (
-                                    <Visibility />
-                                )}
-                            </span>
+        <Suspense fallback={<div>Loading...</div>}>
+            <div className={styles.loginContainer}>
+                <div className={styles.formCard}>
+                    <h2 className={styles.crystalFormTitle}>
+                        Reset Password
+                    </h2>
+                    <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+                        <div className={styles.crystalFormGroup}>
+                            <label>New Password</label>
+                            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
+                                    maxLength={32}
+                                    style={{ flex: 1, paddingRight: 36 }}
+                                />
+                                <span
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    style={{
+                                        position: "absolute",
+                                        right: 10,
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        cursor: "pointer",
+                                        color: showPassword ? "#fff" : "#fff",
+                                        opacity: 0.85
+                                    }}
+                                    tabIndex={0}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? (
+                                        <VisibilityOff />
+                                    ) : (
+                                        <Visibility />
+                                    )}
+                                </span>
+                            </div>
+                            <div className={styles.passwordChecks}>
+                                <span className={passwordChecks.length ? styles.checkOk : styles.checkNo}>●</span> 8+ chars
+                                <span className={passwordChecks.upper ? styles.checkOk : styles.checkNo}>●</span> Uppercase
+                                <span className={passwordChecks.lower ? styles.checkOk : styles.checkNo}>●</span> Lowercase
+                                <span className={passwordChecks.number ? styles.checkOk : styles.checkNo}>●</span> Number
+                                <span className={passwordChecks.symbol ? styles.checkOk : styles.checkNo}>●</span> Symbol
+                            </div>
+                            <div className={styles.crystalErrorFixed}>{passwordError || '\u00A0'}</div>
                         </div>
-                        <div className={styles.passwordChecks}>
-                            <span className={passwordChecks.length ? styles.checkOk : styles.checkNo}>●</span> 8+ chars
-                            <span className={passwordChecks.upper ? styles.checkOk : styles.checkNo}>●</span> Uppercase
-                            <span className={passwordChecks.lower ? styles.checkOk : styles.checkNo}>●</span> Lowercase
-                            <span className={passwordChecks.number ? styles.checkOk : styles.checkNo}>●</span> Number
-                            <span className={passwordChecks.symbol ? styles.checkOk : styles.checkNo}>●</span> Symbol
+                        <div className={styles.crystalFormGroup}>
+                            <label>Repeat Password</label>
+                            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                                <input
+                                    type={showRepeatPassword ? "text" : "password"}
+                                    value={repeatPassword}
+                                    onChange={e => setRepeatPassword(e.target.value)}
+                                    required
+                                    maxLength={32}
+                                    style={{ flex: 1, paddingRight: 36 }}
+                                />
+                                <span
+                                    onClick={() => setShowRepeatPassword((prev) => !prev)}
+                                    style={{
+                                        position: "absolute",
+                                        right: 10,
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        cursor: "pointer",
+                                        color: showRepeatPassword ? "#fff" : "#fff",
+                                        opacity: 0.85
+                                    }}
+                                    tabIndex={0}
+                                    aria-label={showRepeatPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showRepeatPassword ? (
+                                        <VisibilityOff />
+                                    ) : (
+                                        <Visibility />
+                                    )}
+                                </span>
+                            </div>
+                            <div className={styles.crystalErrorFixed}>{repeatPasswordError || '\u00A0'}</div>
                         </div>
-                        <div className={styles.crystalErrorFixed}>{passwordError || '\u00A0'}</div>
-                    </div>
-                    <div className={styles.crystalFormGroup}>
-                        <label>Repeat Password</label>
-                        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                            <input
-                                type={showRepeatPassword ? "text" : "password"}
-                                value={repeatPassword}
-                                onChange={e => setRepeatPassword(e.target.value)}
-                                required
-                                maxLength={32}
-                                style={{ flex: 1, paddingRight: 36 }}
-                            />
-                            <span
-                                onClick={() => setShowRepeatPassword((prev) => !prev)}
-                                style={{
-                                    position: "absolute",
-                                    right: 10,
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    cursor: "pointer",
-                                    color: showRepeatPassword ? "#fff" : "#fff",
-                                    opacity: 0.85
-                                }}
-                                tabIndex={0}
-                                aria-label={showRepeatPassword ? "Hide password" : "Show password"}
-                            >
-                                {showRepeatPassword ? (
-                                    <VisibilityOff />
-                                ) : (
-                                    <Visibility />
-                                )}
-                            </span>
-                        </div>
-                        <div className={styles.crystalErrorFixed}>{repeatPasswordError || '\u00A0'}</div>
-                    </div>
-                    {error && <div className={styles.crystalError}>{error}</div>}
-                    {success && <div className={styles.crystalSuccess}>{success}</div>}
-                    <button type="submit" className={styles.loginButton} disabled={loading}>
-                        {loading ? "Saving..." : "Reset Password"}
-                    </button>
-                </form>
+                        {error && <div className={styles.crystalError}>{error}</div>}
+                        {success && <div className={styles.crystalSuccess}>{success}</div>}
+                        <button type="submit" className={styles.loginButton} disabled={loading}>
+                            {loading ? "Saving..." : "Reset Password"}
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
+        </Suspense>
     );
 }
