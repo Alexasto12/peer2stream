@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Card from "../card/Card";
+import Modal from "../modal/Modal";
 import styles from "./ContinueWatchingCarousel.module.css";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
@@ -23,20 +24,72 @@ async function fetchTmdbDataFromExternalId(externalId) {
     const res = await fetch(url);
     if (!res.ok) return null;
     const data = await res.json();
+    let result = null;
     if (data.movie_results && data.movie_results.length > 0) {
-        return { ...data.movie_results[0], type: "movie", external_id: externalId };
+        result = { ...data.movie_results[0], type: "movie", external_id: externalId };
     } else if (data.tv_results && data.tv_results.length > 0) {
-        return { ...data.tv_results[0], type: "tv", external_id: externalId };
+        result = { ...data.tv_results[0], type: "tv", external_id: externalId };
     }
-    return null;
+    // Si no hay runtime, intenta obtenerlo con una petición extra a /movie/{id} o /tv/{id}
+    if (result && (!result.runtime || result.runtime === 0)) {
+        try {
+            let detailsUrl = '';
+            if (result.type === 'movie') {
+                detailsUrl = `https://api.themoviedb.org/3/movie/${result.id}?api_key=${TMDB_API_KEY}`;
+            } else if (result.type === 'tv') {
+                detailsUrl = `https://api.themoviedb.org/3/tv/${result.id}?api_key=${TMDB_API_KEY}`;
+            }
+            if (detailsUrl) {
+                const detailsRes = await fetch(detailsUrl);
+                const detailsData = await detailsRes.json();
+                if (result.type === 'movie' && detailsData.runtime) {
+                    result.runtime = detailsData.runtime;
+                } else if (result.type === 'tv' && detailsData.episode_run_time && detailsData.episode_run_time.length > 0) {
+                    result.episode_run_time = detailsData.episode_run_time;
+                    // Para TV, si no hay runtime, usar el primer valor de episode_run_time
+                    if (!result.runtime && detailsData.episode_run_time[0]) {
+                        result.runtime = detailsData.episode_run_time[0];
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error obteniendo detalles TMDB:', e);
+        }
+    }
+    return result;
 }
 
 export default function ContinueWatchingCarousel() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState(null);
     const isDragging = useRef(false);
     const carouselRef = useRef(null);
+
+    // Handler para abrir el modal y cargar info detallada y proveedores
+    const handleFaviconClick = async (item) => {
+        setModalOpen(true);
+        setModalData(null); // Mostrar loading
+        const BASE_URL = "https://api.themoviedb.org/3";
+        const endpoint = item.type === 'movie' ? 'movie' : 'tv';
+        const query = new URLSearchParams({ api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY }).toString();
+        // 1. Obtener detalles
+        const res = await fetch(`${BASE_URL}/${endpoint}/${item.id}?${query}`);
+        const data = await res.json();
+        // 2. Obtener proveedores
+        let providers = [];
+        try {
+            const provRes = await fetch(`${BASE_URL}/${endpoint}/${item.id}/watch/providers?${query}`);
+            const provData = await provRes.json();
+            if (provData.results && provData.results.ES && provData.results.ES.flatrate) {
+                providers = provData.results.ES.flatrate;
+            }
+        } catch { }
+        data.watchProviders = providers;
+        setModalData(data);
+    };
 
     useEffect(() => {
         async function fetchData() {
@@ -75,7 +128,7 @@ export default function ContinueWatchingCarousel() {
     }, []);
 
     // Filtrar items con status 'pending', runtime y watchedTime < runtime
-    const pending = items.filter(item => item.status === "pending" && item.runtime && item.watchedTime < item.runtime);
+    const pending = items.filter(item => item.status === "pending");
 
     const dateYear = (date) => {
         if (!date) return "";
@@ -94,39 +147,6 @@ export default function ContinueWatchingCarousel() {
             behavior: 'smooth'
         });
     };
-
-    // Drag horizontal
-    const handleMouseDown = (e) => {
-        if (!carouselRef.current) return;
-        isDragging.current = true;
-        startX.current = e.pageX || e.touches?.[0]?.pageX;
-        scrollLeft.current = carouselRef.current.scrollLeft;
-        document.body.style.userSelect = 'none';
-    };
-    const handleMouseMove = (e) => {
-        if (!isDragging.current || !carouselRef.current) return;
-        const x = e.pageX || e.touches?.[0]?.pageX;
-        const walk = (x - startX.current);
-        carouselRef.current.scrollLeft = scrollLeft.current - walk;
-    };
-    const handleMouseUp = () => {
-        isDragging.current = false;
-        document.body.style.userSelect = '';
-    };
-    useEffect(() => {
-        if (!isDragging.current) return;
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-        window.addEventListener('touchmove', handleMouseMove);
-        window.addEventListener('touchend', handleMouseUp);
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('touchmove', handleMouseMove);
-            window.removeEventListener('touchend', handleMouseUp);
-        };
-    }, [isDragging.current]);
-
     return (
         <div className={styles.carouselWrapper}>
             {loading ? (
@@ -144,23 +164,44 @@ export default function ContinueWatchingCarousel() {
                     <div
                         className={styles.carousel}
                         ref={carouselRef}
-                        style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleMouseDown}
                     >
                         {Array.from(new Map(
                             pending.filter(item => item.poster_path)
                                 .map(item => [`${item.type}-${item.id}`, item])
                         ).values())
                             .map((item, idx) => (
-                                <div className={styles.cardItem} key={`${item.id}-${idx}`}>
+                                <div className={styles.cardItem} key={`${item.id}-${idx}`} style={{ position: 'relative' }}>
                                     <Card
                                         id={item.id}
                                         type={item.type}
                                         image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
                                         title={item.title || item.name}
                                         release_date={dateYear(item.release_date || item.first_air_date)}
+                                        onFaviconClick={handleFaviconClick}
                                     />
+                                    {/* Barra de progreso superpuesta */}
+                                    {item.runtime && item.watchedTime >= 0 && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            bottom: 0,
+                                            width: '100%',
+                                            height: 6,
+                                            background: '#888', // Barra gris de fondo (100%)
+                                            borderRadius: '0 0 10px 10px',
+                                            zIndex: 10
+                                        }}>
+                                            <div
+                                                style={{
+                                                    width: `${Math.min(100, Math.round((item.watchedTime / (item.runtime * 60)) * 100))}%`,
+                                                    height: '100%',
+                                                    background: '#fff', // Parte visualizada en blanco
+                                                    borderRadius: '0 0 8px 8px',
+                                                    transition: 'width 0.3s'
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                     </div>
@@ -171,6 +212,9 @@ export default function ContinueWatchingCarousel() {
                         <FaArrowRight />
                     </button>
                 </div>
+            )}
+            {modalOpen && (
+                <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
             )}
         </div>
     );
