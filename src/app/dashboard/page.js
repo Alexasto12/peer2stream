@@ -3,6 +3,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Dashboard.module.css";
 import Link from "next/link";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 export default function DashboardPage() {
   const [isLogged, setIsLogged] = useState(null); // null: loading, false: not logged, true: logged
@@ -38,6 +40,9 @@ export default function DashboardPage() {
     number: false,
     symbol: false
   });
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Regex for validation
   const usernameRegex = /^[a-zA-Z0-9_\- ]{3,20}$/;
@@ -339,28 +344,74 @@ export default function DashboardPage() {
               <h2 className={styles.sectionTitle}>Security</h2>
               <div className={styles.formGroup}>
                 <label htmlFor="oldPassword">Current password</label>
-                <input
-                  id="oldPassword"
-                  name="oldPassword"
-                  type="password"
-                  className={styles.input}
-                  value={oldPassword}
-                  onChange={e => setOldPassword(e.target.value)}
-                  autoComplete="current-password"
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    id="oldPassword"
+                    name="oldPassword"
+                    type={showOldPassword ? "text" : "password"}
+                    className={styles.input}
+                    value={oldPassword}
+                    onChange={e => setOldPassword(e.target.value)}
+                    autoComplete="current-password"
+                    style={{ paddingRight: 36 }}
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label={showOldPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowOldPassword(v => !v)}
+                    style={{
+                      position: 'absolute',
+                      right: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      color: '#222',
+                      opacity: 0.85
+                    }}
+                  >
+                    {showOldPassword ? <VisibilityOff /> : <Visibility />}
+                  </button>
+                </div>
                 {oldPasswordError && <div className={styles.inputError}>{oldPasswordError}</div>}
               </div>
               <div className={styles.formGroup}>
                 <label htmlFor="newPassword">New password</label>
-                <input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  className={styles.input}
-                  value={newPassword}
-                  onChange={handleNewPasswordChange}
-                  autoComplete="new-password"
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    id="newPassword"
+                    name="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    className={styles.input}
+                    value={newPassword}
+                    onChange={handleNewPasswordChange}
+                    autoComplete="new-password"
+                    style={{ paddingRight: 36 }}
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowNewPassword(v => !v)}
+                    style={{
+                      position: 'absolute',
+                      right: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      color: '#222',
+                      opacity: 0.85
+                    }}
+                  >
+                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  </button>
+                </div>
                 {/* Lista de requisitos de contraseña */}
                 <ul style={{
                   listStyle: 'none',
