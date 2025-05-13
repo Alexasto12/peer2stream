@@ -150,9 +150,9 @@ export default function ContinueWatchingCarousel() {
     return (
         <div className={styles.carouselWrapper}>
             {loading ? (
-                <div className={styles.loading}>Cargando recomendaciones...</div>
+                <div className={styles.loading}>Geting your history....</div>
             ) : pending.length === 0 ? (
-                <div className={styles.loading}>No hay recomendaciones disponibles.</div>
+                <div className={styles.loading}>No watched content.</div>
             ) : (
                 <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}
@@ -181,26 +181,46 @@ export default function ContinueWatchingCarousel() {
                                     />
                                     {/* Barra de progreso superpuesta */}
                                     {item.runtime && item.watchedTime >= 0 && (
-                                        <div style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            bottom: 0,
-                                            width: '100%',
-                                            height: 6,
-                                            background: '#888', // Barra gris de fondo (100%)
-                                            borderRadius: '0 0 10px 10px',
-                                            zIndex: 10
-                                        }}>
-                                            <div
-                                                style={{
-                                                    width: `${Math.min(100, Math.round((item.watchedTime / (item.runtime * 60)) * 100))}%`,
-                                                    height: '100%',
-                                                    background: '#fff', // Parte visualizada en blanco
-                                                    borderRadius: '0 0 8px 8px',
-                                                    transition: 'width 0.3s'
-                                                }}
-                                            />
-                                        </div>
+                                        (() => {
+                                            // runtime ya está en segundos, así que no multiplicamos por 60
+                                            const percent = Math.min(100, Math.round((item.watchedTime / item.runtime) * 100));
+                                            console.log('Barra progreso:', {
+                                                watchedTime: item.watchedTime,
+                                                runtime: item.runtime,
+                                                percent,
+                                                item
+                                            });
+                                            return (
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    bottom: 0,
+                                                    width: '100%',
+                                                    height: 6,
+                                                    background: '#888',
+                                                    borderRadius: '0 0 10px 10px',
+                                                    zIndex: 10,
+                                                    pointerEvents: 'none',
+                                                    overflow: 'hidden',
+                                                    boxShadow: '0 0 12px 6px rgba(180,69,231,0.4), 0 0 12px 12px rgba(20,14,154,0.18)'
+                                                }}>
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            left: 0,
+                                                            top: 0,
+                                                            width: `${percent}%`,
+                                                            height: '100%',
+                                                            background: 'linear-gradient(90deg,rgb(180, 69, 231) 0%,rgb(101, 2, 214) 100%)',
+                                                            borderRadius: '0 0 8px 8px',
+                                                            transition: 'width 0.3s',
+                                                            zIndex: 11,
+                                                            boxShadow: '0 0 12px 6px rgba(180,69,231,0.7), 0 0 12px 16px rgba(180,69,231,0.4), 0 0 12px 8px rgba(20,14,154,0.3)'
+                                                        }}
+                                                    />
+                                                </div>
+                                            );
+                                        })()
                                     )}
                                 </div>
                             ))}
