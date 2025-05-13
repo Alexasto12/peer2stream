@@ -77,11 +77,14 @@
     width: 100%;
     padding-left: 0;
     padding-right: 0;
-    margin-left: 50px;
+    
     padding: 1px;
     scroll-behavior: smooth;
     scrollbar-width: none;
     z-index: 1;
+}
+.cardItem:first-child {
+    margin-left: 50px;
 }
 
 .cardItem {
