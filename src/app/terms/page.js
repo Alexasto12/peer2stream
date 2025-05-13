@@ -34,7 +34,7 @@ export default function TermsPage() {
                 <section className={styles.termsSection}>
                     <h2 className={styles.termsSectionTitle}>5. Contact</h2>
                     <p className={styles.termsSectionText}>
-                        If you have any questions about these Terms & Conditions, you can contact us through the site's contact form.
+                        If you have any questions about these Terms & Conditions, you can contact us through the site&apos;s contact form.
                     </p>
                 </section>
                 <div className={styles.backToDashboardBottomWrapper}>

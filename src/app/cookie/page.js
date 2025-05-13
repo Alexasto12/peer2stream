@@ -40,7 +40,7 @@ export default function CookiePolicyPage() {
                 <section className={styles.cookieSection}>
                     <h2 className={styles.cookieSectionTitle}>6. Contact</h2>
                     <p className={styles.cookieSectionText}>
-                        If you have any questions about our use of cookies, please contact us through the site's contact form.
+                        If you have any questions about our use of cookies, please contact us through the site&apos;s contact form.
                     </p>
                 </section>
                 <div className={styles.backToDashboardBottomWrapper}>
