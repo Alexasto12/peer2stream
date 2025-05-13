@@ -37,8 +37,8 @@ export default function VideoclubPage() {
 
   // Opciones para el select
   const sortOptions = [
-    { value: "title", label: "Título" },
-    { value: "date", label: "Fecha" }
+    { value: "title", label: "Title" },
+    { value: "date", label: "Release date" }
   ];
 
   // --- FUNCION PARA OBTENER FAVORITOS Y ACTUALIZAR ESTADOS ---
@@ -219,7 +219,7 @@ export default function VideoclubPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por título..."
+            placeholder="Search per title..."
             className={styles.searchBar}
           />
           <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
@@ -233,7 +233,7 @@ export default function VideoclubPage() {
           )}
         </div>
         {loadingCards ? (
-          <div className={styles.loadingMsg}>Cargando tus favoritos...</div>
+          <div className={styles.loadingMsg}>Loading My Videoclub...</div>
         ) : (
           <div className={styles.gridScrollContainer}>
             <div className={styles.cardsGrid}>
