@@ -159,7 +159,7 @@ export default function DiscoverPage() {
         });
         providers = Object.values(unique);
       }
-    } catch {}
+    } catch { }
     data.watchProviders = providers;
     setModalData(data);
   };
@@ -346,6 +346,38 @@ export default function DiscoverPage() {
     setShowBlur(false);
   }, [endpoint, sortBy, orderDirection, genre, provider, searchMode]);
 
+
+  // Salir del modo búsqueda al pulsar Escape o hacer clic fuera del SearchBar
+  useEffect(() => {
+    if (!searchMode) return;
+    // Handler para Escape
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSearchMode(false);
+        setSearchQuery("");
+        setSuggestions([]);
+        setResults([]);
+      }
+    };
+    // Handler para click fuera del SearchBar
+    const handleClick = (e) => {
+      // Busca el nodo del SearchBar
+      const searchBarNode = document.getElementById("search-bar-root");
+      if (searchBarNode && !searchBarNode.contains(e.target)) {
+        setSearchMode(false);
+        setSearchQuery("");
+        setSuggestions([]);
+        setResults([]);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [searchMode]);
+
   return (
     <div className={styles.mainDiscover}>
       {/* Filtros y barra de búsqueda siempre visibles */}
@@ -392,83 +424,83 @@ export default function DiscoverPage() {
             />
           </motion.div>
           {/* Contenedor de filtros condicionales con ancho fijo */}
-            <motion.div layout className={`flex gap-4 min-h-[64px] ${styles.filtrosFade}`} >
-              {showFilters && (
-                <>
-                  <motion.div
-              key="genre"
-              layout
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
-              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-                  >
-              <CustomSelect
-                id="genre-select"
-                label="Genre"
-                value={genre}
-                onChange={setGenre}
-                options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
-                className="min-w-[120px]"
-              />
-                  </motion.div>
-                  <motion.div
-              key="platform"
-              layout
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
-              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-                  >
-              <CustomSelect
-                id="platform-select"
-                label="Platform"
-                value={provider}
-                onChange={setProvider}
-                options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
-                className="min-w-[120px]"
-              />
-                  </motion.div>
-                  <motion.div
-              key="order"
-              layout
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
-              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-                  >
-              <CustomSelect
-                id="order-select"
-                label="Order"
-                value={sortBy}
-                onChange={setSortBy}
-                options={[
-                  { value: "popularity", label: "Popularity" },
-                  { value: "release_date", label: "Date" },
-                  { value: "vote_average", label: "Rating" },
-                ]}
-                className="min-w-[120px]"
-              />
-              <button
-                type="button"
-                className="ml-3 w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 bg-[#18181b] hover:bg-[#23232b] transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
-                aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
-              >
-                <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.4rem', color: '#fff' }}>▼</span>
-              </button>
-                  </motion.div>
-                </>
-              )}
-            </motion.div>
+          <motion.div layout className={`flex gap-4 min-h-[64px] ${styles.filtrosFade}`} >
+            {showFilters && (
+              <>
+                <motion.div
+                  key="genre"
+                  layout
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.05 }}
+                  className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                >
+                  <CustomSelect
+                    id="genre-select"
+                    label="Genre"
+                    value={genre}
+                    onChange={setGenre}
+                    options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
+                    className="min-w-[120px]"
+                  />
                 </motion.div>
+                <motion.div
+                  key="platform"
+                  layout
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.1 }}
+                  className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                >
+                  <CustomSelect
+                    id="platform-select"
+                    label="Platform"
+                    value={provider}
+                    onChange={setProvider}
+                    options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
+                    className="min-w-[120px]"
+                  />
+                </motion.div>
+                <motion.div
+                  key="order"
+                  layout
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.15 }}
+                  className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+                >
+                  <CustomSelect
+                    id="order-select"
+                    label="Order"
+                    value={sortBy}
+                    onChange={setSortBy}
+                    options={[
+                      { value: "popularity", label: "Popularity" },
+                      { value: "release_date", label: "Date" },
+                      { value: "vote_average", label: "Rating" },
+                    ]}
+                    className="min-w-[120px]"
+                  />
+                  <button
+                    type="button"
+                    className="ml-3 w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 bg-[#18181b] hover:bg-[#23232b] transition-transform focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onClick={() => setOrderDirection(orderDirection === 'desc' ? 'asc' : 'desc')}
+                    aria-label={orderDirection === 'desc' ? 'Descending order' : 'Ascending order'}
+                  >
+                    <span style={{ display: 'inline-block', transform: orderDirection === 'desc' ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s', fontSize: '1.4rem', color: '#fff' }}>▼</span>
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </motion.div>
+        </motion.div>
         {showBlur && <div className={styles.filtrosBlurTop} />}
       </div>
 
-              {/* Contenedor scrollable solo para resultados */}
+      {/* Contenedor scrollable solo para resultados */}
       <div className={styles.mainDiscoverScrollable} ref={scrollableRef}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-8">
           {results.filter(item => item.poster_path).map((item, idx) => (
@@ -487,10 +519,10 @@ export default function DiscoverPage() {
         {(endpoint === "/trending/all/week" ||
           endpoint === "/discover/movie" ||
           endpoint === "/discover/tv") && hasMore && (
-          <div ref={loaderRef} style={{ height: 40, display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <span style={{ color: "#fff" }}>Cargando más...</span>
-          </div>
-        )}
+            <div ref={loaderRef} style={{ height: 40, display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <span style={{ color: "#fff" }}>Cargando más...</span>
+            </div>
+          )}
       </div>
     </div>
   );

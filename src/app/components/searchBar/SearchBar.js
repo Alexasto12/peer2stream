@@ -41,6 +41,7 @@ export default function SearchBar({
     }, 800);
   };
 
+
   return (
     <div id="search-bar-root" className="w-full flex justify-center mt-2 mb-8 relative">
       <div className="relative w-full max-w-3xl">
