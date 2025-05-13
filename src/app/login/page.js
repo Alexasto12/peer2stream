@@ -87,7 +87,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.toLowerCase(), password }),
       });
       if (res.ok) {
         // Emitir evento para que la NavBar se actualice al hacer login
@@ -133,7 +133,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: regUsername, email: regEmail, password: regPassword })
+        body: JSON.stringify({ username: regUsername, email: regEmail.toLowerCase(), password: regPassword })
       });
       const data = await res.json();
       if (res.ok) {
@@ -297,7 +297,7 @@ export default function LoginPage() {
           </div>
           <div className={styles.crystalFormGroup}>
             <label>Email</label>
-            <input type="email" value={regEmail} onChange={handleEmailChange} required />
+            <input type="email" value={regEmail} onChange={e => setRegEmail(e.target.value)} required />
             <div className={styles.crystalErrorFixed}>{regEmailError || '\u00A0'}</div>
           </div>
           <div className={styles.crystalFormGroup}>
