@@ -35,10 +35,10 @@ function getPlatformList(data) {
       const now = new Date();
       const diffMonths = (now.getFullYear() - release.getFullYear()) * 12 + (now.getMonth() - release.getMonth());
       if (diffMonths <= 2) {
-        return <div className={styles.platformCine}>Aún en cines</div>;
+        return <div className={styles.platformCine}>Still in theaters</div>;
       }
     }
-    return <div className={styles.platformNone}>No disponible en ninguna plataforma</div>;
+    return <div className={styles.platformNone}>Not available on any platform</div>;
   }
   return (
     <ul className={styles.platformList}>
@@ -222,7 +222,7 @@ export default function Modal({ open, onClose, data }) {
                 <span>⭐ {data?.vote_average?.toFixed(1)}</span>
                 {data?.runtime && <span>⏱ {data.runtime} min</span>}
                 {data?.release_date && <span>📅 {data.release_date}</span>}
-                {data?.number_of_seasons && <span>📺 {data.number_of_seasons} temporadas</span>}
+                {data?.number_of_seasons && <span>📺 {data.number_of_seasons} seasons</span>}
               </div>
               <div className={styles.modalOverview}>
                 {director && (
@@ -237,7 +237,7 @@ export default function Modal({ open, onClose, data }) {
                   ) : null
                 )}
               </div>
-              {/* Solo mostrar el botón si isAdded no es null (ya se comprobó) */}
+              {/* Only show the button if isAdded is not null (already checked) */}
               {isAdded !== null && (
                 <>
                   <button
@@ -245,7 +245,7 @@ export default function Modal({ open, onClose, data }) {
                       (isAdded ? styles.addedBtn : styles.addFavBtn) +
                       (isAuthenticated === false ? ' ' + styles.disabledBtn : '')
                     }
-                    title={isAdded ? "Remove from My Videoclub" : "Add to videoclub"}
+                    title={isAdded ? "Remove from My Videoclub" : "Add to My Videoclub"}
                     onClick={isAdded ? handleRemoveClick : handleAddClick}
                     disabled={isAuthenticated === false}
                   >
@@ -253,27 +253,27 @@ export default function Modal({ open, onClose, data }) {
                   </button>
                   {showSuccess && (
                     <div className={styles.successMsg}>
-                      ¡Añadido a tu videoclub!
+                      Added to My Videoclub!
                     </div>
                   )}
                   {showRemove && (
                     <div className={styles.removeMsg}>
-                      Eliminado de tu videoclub
+                      Removed from My Videoclub
                     </div>
                   )}
                 </>
               )}
               {isAdded === null && (
-                <div style={{marginTop: 28, color: '#aaa'}}>Cargando estado...</div>
+                <div style={{marginTop: 28, color: '#aaa'}}>Loading status...</div>
               )}
               {isAuthenticated === false && (
                 <div className={styles.authWarningMsg + ' ' + styles.authMsgFullWidth}>
-                  Debes registrarte o iniciar sesión para añadir a tu videoclub.
+                  You must register or log in to add to My Videoclub.
                 </div>
               )}
             </div>
             <aside className={styles.modalAside}>
-              <h3 className={styles.platformTitle}>Aviable on:</h3>
+              <h3 className={styles.platformTitle}>Available on:</h3>
               {getPlatformList(data || {})}
             </aside>
           </motion.div>
