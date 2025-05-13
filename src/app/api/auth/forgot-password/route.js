@@ -20,8 +20,8 @@ export async function POST(req) {
     return NextResponse.json({ message: 'If the email exists, a recovery link has been sent' });
   }
 
-  // Generar token JWT con expiración corta
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: RESET_TOKEN_EXPIRATION });
+  // Generar token JWT con expiración corta e incluir el hash de la contraseña actual
+  const token = jwt.sign({ id: user._id, passwordHash: user.password }, JWT_SECRET, { expiresIn: RESET_TOKEN_EXPIRATION });
   const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
 
   // Configurar el transporte SMTP con nodemailer
