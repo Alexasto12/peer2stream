@@ -7,6 +7,7 @@ import EyeIcon from "@mui/icons-material/VisibilityOutlined";
 import EyeOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import RegisterModal from "../components/RegisterModal/RegisterModal";
 import Link from "next/link";
+import ForgotPasswordModal from "../components/ForgotPasswordModal/ForgotPasswordModal";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,11 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   // Registration form state
   const [regUsername, setRegUsername] = useState("");
@@ -147,6 +153,30 @@ export default function LoginPage() {
     setRegLoading(false);
   };
 
+  const handleForgot = async (e) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotSuccess("");
+    setForgotLoading(true);
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setForgotSuccess("If the email address exists, you'll receive instructions on how to reset your password.");
+        setForgotEmail("");
+      } else {
+        setForgotError(data.error || "The recovery email could not be sent.");
+      }
+    } catch (err) {
+      setForgotError("Network error");
+    }
+    setForgotLoading(false);
+  };
+
   // Validation handlers
   const handleUsernameChange = (e) => {
     setRegUsername(e.target.value);
@@ -244,6 +274,11 @@ export default function LoginPage() {
           {error && <div className={styles.error}>{error}</div>}
           <button type="submit" className={styles.loginButton}>Log In</button>
         </form>
+        <div style={{ marginTop: 8, textAlign: "center" }}>
+          <Link href="#" onClick={e => { e.preventDefault(); setShowForgot(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.98em' }}>
+            Forgot your password?
+          </Link>
+        </div>
         <div style={{ marginTop: 16, textAlign: "center" }}>
           <strong>Don&apos;t have an account?{' '}
             <Link href="#" onClick={e => { e.preventDefault(); setShowRegister(true); }} style={{ color: '#351eff', textDecoration: 'underline', cursor: 'pointer' }}>
@@ -294,6 +329,16 @@ export default function LoginPage() {
           </button>
         </form>
       </RegisterModal>
+      <ForgotPasswordModal
+        open={showForgot}
+        onClose={() => { setShowForgot(false); setForgotError(""); setForgotSuccess(""); }}
+        email={forgotEmail}
+        setEmail={setForgotEmail}
+        onSubmit={handleForgot}
+        loading={forgotLoading}
+        error={forgotError}
+        success={forgotSuccess}
+      />
     </div>
   );
 }
