@@ -17,6 +17,20 @@ async function fetchRuntime(type, externalId) {
     return type === "movie" ? data.runtime * 60 : (data.episode_run_time?.[0] || 0) * 60; // segundos
 }
 
+// Obtiene datos de TMDB igual que en Videoclub
+async function fetchTmdbDataFromExternalId(externalId) {
+    const url = `https://api.themoviedb.org/3/find/${externalId}?api_key=${TMDB_API_KEY}&external_source=imdb_id`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.movie_results && data.movie_results.length > 0) {
+        return { ...data.movie_results[0], type: "movie", external_id: externalId };
+    } else if (data.tv_results && data.tv_results.length > 0) {
+        return { ...data.tv_results[0], type: "tv", external_id: externalId };
+    }
+    return null;
+}
+
 export default function ContinueWatchingCarousel() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,22 +38,33 @@ export default function ContinueWatchingCarousel() {
     const isDragging = useRef(false);
     const carouselRef = useRef(null);
 
-
-
     useEffect(() => {
         async function fetchData() {
             try {
                 const res = await fetch("/api/content-status?status=pending");
                 if (!res.ok) throw new Error("Error al obtener ContentStatus");
                 const data = await res.json();
-                // Para cada item, obtener runtime
-                const withRuntime = await Promise.all(
+               // <-- Añadido para debug
+                // Igual que en Videoclub: obtener datos completos de TMDB
+                const withTmdb = await Promise.all(
                     data.map(async (item) => {
-                        const runtime = await fetchRuntime(item.type, item.externalId);
-                        return { ...item, runtime };
+                        const tmdbData = await fetchTmdbDataFromExternalId(item.externalId);
+                        if (!tmdbData) return null;
+                        // runtime: para movie es runtime, para tv es episode_run_time[0]
+                        let runtime = 0;
+                        if (tmdbData.type === "movie") {
+                            runtime = (tmdbData.runtime || 0) * 60;
+                        } else if (tmdbData.type === "tv") {
+                            runtime = (tmdbData.episode_run_time?.[0] || 0) * 60;
+                        }
+                        return {
+                            ...item,
+                            ...tmdbData,
+                            runtime
+                        };
                     })
                 );
-                setItems(withRuntime);
+                setItems(withTmdb.filter(Boolean));
             } catch (e) {
                 setError(e.message);
             } finally {
@@ -125,13 +150,13 @@ export default function ContinueWatchingCarousel() {
                     >
                         {Array.from(new Map(
                             pending.filter(item => item.poster_path)
-                                .map(item => [`${item._mediaType}-${item.id}`, item])
+                                .map(item => [`${item.type}-${item.id}`, item])
                         ).values())
                             .map((item, idx) => (
                                 <div className={styles.cardItem} key={`${item.id}-${idx}`}>
                                     <Card
                                         id={item.id}
-                                        type={item._mediaType}
+                                        type={item.type}
                                         image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
                                         title={item.title || item.name}
                                         release_date={dateYear(item.release_date || item.first_air_date)}
