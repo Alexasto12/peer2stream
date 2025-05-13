@@ -25,6 +25,11 @@ export async function POST(req) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
+  // Verificar que el hash de la contraseña actual coincide con el del token
+  if (user.password !== decoded.passwordHash) {
+    return NextResponse.json({ error: 'This reset link has already been used or is no longer valid.' }, { status: 400 });
+  }
+
   user.password = await bcrypt.hash(password, 10);
   await user.save();
 
