@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./reset.module.css";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\?]{8,32}$/;
 
@@ -24,6 +26,8 @@ export default function ResetPasswordPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState("");
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
     useEffect(() => {
         setPasswordChecks({
@@ -96,13 +100,36 @@ export default function ResetPasswordPage() {
                 <form onSubmit={handleSubmit} style={{ width: "100%" }}>
                     <div className={styles.crystalFormGroup}>
                         <label>New Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            maxLength={32}
-                        />
+                        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                required
+                                maxLength={32}
+                                style={{ flex: 1, paddingRight: 36 }}
+                            />
+                            <span
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                style={{
+                                    position: "absolute",
+                                    right: 10,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    color: showPassword ? "#fff" : "#fff",
+                                    opacity: 0.85
+                                }}
+                                tabIndex={0}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? (
+                                    <VisibilityOff />
+                                ) : (
+                                    <Visibility />
+                                )}
+                            </span>
+                        </div>
                         <div className={styles.passwordChecks}>
                             <span className={passwordChecks.length ? styles.checkOk : styles.checkNo}>●</span> 8+ chars
                             <span className={passwordChecks.upper ? styles.checkOk : styles.checkNo}>●</span> Uppercase
@@ -110,17 +137,40 @@ export default function ResetPasswordPage() {
                             <span className={passwordChecks.number ? styles.checkOk : styles.checkNo}>●</span> Number
                             <span className={passwordChecks.symbol ? styles.checkOk : styles.checkNo}>●</span> Symbol
                         </div>
-                        {/* <div className={styles.crystalErrorFixed}>{passwordError || '\u00A0'}</div> */}
+                        <div className={styles.crystalErrorFixed}>{passwordError || '\u00A0'}</div>
                     </div>
                     <div className={styles.crystalFormGroup}>
                         <label>Repeat Password</label>
-                        <input
-                            type="password"
-                            value={repeatPassword}
-                            onChange={e => setRepeatPassword(e.target.value)}
-                            required
-                            maxLength={32}
-                        />
+                        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                            <input
+                                type={showRepeatPassword ? "text" : "password"}
+                                value={repeatPassword}
+                                onChange={e => setRepeatPassword(e.target.value)}
+                                required
+                                maxLength={32}
+                                style={{ flex: 1, paddingRight: 36 }}
+                            />
+                            <span
+                                onClick={() => setShowRepeatPassword((prev) => !prev)}
+                                style={{
+                                    position: "absolute",
+                                    right: 10,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    color: showRepeatPassword ? "#fff" : "#fff",
+                                    opacity: 0.85
+                                }}
+                                tabIndex={0}
+                                aria-label={showRepeatPassword ? "Hide password" : "Show password"}
+                            >
+                                {showRepeatPassword ? (
+                                    <VisibilityOff />
+                                ) : (
+                                    <Visibility />
+                                )}
+                            </span>
+                        </div>
                         <div className={styles.crystalErrorFixed}>{repeatPasswordError || '\u00A0'}</div>
                     </div>
                     {error && <div className={styles.crystalError}>{error}</div>}
