@@ -150,9 +150,13 @@ export default function ContinueWatchingCarousel() {
     return (
         <div className={styles.carouselWrapper}>
             {loading ? (
-                <div className={styles.loading}>Geting your history....</div>
+                <div className={styles.spinnerContainer}>
+                    <span className={styles.loaderSpinner} />
+                </div>
             ) : pending.length === 0 ? (
-                <div className={styles.loading}>No watched content.</div>
+                <div className={styles.noContentMsg}>
+                    Start watching any movie or series to see your continue watching list!
+                </div>
             ) : (
                 <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}

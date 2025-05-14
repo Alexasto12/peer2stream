@@ -105,9 +105,13 @@ export default function RecommendedCarousel() {
     return (
         <div className={styles.carouselWrapper}>
             {loading ? (
-                <div className={styles.loading}>Cargando recomendaciones...</div>
+                <div className={styles.spinnerContainer}>
+                    <span className={styles.loaderSpinner} />
+                </div>
             ) : recommended.length === 0 ? (
-                <div className={styles.loading}>No hay recomendaciones disponibles.</div>
+                <div className={styles.noContentMsg}>
+                    Watch any movie or series to get your recommendations!
+                </div>
             ) : (
                 <div className={styles.carouselContainer}>
                     <button className={`${styles.arrow} ${styles.arrowLeft}`}
