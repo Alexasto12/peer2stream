@@ -29,6 +29,9 @@ export default function DiscoverPage() {
   const [provider, setProvider] = useState("");
   const [providers, setProviders] = useState([]);
 
+  // Estado para saber si los filtros están cargando
+  const [filtersLoading, setFiltersLoading] = useState(false);
+
   // Mapeo de motes para simplificar nombres largos de proveedores
   const providerNicknames = {
     "Netflix": "Netflix",
@@ -185,7 +188,7 @@ export default function DiscoverPage() {
 
   // Cargar géneros y plataformas según tipo
   useEffect(() => {
-
+    setFiltersLoading(true);
     // Géneros principales personalizados
     const mainGenres = [
       { id: 35, name: "Comedy" },
@@ -221,7 +224,8 @@ export default function DiscoverPage() {
           allowedProviders.includes(p.provider_name)
         );
         setProviders(filtered);
-      });
+      })
+      .finally(() => setFiltersLoading(false));
   }, [endpoint]);
 
   // Actualizar params cuando cambian los filtros
@@ -459,6 +463,8 @@ export default function DiscoverPage() {
                     onChange={setGenre}
                     options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
                     className="min-w-[120px]"
+                    isLoading={filtersLoading}
+                    isDisabled={filtersLoading}
                   />
                 </motion.div>
                 <motion.div
@@ -477,6 +483,8 @@ export default function DiscoverPage() {
                     onChange={setProvider}
                     options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
                     className="min-w-[120px]"
+                    isLoading={filtersLoading}
+                    isDisabled={filtersLoading}
                   />
                 </motion.div>
                 <motion.div
@@ -499,6 +507,8 @@ export default function DiscoverPage() {
                       { value: "vote_average", label: "Rating" },
                     ]}
                     className="min-w-[120px]"
+                    isLoading={filtersLoading}
+                    isDisabled={filtersLoading}
                   />
                   <button
                     type="button"
