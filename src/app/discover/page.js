@@ -531,7 +531,7 @@ export default function DiscoverPage() {
       {/* Contenedor scrollable solo para resultados */}
       <div className={styles.mainDiscoverScrollable} ref={scrollableRef} style={{ marginTop: 30 }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-10">
-          {results.filter(item => item.poster_path).map((item, idx) => (
+          {results.filter(item => item.poster_path && (item.genre_ids && item.genre_ids.length > 0)).map((item, idx) => (
             <Card
               key={idx}
               id={item.id}
