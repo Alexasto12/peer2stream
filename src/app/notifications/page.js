@@ -106,7 +106,6 @@ export default function NotificationsPage({ setNotificationCount }) {
       .catch(() => setIsLogged(false));
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetch("/api/user/notifications", { credentials: "include" })
       .then((res) => res.json())
@@ -130,7 +129,7 @@ export default function NotificationsPage({ setNotificationCount }) {
           }
         }
       });
-  }, []);
+  }, [setNotificationCount]);
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -142,7 +141,7 @@ export default function NotificationsPage({ setNotificationCount }) {
     } else {
       setNotificationCount && setNotificationCount(0);
     }
-  }, [notifications]);
+  }, [notifications, setNotificationCount]);
 
   const handleDelete = async (_id) => {
     setPendingDelete(_id);
