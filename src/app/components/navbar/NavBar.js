@@ -30,7 +30,7 @@ export default function NavBar({ isLoggedIn, notificationCount }) {
               title="My Videoclub"
               width={50}
               height={50}
-              style={{ filter:' brightness(0) saturate(100%) invert(89%) sepia(11%) saturate(11%) hue-rotate(344deg) brightness(85%) contrast(83%)' }} 
+              className={styles.videoclubFilter}
             />
           </Link>
         </li>
