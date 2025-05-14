@@ -302,6 +302,7 @@ export default function DashboardPage() {
                     autoComplete="username"
                     disabled={!editUsername}
                     ref={usernameInputRef}
+                    style={!editUsername ? { background: 'transparent', color: '#fff', borderColor: '#444', opacity: 0.85, cursor: 'not-allowed' } : {}}
                   />
                   <button
                     type="button"
