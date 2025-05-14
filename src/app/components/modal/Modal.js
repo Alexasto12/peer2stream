@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 // Utilidad para obtener el director desde los créditos de TMDB
 async function fetchDirector(data) {
@@ -202,10 +203,15 @@ export default function Modal({ open, onClose, data }) {
             >
               <div className={styles.modalBlur} />
               {data && (
-                <img
+                <Image
                   className={styles.modalPosterImg}
                   src={`https://image.tmdb.org/t/p/w500${data.poster_path}`}
                   alt={data.title || data.name}
+                  width={340}
+                  height={510}
+                  priority={true}
+                  loading="eager"
+                  style={{ objectFit: "cover", borderRadius: 8 }}
                 />
               )}
             </div>
