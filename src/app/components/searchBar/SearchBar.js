@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 export default function SearchBar({
   searchQuery,
@@ -99,10 +100,14 @@ export default function SearchBar({
                   className="px-4 py-2 cursor-pointer hover:bg-[#18181b] flex items-center gap-4"
                   onClick={() => handleSuggestionClick(item)}
                 >
-                  <img
+                  <Image
                     src={item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : "/file.svg"}
                     alt={item.title || item.name}
+                    width={40}
+                    height={56}
                     className="w-10 h-14 object-cover rounded"
+                    loading="lazy"
+                    unoptimized
                   />
                   <span>{item.title || item.name}</span>
                   <span className="ml-auto text-l text-gray-400">{item.media_type?.toUpperCase()}</span>
