@@ -1,5 +1,6 @@
 import React from "react";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBarWrapper from "./components/navbar/NavBarWrapper";
@@ -48,6 +49,8 @@ export default function RootLayout({ children }) {
         style={{ minHeight: "100vh" }}
       >
         <NavBarWrapper>{children}</NavBarWrapper>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
