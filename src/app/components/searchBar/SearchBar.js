@@ -16,6 +16,7 @@ export default function SearchBar({
   resetAllFilters // Añadimos setters de filtros
 }) {
   const debounceTimeout = useRef();
+  const inputRef = useRef(null); // Referencia para el input
 
   // Handler para limpiar el input y reiniciar búsqueda
   const handleClear = () => {
@@ -62,12 +63,16 @@ export default function SearchBar({
           <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </span>
         <input
+          ref={inputRef} // Asignar la referencia
           type="text"
           value={searchQuery}
           onChange={handleSearchInput}
           onKeyDown={e => {
             onKeyDown && onKeyDown(e);
-            if (e.key === "Enter") resetAllFilters && resetAllFilters();
+            if (e.key === "Enter") {
+              resetAllFilters && resetAllFilters();
+              inputRef.current && inputRef.current.blur(); // Pierde el foco al pulsar Enter
+            }
           }}
           placeholder="Search movies or series..."
           className="block w-full rounded-full border border-blue-700 bg-[#18181b] py-3 pl-10 pr-10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"

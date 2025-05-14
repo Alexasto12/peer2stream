@@ -424,25 +424,27 @@ export default function DiscoverPage() {
           className={`w-full flex flex-wrap gap-4 justify-center items-center mb-5 ${styles.filtrosSticky} ${styles.filtrosFade}`}
           style={{ minHeight: 80 }}
         >
-          {/* Type selector: SIEMPRE visible */}
-          <motion.div
-            layout
-            transition={{ type: 'spring', stiffness: 70, damping: 18 }}
-            className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
-          >
-            <CustomSelect
-              id="type-select"
-              label="Type"
-              value={endpoint}
-              onChange={setEndpoint}
-              options={[
-                { value: "/trending/all/week", label: "All" },
-                { value: "/discover/movie", label: "Movies" },
-                { value: "/discover/tv", label: "Series" },
-              ]}
-              className="min-w-[150px]"
-            />
-          </motion.div>
+          {/* Type selector: solo visible si no hay búsqueda activa */}
+          {!(isSearching || searchMode) && (
+            <motion.div
+              layout
+              transition={{ type: 'spring', stiffness: 70, damping: 18 }}
+              className="bg-[#140e9a] rounded-full px-6 py-3 flex items-center shadow-sm border border-gray-800"
+            >
+              <CustomSelect
+                id="type-select"
+                label="Type"
+                value={endpoint}
+                onChange={setEndpoint}
+                options={[
+                  { value: "/trending/all/week", label: "All" },
+                  { value: "/discover/movie", label: "Movies" },
+                  { value: "/discover/tv", label: "Series" },
+                ]}
+                className="min-w-[150px]"
+              />
+            </motion.div>
+          )}
           {/* Contenedor de filtros condicionales con ancho fijo */}
           <motion.div layout className={`flex gap-4 min-h-[64px] ${styles.filtrosFade}`} >
             {showFilters && (
@@ -464,7 +466,7 @@ export default function DiscoverPage() {
                     options={[{ value: "", label: "All" }, ...genres.map(g => ({ value: g.id, label: g.name }))]}
                     className="min-w-[120px]"
                     isLoading={filtersLoading}
-                    isDisabled={filtersLoading}
+                    isDisabled={filtersLoading || isSearching || searchMode}
                   />
                 </motion.div>
                 <motion.div
@@ -484,7 +486,7 @@ export default function DiscoverPage() {
                     options={[{ value: "", label: "All" }, ...providers.map(p => ({ value: p.provider_id, label: providerNicknames[p.provider_name] || p.provider_name }))]}
                     className="min-w-[120px]"
                     isLoading={filtersLoading}
-                    isDisabled={filtersLoading}
+                    isDisabled={filtersLoading || isSearching || searchMode}
                   />
                 </motion.div>
                 <motion.div
@@ -508,7 +510,7 @@ export default function DiscoverPage() {
                     ]}
                     className="min-w-[120px]"
                     isLoading={filtersLoading}
-                    isDisabled={filtersLoading}
+                    isDisabled={filtersLoading || isSearching || searchMode}
                   />
                   <button
                     type="button"
