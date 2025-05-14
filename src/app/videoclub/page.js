@@ -305,7 +305,7 @@ export default function VideoclubPage() {
         )}
         <AnimatePresence>
           {modalOpen && (
-            <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
+            <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} onFavouritesChanged={fetchFavourites} />
           )}
         </AnimatePresence>
       </div>

@@ -62,7 +62,7 @@ function getPlatformList(data) {
   );
 }
 
-export default function Modal({ open, onClose, data }) {
+export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [isAdded, setIsAdded] = useState(null); // null = cargando, true/false = resuelto
   const [externalId, setExternalId] = useState(null);
@@ -148,6 +148,7 @@ export default function Modal({ open, onClose, data }) {
           }).then(() => {
             window.dispatchEvent(new Event('notificationUpdate'));
           });
+          if (onFavouritesChanged) onFavouritesChanged();
         }
       })
       .catch(() => {});
@@ -180,6 +181,7 @@ export default function Modal({ open, onClose, data }) {
           }).then(() => {
             window.dispatchEvent(new Event('notificationUpdate'));
           });
+          if (onFavouritesChanged) onFavouritesChanged();
         }
       })
       .catch(() => {});
