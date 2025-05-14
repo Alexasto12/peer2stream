@@ -421,8 +421,10 @@ export default function DiscoverPage() {
         <motion.div
           layout
           transition={{ type: 'spring', stiffness: 70, damping: 18 }}
-          className={`w-full flex flex-wrap gap-4 justify-center items-center mb-5 ${styles.filtrosSticky} ${styles.filtrosFade}`}
+          className={`w-full flex flex-wrap gap-4 justify-center items-center mb-15 ${styles.filtrosSticky} ${styles.filtrosFade}`}
           style={{ minHeight: 80 }}
+          onAnimationStart={() => setFiltersLoading(true)}
+          onAnimationComplete={() => setFiltersLoading(false)}
         >
           {/* Type selector: solo visible si no hay búsqueda activa */}
           {!(isSearching || searchMode) && (
