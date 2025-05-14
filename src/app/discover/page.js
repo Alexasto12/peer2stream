@@ -189,25 +189,21 @@ export default function DiscoverPage() {
   // Cargar géneros y plataformas según tipo
   useEffect(() => {
     setFiltersLoading(true);
-    // Géneros principales personalizados
-    const mainGenres = [
-      { id: 35, name: "Comedy" },
-      { id: 28, name: "Action" },
-      { id: 16, name: "Animation" },
-      { id: 18, name: "Drama" },
-      { id: 27, name: "Horror" },
-      { id: 10749, name: "Romance" },
-      { id: 53, name: "Thriller" },
-      { id: 878, name: "Science Fiction" },
-      { id: 99, name: "Documentary" },
-      { id: 14, name: "Fantasy" },
-      { id: 36, name: "History" },
-      { id: 10402, name: "Music" },
-    ];
-
-    setGenres(mainGenres);
-
+    // Cargar géneros dinámicamente según el tipo seleccionado
     const type = endpoint.includes("tv") ? "tv" : "movie";
+    const genreUrl = `https://api.themoviedb.org/3/genre/${type}/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=es`;
+    console.log('TMDB Genre endpoint:', genreUrl);
+    fetch(genreUrl)
+      .then(res => res.json())
+      .then(data => {
+        setGenres(data.genres || []);
+        console.log('TMDB Dynamic Genres:', data.genres);
+        // Si el género seleccionado no existe en la nueva lista, resetearlo
+        if (genre && !(data.genres || []).some(g => String(g.id) === String(genre))) {
+          setGenre("");
+        }
+      });
+
     fetch(`https://api.themoviedb.org/3/watch/providers/${type}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=es&watch_region=ES`)
       .then(res => res.json())
       .then(data => {
