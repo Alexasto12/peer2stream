@@ -84,12 +84,31 @@ export default function DiscoverPage() {
     }, 800);
   };
 
+  // Permitir buscar al pulsar Enter en el input de búsqueda
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Solo ocultar sugerencias, igual que Escape/click fuera
+      setSuggestions([]);
+      return;
+    }
+  };
+
   // Al hacer click en una sugerencia, se rellena el input y se muestran los resultados completos
   const handleSuggestionClick = (item) => {
     setSearchQuery(item.title || item.name);
     setSuggestions([]);
     setResults([item]);
     setSearchMode(true);
+  };
+
+  // Función para reiniciar todos los filtros al valor por defecto
+  const resetAllFilters = () => {
+    setEndpoint("/trending/all/week");
+    setGenre("");
+    setProvider("");
+    setSortBy("popularity");
+    setOrderDirection("desc");
   };
 
   // Handler para abrir el modal y cargar info detallada y proveedores
@@ -353,21 +372,16 @@ export default function DiscoverPage() {
     // Handler para Escape
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        setSearchMode(false);
-        setSearchQuery("");
+        // Solo cerramos las sugerencias, pero mantenemos el modo búsqueda
         setSuggestions([]);
-        setResults([]);
       }
     };
     // Handler para click fuera del SearchBar
     const handleClick = (e) => {
-      // Busca el nodo del SearchBar
       const searchBarNode = document.getElementById("search-bar-root");
       if (searchBarNode && !searchBarNode.contains(e.target)) {
-        setSearchMode(false);
-        setSearchQuery("");
+        // Solo cerramos las sugerencias, pero mantenemos el modo búsqueda
         setSuggestions([]);
-        setResults([]);
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -390,8 +404,9 @@ export default function DiscoverPage() {
         suggestions={suggestions}
         setSuggestions={setSuggestions}
         handleSuggestionClick={handleSuggestionClick}
-        // Añadimos id para detectar clicks fuera
         id="search-bar-root"
+        onKeyDown={handleSearchKeyDown}
+        resetAllFilters={resetAllFilters}
       />
       {/* Modal para info de película/serie */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
@@ -497,12 +512,12 @@ export default function DiscoverPage() {
             )}
           </motion.div>
         </motion.div>
-        {showBlur && <div className={styles.filtrosBlurTop} />}
+        {showBlur && <div className={styles.filtrosBlurTop} style={{ marginTop: 30 }} />}
       </div>
 
       {/* Contenedor scrollable solo para resultados */}
-      <div className={styles.mainDiscoverScrollable} ref={scrollableRef}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-8">
+      <div className={styles.mainDiscoverScrollable} ref={scrollableRef} style={{ marginTop: 30 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-10">
           {results.filter(item => item.poster_path).map((item, idx) => (
             <Card
               key={idx}
@@ -516,14 +531,29 @@ export default function DiscoverPage() {
             />
           ))}
         </div>
-        {(endpoint === "/trending/all/week" ||
-          endpoint === "/discover/movie" ||
-          endpoint === "/discover/tv") && hasMore && (
-            <div ref={loaderRef} style={{ height: 40, display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <span style={{ color: "#fff" }}>Cargando más...</span>
-            </div>
-          )}
+        {/* Spinner solo si no estamos en modo búsqueda y hay más resultados */}
+        {(!searchMode && (endpoint === "/trending/all/week" || endpoint === "/discover/movie" || endpoint === "/discover/tv") && hasMore) && (
+          <div ref={loaderRef} style={{ height: 40, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <span className="loader-spinner" />
+          </div>
+        )}
       </div>
+
+      {/* Spinner CSS */}
+      <style jsx global>{`
+        .loader-spinner {
+          display: inline-block;
+          width: 32px;
+          height: 32px;
+          border: 4px solid #a78bfa;
+          border-radius: 50%;
+          border-top-color: transparent;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
