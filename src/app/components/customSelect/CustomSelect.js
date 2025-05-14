@@ -40,7 +40,7 @@ export default function CustomSelect({ options, value, onChange, label, id, clas
             transition={{ duration: 0.18 }}
             role="listbox"
             tabIndex={-1}
-            style={{ maxHeight: options.length > 5 ? 220 : 'auto', overflowY: options.length > 5 ? 'auto' : 'visible' }}
+            style={{ overflowY: options.length > 2 ? 'auto' : 'visible' }}
           >
             {options.map(opt => (
               <li
