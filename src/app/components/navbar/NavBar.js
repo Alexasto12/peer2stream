@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './NavBar.module.css';
 import Link from 'next/link';
 import Image from "next/image";
-import { FaHome, FaCompass, FaSignInAlt, FaUserCircle, FaBell, FaCompactDisc } from "react-icons/fa";
+import { FaHome, FaCompass, FaSignInAlt, FaUserCircle, FaBell} from "react-icons/fa";
 
 import { usePathname } from 'next/navigation';
 
