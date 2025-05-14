@@ -338,9 +338,10 @@ export default function DiscoverPage() {
     if (searchMode) return;
     const option = { root: null, rootMargin: "20px", threshold: 1.0 };
     const observer = new IntersectionObserver(handleObserver, option);
-    if (loaderRef.current) observer.observe(loaderRef.current);
+    const currentLoader = loaderRef.current; // Save ref value
+    if (currentLoader) observer.observe(currentLoader);
     return () => {
-      if (loaderRef.current) observer.unobserve(loaderRef.current);
+      if (currentLoader) observer.unobserve(currentLoader);
     };
   }, [handleObserver, searchMode, results]);
 
