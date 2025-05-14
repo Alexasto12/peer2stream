@@ -18,12 +18,11 @@
 .mainVideoclubScrollable {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #6c47ff #18181b;
+    /* Remove scroll from here */
+    overflow: visible;
     display: flex;
     flex-direction: column;
-    padding: 2rem 2rem 2rem 0   ;
+    padding: 2rem 2rem 2rem 0;
     height: 100%;
 }
 
@@ -44,13 +43,17 @@
 }
 
 .gridScrollContainer {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: #6c47ff #18181b;
     display: flex;
     flex-direction: column;
+    max-height: none;
+    height: 100%;
+    padding-bottom: 0 !important;
 }
 
 .gridScrollContainer::-webkit-scrollbar {
@@ -75,9 +78,10 @@
     padding: 15px;
     gap: 1.2rem;
     margin-top: 2rem;
-}
+    overflow: visible;
+    
 
-/* Puedes añadir más estilos personalizados para videoclub aquí */
+}
 
 .searchBar {
     padding: 0.5rem 1.2rem 0.5rem 1rem;
@@ -145,28 +149,13 @@
     border-radius: 20px;
 }
 
-/* 
-.selectedCard::after {
-  content: "";
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border-radius: 20px;
-  border: 2.5px solid rgba(255,255,255,0.7);
-  box-shadow: 0 0 0 2px rgba(255, 0, 43, 0.76), 0 0 12px 2px #fff4;
-  pointer-events: none;
-  z-index: 3;
-  transition: box-shadow 0.2s, border 0.2s;
-} */
 
 .deleteBtn {
     position: absolute;
     right: 3em;
     margin: 1.5rem auto 0 auto;
     display: block;
-    background: rgba(255, 0, 0, 0.678);
+    background: rgba(255, 0, 0, 0.945);
     color: #fff;
     border: none;
     border-radius: 999px;
@@ -229,4 +218,113 @@
 
 .loginBtn:hover {
     text-decoration: underline;
+}
+
+.videoclubModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 22, 34, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+.videoclubModalBox {
+  background: #181a24;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  padding: 2.5rem 2.2rem 2rem 2.2rem;
+  min-width: 340px;
+  max-width: 95vw;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.videoclubModalTitle {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: #ff0800;
+}
+
+.videoclubModalDesc {
+  font-size: 1rem;
+  color: #bdbdbd;
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+
+.videoclubModalActions {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.videoclubModalBtnDelete {
+  background: linear-gradient(90deg, #ff0800 60%, #33010152 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+}
+.videoclubModalBtnDelete:hover {
+  background: linear-gradient(90deg, #e93939 60%, #3a01018c 100%);
+}
+
+.videoclubModalBtnCancel {
+  background: #23243a;
+  color: #bdbdbd;
+  border: 1px solid #35365a;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.videoclubModalBtnCancel:hover {
+  background: #292a3d;
+  color: #fff;
+}
+
+.sortOrderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  color: #ffb300;
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-left: 8px;
+  margin-right: 2px;
+  box-shadow: none;
+  text-shadow: 0 2px 8px #000, 0 1px 2px #222;
+  transition: color 0.18s, text-shadow 0.18s;
+  cursor: pointer;
+}
+.sortOrderBtn:hover, .sortOrderBtn:focus {
+  color: #fff;
+  text-shadow: 0 4px 16px #ffb300, 0 2px 8px #000;
+  outline: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
