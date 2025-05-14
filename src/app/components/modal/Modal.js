@@ -45,7 +45,16 @@ function getPlatformList(data) {
     <ul className={styles.platformList}>
       {data.watchProviders.map((p, i) => (
         <li key={i} className={styles.platformItem}>
-          {p.logo_path && <img src={`https://image.tmdb.org/t/p/w45${p.logo_path}`} alt={p.provider_name} className={styles.platformLogo} />}
+          {p.logo_path && (
+            <Image
+              src={`https://image.tmdb.org/t/p/w45${p.logo_path}`}
+              alt={p.provider_name}
+              className={styles.platformLogo}
+              width={45}
+              height={45}
+              loading="lazy"
+            />
+          )}
           <span>{p.provider_name}</span>
         </li>
       ))}
