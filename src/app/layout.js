@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBarWrapper from "./components/navbar/NavBarWrapper";
+import dynamic from 'next/dynamic';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,13 @@ export const metadata = {
   },
 };
 
+// Cargamos MobileBlocker como un componente dinámico del lado del cliente
+// para evitar problemas de hidratación
+const MobileBlocker = dynamic(
+  () => import('./components/MobileBlocker'),
+  { ssr: true }
+);
+
 export default function RootLayout({ children }) {
   return (
     <html lang='en' suppressHydrationWarning>
@@ -48,6 +56,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ minHeight: "100vh" }}
       >
+        <MobileBlocker />
         <NavBarWrapper>{children}</NavBarWrapper>
         <Analytics />
         <SpeedInsights />
