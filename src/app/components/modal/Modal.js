@@ -255,7 +255,7 @@ export default function Modal({ open, onClose, data }) {
                     onClick={isAdded ? handleRemoveClick : handleAddClick}
                     disabled={isAuthenticated === false}
                   >
-                    {isAdded ? "Remove from My Videoclub" : "Add"}
+                    {isAdded ? "Remove from My Videoclub" : "Add to My Videoclub"}
                   </button>
                   {showSuccess && (
                     <div className={styles.successMsg}>
@@ -270,7 +270,10 @@ export default function Modal({ open, onClose, data }) {
                 </>
               )}
               {isAdded === null && (
-                <div style={{marginTop: 28, color: '#aaa'}}>Loading status...</div>
+                <div style={{marginTop: 28, color: '#aaa', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10}}>
+                  <span className={styles.spinner} aria-label="Loading" />
+                  Loading status...
+                </div>
               )}
               {isAuthenticated === false && (
                 <div className={styles.authWarningMsg + ' ' + styles.authMsgFullWidth}>

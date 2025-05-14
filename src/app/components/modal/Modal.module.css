@@ -78,7 +78,7 @@
   justify-content: flex-start;
   position: relative;
   font-size: 1.32rem;
-  gap: 1.6em;
+  gap: 1em;
   max-width: 1600px;
   font-family: 'Montserrat', 'Segoe UI', 'Arial', sans-serif;
 }
@@ -93,7 +93,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 18px;
+  gap: 16px;
 }
 
 .platformTitle {
@@ -277,7 +277,7 @@
 }
 
 .addFavBtn {
-  margin-top: 24px;
+  margin-top: 5px;
   padding: 8px 18px;
   background: linear-gradient(90deg, #140e9a 0%, #00e0a0 100%);
   color: #fff;
@@ -295,7 +295,7 @@
 }
 
 .addedBtn {
-  margin-top: 24px;
+  margin-top: 5px;
   padding: 8px 18px;
   background: linear-gradient(90deg, #b00020 0%, #ffbdbd 100%);
   color: #fff;
@@ -322,7 +322,7 @@
 }
 
 .authWarningMsg {
-  margin-top: 10px;
+  margin-top: 2px;
   color: #ffb300;
   background: rgba(40,40,50,0.7);
   border-radius: 8px;
@@ -382,11 +382,10 @@
 }
 
 .authMsgFullWidth {
-  min-width: 120px;
-  max-width: 220px;
-  width: fit-content;
-  padding: 8px 18px;
+  width: 100%;
+  padding: 2px 10px;
   display: inline-block;
+  margin: 0 auto;
 }
 
 .modalEnter {
@@ -406,6 +405,22 @@
   opacity: 0;
   transform: scale(0.96) translateY(40px);
   transition: opacity 300ms cubic-bezier(.4,0,.2,1), transform 300ms cubic-bezier(.4,0,.2,1);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #bdbdbd;
+  border-top: 3px solid #6c47ff;
+  border-radius: 50%;
+  animation: modal-spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes modal-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 700px) {
