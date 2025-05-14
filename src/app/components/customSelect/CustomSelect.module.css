@@ -70,8 +70,10 @@
   list-style: none;
   overflow-x: hidden;
   min-width: 100%;
+  max-height: 155px;
+  /* Elimina cualquier max-height/overflow-y por defecto para que el inline style de React funcione */
   scrollbar-width: thin;
-  scrollbar-color: #444 #23232b;
+  scrollbar-color: #6401c0 #23232b;
 }
 .optionsList::-webkit-scrollbar {
   height: 8px;
@@ -87,7 +89,7 @@
 }
 
 .option {
-  padding: 0.6rem 1.2rem;
+  padding: 0.7rem 1.2rem;
   color: #fff;
   font-size: 1.05rem;
   cursor: pointer;
