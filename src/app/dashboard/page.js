@@ -85,11 +85,9 @@ export default function DashboardPage() {
           const data = await res.json();
           setIsLogged(true);
           setUser(data.user);
-          console.log(isLogged);
-
         } else {
           setIsLogged(false);
-          console.log(isLogged);
+
         }
       } catch {
         setError("Network error");
@@ -98,7 +96,8 @@ export default function DashboardPage() {
       }
     }
     fetchUser();
-  }, []);
+
+  }, []); 
 
   useEffect(() => {
     if (user) {
