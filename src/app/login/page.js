@@ -77,7 +77,6 @@ export default function LoginPage() {
   // Mostrar nueva pregunta cada vez que se abre el modal
   React.useEffect(() => {
     if (showRegister) generateCaptcha();
-    // eslint-disable-next-line
   }, [showRegister]);
 
   const handleSubmit = async (e) => {
