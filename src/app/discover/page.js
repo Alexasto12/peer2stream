@@ -532,16 +532,25 @@ export default function DiscoverPage() {
       <div className={styles.mainDiscoverScrollable} ref={scrollableRef} style={{ marginTop: 30 }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-10">
           {results.filter(item => item.poster_path && (item.genre_ids && item.genre_ids.length > 0)).map((item, idx) => (
-            <Card
-              key={idx}
-              id={item.id}
-              type={item.media_type || (endpoint.includes("movie") ? "movie" : "tv")}
-              image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-              title={item.title || item.name}
-              release_date={item.release_date || item.first_air_date ? dateYear(item.release_date || item.first_air_date) : ""}
-              className="!h-[420px] !w-full"
-              onFaviconClick={handleFaviconClick}
-            />
+            <motion.div
+              key={item.id + '-' + idx}
+              layout
+              initial={{ opacity: 0, scale: 0.96, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 40 }}
+              transition={{ type: 'spring', stiffness: 225, damping: 25, delay: idx * 0.03 }}
+              style={{ height: '100%' }}
+            >
+              <Card
+                id={item.id}
+                type={item.media_type || (endpoint.includes("movie") ? "movie" : "tv")}
+                image={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                title={item.title || item.name}
+                release_date={item.release_date || item.first_air_date ? dateYear(item.release_date || item.first_air_date) : ""}
+                className="!h-[420px] !w-full"
+                onFaviconClick={handleFaviconClick}
+              />
+            </motion.div>
           ))}
         </div>
         {/* Spinner solo si no estamos en modo búsqueda y hay más resultados */}
