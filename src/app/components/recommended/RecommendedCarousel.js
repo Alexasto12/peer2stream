@@ -37,8 +37,8 @@ export default function RecommendedCarousel() {
                     favArray = favData.favourites.content;
                 }
                 if (favArray.length > 0) {
-                    // Usa hasta 3 favoritos como base
-                    baseIds = favArray.slice(0, 3).map(f => f.external_id);
+                    // Usa todos los favoritos disponibles como base
+                    baseIds = favArray.map(f => f.external_id);
                 }
             }
             if (!baseIds.length) {
