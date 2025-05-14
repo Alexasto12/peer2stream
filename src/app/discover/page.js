@@ -246,11 +246,15 @@ export default function DiscoverPage() {
 
   // Cambia sortBy cuando cambia el campo o la dirección
   useEffect(() => {
+    let sortField = sortBy;
+    if (sortBy === "release_date" && endpoint === "/discover/tv") {
+      sortField = "first_air_date";
+    }
     setParams(prev => ({
       ...prev,
-      sort_by: `${sortBy}.${orderDirection}`
+      sort_by: `${sortField}.${orderDirection}`
     }));
-  }, [sortBy, orderDirection]);
+  }, [sortBy, orderDirection, endpoint]);
 
   useEffect(() => {
     if (searchMode) return; // No refrescar discover si estamos en modo búsqueda
