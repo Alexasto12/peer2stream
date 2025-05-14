@@ -17,19 +17,38 @@ export default function RecommendedCarousel() {
     useEffect(() => {
         async function fetchRecommended() {
             setLoading(true);
+            // 1. Intenta obtener el status del usuario
             const res = await fetch("/api/content-status");
             const statuses = await res.json();
             const filtered = statuses.filter(cs => cs.status === 'pending' || cs.status === 'watched');
-            if (!filtered.length) {
+            let baseIds = [];
+            if (filtered.length) {
+                filtered.sort((a, b) => new Date(b.lastWatched || b.createdAt) - new Date(a.lastWatched || a.createdAt));
+                baseIds = [filtered[0].externalId];
+            } else {
+                // 2. Si no hay status, usa los favoritos
+                const favRes = await fetch("/api/user/favourites/getFavourites");
+                const favData = await favRes.json();
+                // El backend devuelve { favourites: { content: [...] } } o { favourites: [...] }
+                let favArray = [];
+                if (Array.isArray(favData.favourites)) {
+                    favArray = favData.favourites;
+                } else if (favData.favourites && Array.isArray(favData.favourites.content)) {
+                    favArray = favData.favourites.content;
+                }
+                if (favArray.length > 0) {
+                    // Usa hasta 3 favoritos como base
+                    baseIds = favArray.slice(0, 3).map(f => f.external_id);
+                }
+            }
+            if (!baseIds.length) {
                 setRecommended([]);
                 setLoading(false);
                 return;
             }
-            filtered.sort((a, b) => new Date(b.lastWatched || b.createdAt) - new Date(a.lastWatched || a.createdAt));
-            const { externalId } = filtered[0];
             const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
             let allResults = [];
-            const fetchPages = async (type) => {
+            const fetchPages = async (type, externalId) => {
                 let results = [];
                 for (let page = 1; page <= 5; page++) {
                     const res = await fetch(`https://api.themoviedb.org/3/${type}/${externalId}/similar?api_key=${apiKey}&page=${page}`);
@@ -41,11 +60,14 @@ export default function RecommendedCarousel() {
                 }
                 return results;
             };
-            const [movieResults, tvResults] = await Promise.all([
-                fetchPages('movie'),
-                fetchPages('tv')
-            ]);
-            allResults = allResults.concat(movieResults, tvResults);
+            // Busca recomendaciones para cada baseId (de status o favoritos)
+            for (const externalId of baseIds) {
+                const [movieResults, tvResults] = await Promise.all([
+                    fetchPages('movie', externalId),
+                    fetchPages('tv', externalId)
+                ]);
+                allResults = allResults.concat(movieResults, tvResults);
+            }
             const sorted = allResults
                 .filter(item => {
                     const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
@@ -110,7 +132,7 @@ export default function RecommendedCarousel() {
                 </div>
             ) : recommended.length === 0 ? (
                 <div className={styles.noContentMsg}>
-                    Watch any movie or series to get your recommendations!
+                    Add to My Videoclub or watch any movie or series to get your recommendations!
                 </div>
             ) : (
                 <div className={styles.carouselContainer}>
