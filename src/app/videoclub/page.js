@@ -16,10 +16,13 @@ export default function VideoclubPage() {
   const [movieMeta, setMovieMeta] = useState([]); // Nuevo estado para títulos y fechas
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("title"); // "title" o "date"
+  const [sortAsc, setSortAsc] = useState(true); // true: asc, false: desc
   const [selectedIds, setSelectedIds] = useState([]); // selector de card para eliminarlas
   // Estado para el modal y la card seleccionada
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false); // Modal de confirmación
+  const [pendingDelete, setPendingDelete] = useState([]); // IDs pendientes de borrar
 
   const dateYear = function (date) {
     let year = new Date(date)
@@ -119,20 +122,25 @@ export default function VideoclubPage() {
       }
       return 0;
     });
-  const filteredCards = filteredMeta.map(meta => cards.find(card => card.id === meta.id)).filter(Boolean);
+  const filteredMetaOrdered = sortAsc ? filteredMeta : [...filteredMeta].reverse();
+  const filteredCards = filteredMetaOrdered.map(meta => cards.find(card => card.id === meta.id)).filter(Boolean);
 
   // --- ELIMINAR SELECCIONADOS Y REFRESCAR ---
-  const handleDeleteSelected = async () => {
-    const toRemove = selectedIds.map(external_id => ({ external_id }));
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    setPendingDelete([...selectedIds]);
+    setShowConfirm(true);
+  };
+
+  const confirmDeleteSelected = async () => {
+    const toRemove = pendingDelete.map(external_id => ({ external_id }));
     await fetch("/api/user/favourites/updateFavourites/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ add: [], remove: toRemove })
     });
-
     // Enviar notificación por cada eliminado
     toRemove.forEach(({ external_id }) => {
-      // Busca el título en cards o movieMeta
       const meta = movieMeta.find(m => m.external_id === external_id);
       const title = meta?.title || "Contenido";
       fetch("/api/user/notifications", {
@@ -143,9 +151,10 @@ export default function VideoclubPage() {
         window.dispatchEvent(new Event('notificationUpdate'));
       });
     });
-
     setSelectedIds([]);
-    fetchFavourites(); // Refresca favoritos y, por efecto, cards y movieMeta
+    setShowConfirm(false);
+    setPendingDelete([]);
+    fetchFavourites();
   };
 
   // Handler para abrir el modal y cargar info detallada y proveedores
@@ -223,15 +232,50 @@ export default function VideoclubPage() {
             className={styles.searchBar}
           />
           <CustomSelect options={sortOptions} value={sort} onChange={setSort} />
+          <button
+            className={styles.sortOrderBtn}
+            onClick={() => setSortAsc(a => !a)}
+            title={sortAsc ? 'Sort descending' : 'Sort ascending'}
+            aria-label={sortAsc ? 'Sort descending' : 'Sort ascending'}
+          >
+            {sortAsc ? '↓' : '↑'}
+          </button>
           {selectedIds.length > 0 && (
             <button
               className={styles.deleteBtn}
               onClick={handleDeleteSelected}
             >
-              Borrar seleccionados
+              Delete selected
             </button>
           )}
         </div>
+        {/* Delete confirmation modal */}
+        {showConfirm && (
+          <div className={styles.videoclubModalOverlay}>
+            <div className={styles.videoclubModalBox}>
+              <h2 className={styles.videoclubModalTitle}>
+                Are you sure you want to delete {pendingDelete.length} item{pendingDelete.length !== 1 ? 's' : ''} from My Videoclub?
+              </h2>
+              <p className={styles.videoclubModalDesc}>
+                This action cannot be undone.
+              </p>
+              <div className={styles.videoclubModalActions}>
+                <button
+                  onClick={confirmDeleteSelected}
+                  className={styles.videoclubModalBtnDelete}
+                >
+                  Yes, delete
+                </button>
+                <button
+                  onClick={() => { setShowConfirm(false); setPendingDelete([]); }}
+                  className={styles.videoclubModalBtnCancel}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {loadingCards ? (
           <div className={styles.loadingMsg}>Loading My Videoclub...</div>
         ) : (
@@ -244,7 +288,7 @@ export default function VideoclubPage() {
                   onClick={() => toggleSelect(card.external_id)}
                   layout
                   animate={selectedIds.includes(card.external_id) ? { scale: 1.04 } : { scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                  transition={{ type: 'spring', stiffness: 225, damping: 25 }}
                 >
                   <Card
                     id={card.id}
