@@ -106,6 +106,7 @@ export default function NotificationsPage({ setNotificationCount }) {
       .catch(() => setIsLogged(false));
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetch("/api/user/notifications", { credentials: "include" })
       .then((res) => res.json())
