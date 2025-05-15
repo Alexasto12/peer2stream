@@ -94,7 +94,7 @@ export default function RecommendedCarousel() {
         const endpoint = type === 'movie' ? 'movie' : 'tv';
         const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
         // 1. Obtener detalles
-        const res = await fetch(`${BASE_URL}/${endpoint}/${id}?api_key=${apiKey}&language=es-ES`);
+        const res = await fetch(`${BASE_URL}/${endpoint}/${id}?api_key=${apiKey}`);
         const data = await res.json();
         // 2. Obtener proveedores
         let watchProviders = [];
