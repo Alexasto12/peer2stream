@@ -83,6 +83,7 @@ export default function NotificationsPage({ setNotificationCount }) {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [isLogged, setIsLogged] = useState(null);
   const [username, setUsername] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false); // Nuevo estado para controlar el spinner de eliminación
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
@@ -146,26 +147,35 @@ export default function NotificationsPage({ setNotificationCount }) {
   const handleDelete = async (_id) => {
     setPendingDelete(_id);
     setShowConfirm(true);
-  };
-
-  const confirmDelete = async () => {
+  };  const confirmDelete = async () => {
     if (pendingDelete) {
-      await fetch("/api/user/notifications", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ _id: pendingDelete }),
-      });
-      setNotifications((prev) => {
-        const updated = prev.filter((n) => n._id !== pendingDelete);
-        setNotificationCount && setNotificationCount(updated.length);
-        window.dispatchEvent(new Event('notificationUpdate'));
-        return updated;
-      });
-      setSelected((prev) => prev.filter((id) => id !== pendingDelete));
+      setIsDeleting(true); // Activar spinner
+      try {
+        // Usar la misma API que soporta tanto un ID único como un array de IDs
+        await fetch("/api/user/notifications", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ _id: pendingDelete }),
+        });
+        setNotifications((prev) => {
+          const updated = prev.filter((n) => n._id !== pendingDelete);
+          setNotificationCount && setNotificationCount(updated.length);
+          window.dispatchEvent(new Event('notificationUpdate'));
+          return updated;
+        });
+        setSelected((prev) => prev.filter((id) => id !== pendingDelete));
+      } catch (error) {
+        console.error("Error deleting notification:", error);
+      } finally {
+        setIsDeleting(false); // Desactivar spinner cuando termine
+        setShowConfirm(false);
+        setPendingDelete(null);
+      }
+    } else {
+      setShowConfirm(false);
+      setPendingDelete(null);
     }
-    setShowConfirm(false);
-    setPendingDelete(null);
   };
 
   const handleSelect = (id) => {
@@ -179,25 +189,31 @@ export default function NotificationsPage({ setNotificationCount }) {
       setPendingDelete([...selected]);
       setShowConfirm(true);
     }
-  };
-
-  const confirmDeleteSelected = async () => {
-    if (Array.isArray(pendingDelete)) {
-      for (const id of pendingDelete) {
+  };  const confirmDeleteSelected = async () => {
+    if (Array.isArray(pendingDelete) && pendingDelete.length > 0) {
+      setIsDeleting(true); // Activar spinner
+      try {
+        // Usar una única llamada a la API enviando todos los IDs en un array
+        // Esto es mucho más eficiente que enviar múltiples solicitudes
         await fetch("/api/user/notifications", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ _id: id }),
+          body: JSON.stringify({ _id: pendingDelete }),
         });
+        
+        setNotifications((prev) => {
+          const updated = prev.filter((n) => !pendingDelete.includes(n._id));
+          setNotificationCount && setNotificationCount(updated.length);
+          window.dispatchEvent(new Event('notificationUpdate'));
+          return updated;
+        });
+        setSelected([]);
+      } catch (error) {
+        console.error("Error deleting notifications:", error);
+      } finally {
+        setIsDeleting(false); // Desactivar spinner cuando termine
       }
-      setNotifications((prev) => {
-        const updated = prev.filter((n) => !pendingDelete.includes(n._id));
-        setNotificationCount && setNotificationCount(updated.length);
-        window.dispatchEvent(new Event('notificationUpdate'));
-        return updated;
-      });
-      setSelected([]);
     }
     setShowConfirm(false);
     setPendingDelete(null);
@@ -288,30 +304,40 @@ export default function NotificationsPage({ setNotificationCount }) {
             </div>
           )}
         </div>
-      </div>
-      {showConfirm && (
+      </div>      {showConfirm && (
         <div className={styles.notificationsModalOverlay}>
           <div className={styles.notificationsModalBox}>
             <h2 className={styles.notificationsModalTitle}>
-              ¿Surely you want to delete {Array.isArray(pendingDelete) ? `this ${pendingDelete.length} notifications` : 'this notification'}?
+              {isDeleting 
+                ? `Deleting ${Array.isArray(pendingDelete) ? pendingDelete.length : '1'} notification${Array.isArray(pendingDelete) && pendingDelete.length > 1 ? 's' : ''}...` 
+                : `Are you sure you want to delete ${Array.isArray(pendingDelete) ? `these ${pendingDelete.length} notifications` : 'this notification'}?`}
             </h2>
-            <div className={styles.notificationsModalActions}>
-              <button
-                onClick={() => {
-                  if (Array.isArray(pendingDelete)) confirmDeleteSelected();
-                  else confirmDelete();
-                }}
-                className={styles.notificationsModalBtnDelete}
-              >
-                Yes, delete
-              </button>
-              <button
-                onClick={() => { setShowConfirm(false); setPendingDelete(null); }}
-                className={styles.notificationsModalBtnCancel}
-              >
-                Cancel
-              </button>
-            </div>
+            
+            {isDeleting ? (
+              <div className={styles.spinnerContainer}>
+                <span className={styles.loaderSpinner} />
+              </div>
+            ) : (
+              <div className={styles.notificationsModalActions}>
+                <button
+                  onClick={() => {
+                    if (Array.isArray(pendingDelete)) confirmDeleteSelected();
+                    else confirmDelete();
+                  }}
+                  className={styles.notificationsModalBtnDelete}
+                  disabled={isDeleting}
+                >
+                  Yes, delete
+                </button>
+                <button
+                  onClick={() => { setShowConfirm(false); setPendingDelete(null); }}
+                  className={styles.notificationsModalBtnCancel}
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
