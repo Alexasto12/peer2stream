@@ -185,19 +185,61 @@ export default function DiscoverPage() {
     data.watchProviders = providers;
     setModalData(data);
   };
-
   // Cargar géneros y plataformas según tipo
   useEffect(() => {
     setFiltersLoading(true);
     // Cargar géneros dinámicamente según el tipo seleccionado
-    const type = endpoint.includes("tv") ? "tv" : "movie";
-    const genreUrl = `https://api.themoviedb.org/3/genre/${type}/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=es`;
-    console.log('TMDB Genre endpoint:', genreUrl);
+    let type;
+    if (endpoint === "/discover/tv") {
+      type = "tv";
+    } else if (endpoint === "/discover/movie") {
+      type = "movie";
+    } else if (endpoint === "/trending/all/week") {
+      // Para trending all, cargar ambos géneros y combinarlos
+      Promise.all([
+        fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=es`).then(res => res.json()),
+        fetch(`https://api.themoviedb.org/3/genre/tv/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=es`).then(res => res.json())
+      ]).then(([movieGenres, tvGenres]) => {
+        // Combinar géneros y eliminar duplicados
+        const combinedGenres = [];
+        const idSet = new Set();
+        
+        // Añadir géneros de películas
+        (movieGenres.genres || []).forEach(g => {
+          combinedGenres.push({...g, source: 'movie'});
+          idSet.add(g.id);
+        });
+        
+        // Añadir géneros de series que no estén duplicados
+        (tvGenres.genres || []).forEach(g => {
+          if (!idSet.has(g.id)) {
+            combinedGenres.push({...g, source: 'tv'});
+          }
+        });
+        
+        setGenres(combinedGenres);
+        
+        // Resetear género si no está en la lista combinada
+        if (genre && !combinedGenres.some(g => String(g.id) === String(genre))) {
+          setGenre("");
+        }
+        
+        setFiltersLoading(false);
+      }).catch(() => {
+        setFiltersLoading(false);
+        setGenres([]);
+      });
+      return; // Salir para evitar la ejecución del fetch estándar
+    } else {
+      type = "movie"; // Predeterminado a movie si no se especifica
+    }
+    
+    const genreUrl = `https://api.themoviedb.org/3/genre/${type}/list?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`;
     fetch(genreUrl)
       .then(res => res.json())
       .then(data => {
         setGenres(data.genres || []);
-        console.log('TMDB Dynamic Genres:', data.genres);
+  
         // Si el género seleccionado no existe en la nueva lista, resetearlo
         if (genre && !(data.genres || []).some(g => String(g.id) === String(genre))) {
           setGenre("");
@@ -223,17 +265,42 @@ export default function DiscoverPage() {
       })
       .finally(() => setFiltersLoading(false));
   }, [endpoint]);
-
   // Actualizar params cuando cambian los filtros
   useEffect(() => {
     // Si el provider es vacío ("Todos"), incluir todos los IDs de los permitidos
     let providerParam = provider;
     let watchRegionParam = provider ? "ES" : undefined;
+    let genreParam = genre;
 
     if (provider === "") {
       // IDs de los proveedores permitidos
       providerParam = providers.map(p => p.provider_id).join("|");
       watchRegionParam = providers.length > 0 ? "ES" : undefined;
+    }
+    
+    // Si estamos en modo "All" y hay un género seleccionado,
+    // asegúrate de usar el ID correcto para películas o series o ambos
+    if (endpoint === "/trending/all/week" && genre) {
+      const selectedGenre = genres.find(g => String(g.id) === String(genre));
+      if (selectedGenre && selectedGenre.source) {
+        // Si el género es específico de un tipo, ajustar los parámetros
+        if (selectedGenre.source === 'movie') {
+          setParams({
+            sort_by: sortBy,
+            with_genres: genre,
+            with_watch_providers: providerParam,
+            watch_region: watchRegionParam
+          });
+        } else if (selectedGenre.source === 'tv') {
+          setParams({
+            sort_by: sortBy,
+            with_genres: genre,
+            with_watch_providers: providerParam,
+            watch_region: watchRegionParam
+          });
+        }
+        return;
+      }
     }
 
     setParams({
@@ -242,7 +309,7 @@ export default function DiscoverPage() {
       with_watch_providers: providerParam,
       watch_region: watchRegionParam
     });
-  }, [sortBy, genre, provider, providers]);
+  }, [sortBy, genre, provider, providers, endpoint, genres]);
 
   // Cambia sortBy cuando cambia el campo o la dirección
   useEffect(() => {
@@ -533,7 +600,12 @@ export default function DiscoverPage() {
       {/* Contenedor scrollable solo para resultados */}
       <div className={styles.mainDiscoverScrollable} ref={scrollableRef} style={{ marginTop: 30 }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-start items-stretch mt-10">
-          {results.filter(item => item.poster_path && (item.genre_ids && item.genre_ids.length > 0)).map((item, idx) => (
+          {results.filter(item => 
+            item.poster_path && 
+            item.overview && 
+            item.overview.trim() !== '' && 
+            (item.genre_ids && item.genre_ids.length > 0)
+          ).map((item, idx) => (
             <motion.div
               key={item.id + '-' + idx}
               layout
