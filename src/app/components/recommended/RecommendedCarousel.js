@@ -67,11 +67,13 @@ export default function RecommendedCarousel() {
                     fetchPages('tv', externalId)
                 ]);
                 allResults = allResults.concat(movieResults, tvResults);
-            }
-            const sorted = allResults
+            }            const sorted = allResults
                 .filter(item => {
                     const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
-                    return (!year || year >= 1980) && (item.vote_average === undefined || item.vote_average >= 6.8);
+                    // Filtrar elementos sin descripción (overview) y mantener el filtro de año y calificación
+                    return (!year || year >= 1980) && 
+                           (item.vote_average === undefined || item.vote_average >= 6.8) && 
+                           item.overview && item.overview.trim() !== '';
                 })
                 .sort(() => Math.random() - 0.5);
             setRecommended(sorted);
@@ -146,9 +148,9 @@ export default function RecommendedCarousel() {
                         className={styles.carousel}
                         ref={carouselRef}
                        
-                    >
-                        {Array.from(new Map(
-                            recommended.filter(item => item.poster_path)
+                    >                        {Array.from(new Map(
+                            recommended
+                                .filter(item => item.poster_path && item.overview && item.overview.trim() !== '')
                                 .map(item => [`${item._mediaType}-${item.id}`, item])
                         ).values())
                         .map((item, idx) => (
