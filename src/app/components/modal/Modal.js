@@ -41,23 +41,93 @@ function getPlatformList(data) {
     }
     return <div className={styles.platformNone}>Not available on any platform</div>;
   }
+
+  // Utilidad para construir el enlace directo a la plataforma si es posible
+  function getProviderLink(provider, data) {
+    // Si TMDB ya da un link válido, úsalo
+    if (provider.link || provider.url) return provider.link || provider.url;
+    // Si no hay link, redirigir a la home de la plataforma conocida
+    const name = provider.provider_name?.toLowerCase() || '';
+    if (name.includes('netflix')) return 'https://www.netflix.com';
+    if (name.includes('prime')) return 'https://www.primevideo.com';
+    if (name.includes('disney')) return 'https://www.disneyplus.com';
+    if (name.includes('hbo')) return 'https://www.hbomax.com';
+    if (name.includes('apple')) return 'https://tv.apple.com';
+    if (name.includes('movistar')) return 'https://ver.movistarplus.es';
+    if (name.includes('filmin')) return 'https://www.filmin.es';
+    if (name.includes('rakuten')) return 'https://rakuten.tv';
+    if (name.includes('pluto')) return 'https://pluto.tv';
+    if (name.includes('atresplayer')) return 'https://www.atresplayer.com';
+    if (name.includes('rtve')) return 'https://www.rtve.es/play/';
+
+    return null;
+  }
+
   return (
     <ul className={styles.platformList}>
-      {data.watchProviders.map((p, i) => (
-        <li key={i} className={styles.platformItem}>
-          {p.logo_path && (
-            <Image
-              src={`https://image.tmdb.org/t/p/w45${p.logo_path}`}
-              alt={p.provider_name}
-              className={styles.platformLogo}
-              width={45}
-              height={45}
-              loading="lazy"
-            />
-          )}
-          <span>{p.provider_name}</span>
-        </li>
-      ))}
+      {data.watchProviders.map((p, i) => {
+        const link = getProviderLink(p, data);
+        return (
+          <li key={i} className={styles.platformItem}>
+            {p.logo_path && link && (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.platformLink}
+                title={p.provider_name}
+                style={{display:'flex',alignItems:'center',gap:8,textDecoration:'none'}}
+              >
+                <Image
+                  src={`https://image.tmdb.org/t/p/w45${p.logo_path}`}
+                  alt={p.provider_name}
+                  className={styles.platformLogo}
+                  width={45}
+                  height={45}
+                  loading="lazy"
+                />
+                <span>{p.provider_name}</span>
+              </a>
+            )}
+            {p.logo_path && !link && (
+              <span
+                className={styles.platformLink}
+                title={p.provider_name}
+                style={{display:'flex',alignItems:'center',gap:8,textDecoration:'none',cursor:'default',opacity:0.7}}
+              >
+                <Image
+                  src={`https://image.tmdb.org/t/p/w45${p.logo_path}`}
+                  alt={p.provider_name}
+                  className={styles.platformLogo}
+                  width={45}
+                  height={45}
+                  loading="lazy"
+                />
+                <span>{p.provider_name}</span>
+              </span>
+            )}
+            {!p.logo_path && link && (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.platformLink}
+                title={p.provider_name}
+                style={{textDecoration:'none',color:'inherit'}}>
+                <span>{p.provider_name}</span>
+              </a>
+            )}
+            {!p.logo_path && !link && (
+              <span
+                className={styles.platformLink}
+                title={p.provider_name}
+                style={{textDecoration:'none',color:'inherit',cursor:'default',opacity:0.7}}>
+                <span>{p.provider_name}</span>
+              </span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -69,6 +139,9 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [director, setDirector] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
+  const [showTmdbTrailer, setShowTmdbTrailer] = useState(false);
+  const [tmdbTrailerId, setTmdbTrailerId] = useState(null);
+  const [tmdbTrailerLoading, setTmdbTrailerLoading] = useState(false);
 
   useEffect(() => {
     async function fetchExternalId() {
@@ -187,6 +260,31 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       .catch(() => {});
   }
 
+  async function handleShowTmdbTrailer() {
+    if (!data?.id) return;
+    setTmdbTrailerLoading(true);
+    setShowTmdbTrailer(true);
+    setTmdbTrailerId(null);
+    try {
+      const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || "TU_API_KEY";
+      let url;
+      if (data.media_type === "tv" || data.number_of_seasons) {
+        url = `https://api.themoviedb.org/3/tv/${data.id}/videos?api_key=${tmdbApiKey}`;
+      } else {
+        url = `https://api.themoviedb.org/3/movie/${data.id}/videos?api_key=${tmdbApiKey}`;
+      }
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('No response');
+      const json = await res.json();
+      const trailer = json.results?.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+      setTmdbTrailerId(trailer ? trailer.key : null);
+    } catch {
+      setTmdbTrailerId(null);
+    } finally {
+      setTmdbTrailerLoading(false);
+    }
+  }
+
   const MAX_OVERVIEW_PARAGRAPHS = 3;
 
   return (
@@ -295,6 +393,42 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
             <aside className={styles.modalAside}>
               <h3 className={styles.platformTitle}>Available on:</h3>
               {getPlatformList(data || {})}
+              {/* Trailer button integrado arriba a la derecha */}
+              <div className={styles.trailerSectionInline}>
+                <button
+                  className={styles.trailerBtnPrimary}
+                  onClick={handleShowTmdbTrailer}
+                >
+                  ▶ Watch Trailer
+                </button>
+                {showTmdbTrailer && (
+                  <div className={styles.trailerOverlayFull}>
+                    <div className={styles.trailerModalBackdrop} onClick={() => setShowTmdbTrailer(false)} />
+                    <div className={styles.trailerModalContentFull} onClick={e => e.stopPropagation()}>
+                      {tmdbTrailerLoading ? (
+                        <div style={{color:'#fff',padding:'2em',fontSize:'1.2em',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                          <span className={styles.spinner} aria-label="Loading" style={{marginRight:10}} />
+                          Loading trailer...
+                        </div>
+                      ) : tmdbTrailerId ? (
+                        <div className={styles.trailerIframeWrapperFull}>
+                          <iframe
+                            src={`https://www.youtube.com/embed/${tmdbTrailerId}`}
+                            title="YouTube trailer (TMDB)"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                            style={{width:'100%',height:'100%',borderRadius:'18px',border:0}}
+                          />
+                        </div>
+                      ) : (
+                        <div style={{color:'#fff',padding:'2em',fontSize:'1.2em'}}>No trailer available</div>
+                      )}
+                      <button className={styles.trailerCloseBtnFull} onClick={() => setShowTmdbTrailer(false)}>×</button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </aside>
           </motion.div>
         </motion.div>
