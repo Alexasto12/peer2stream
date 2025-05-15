@@ -11,32 +11,30 @@ export async function POST(req) {
   const tokenStore = await cookies();
   const token = tokenStore.get('token')?.value;
   if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
   let decoded;
   try {
     decoded = jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
-  }
-  const userId = decoded.id;
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  }  const userId = decoded.id;
   const user = await User.findById(userId);
   if (!user) {
-    return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
   if (!user.settings?.notifications) {
-    return NextResponse.json({ error: 'Las notificaciones están desactivadas' }, { status: 403 });
+    return NextResponse.json({ error: 'Notifications are disabled' }, { status: 403 });
   }
   const { message } = await req.json();
   if (!message || message.length > 255) {
-    return NextResponse.json({ error: 'Mensaje requerido y máximo 255 caracteres' }, { status: 400 });
+    return NextResponse.json({ error: 'Message required and maximum 255 characters' }, { status: 400 });
   }
   if (!Array.isArray(user.notifications)) {
     user.notifications = [];
-  }
-  user.notifications.push({ message });
+  }  user.notifications.push({ message });
   await user.save();
-  return NextResponse.json({ message: 'Notificación añadida', notifications: user.notifications });
+  return NextResponse.json({ message: 'Notification added', notifications: user.notifications });
 }
 
 export async function GET() {
@@ -44,21 +42,20 @@ export async function GET() {
   const tokenStore = await cookies();
   const token = tokenStore.get('token')?.value;
   if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
   let decoded;
   try {
     decoded = jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
-  }
-  const userId = decoded.id;
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  }  const userId = decoded.id;
   const user = await User.findById(userId, 'notifications settings');
   if (!user) {
-    return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
   if (!user.settings?.notifications) {
-    return NextResponse.json({ error: 'Las notificaciones están desactivadas' }, { status: 403 });
+    return NextResponse.json({ error: 'Notifications are disabled' }, { status: 403 });
   }
   return NextResponse.json({ notifications: user.notifications || [] });
 }
@@ -68,27 +65,44 @@ export async function DELETE(req) {
   const tokenStore = await cookies();
   const token = tokenStore.get('token')?.value;
   if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
   let decoded;
   try {
     decoded = jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
-  }
-  const userId = decoded.id;
-  const { _id } = await req.json();
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  }  const userId = decoded.id;
+  const data = await req.json();
+  const { _id } = data;
+  
   if (!_id) {
-    return NextResponse.json({ error: 'ID de notificación requerido' }, { status: 400 });
+    return NextResponse.json({ error: 'Notification ID required' }, { status: 400 });
   }
+  
   const user = await User.findById(userId);
   if (!user) {
-    return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
   if (!user.settings?.notifications) {
-    return NextResponse.json({ error: 'Las notificaciones están desactivadas' }, { status: 403 });
+    return NextResponse.json({ error: 'Notifications are disabled' }, { status: 403 });
   }
-  user.notifications = user.notifications.filter(n => n._id.toString() !== _id);
-  await user.save();
-  return NextResponse.json({ message: 'Notificación eliminada', notifications: user.notifications });
+  
+  // Soporta tanto un solo ID como un array de IDs
+  if (Array.isArray(_id)) {    // Delete multiple notifications at once
+    const idsToRemove = _id.map(id => id.toString());
+    user.notifications = user.notifications.filter(n => !idsToRemove.includes(n._id.toString()));
+    await user.save();
+    return NextResponse.json({ 
+      message: `${idsToRemove.length} notifications deleted`, 
+      notifications: user.notifications 
+    });
+  } else {    // Delete a single notification (original behavior)
+    user.notifications = user.notifications.filter(n => n._id.toString() !== _id);
+    await user.save();
+    return NextResponse.json({ 
+      message: 'Notification deleted', 
+      notifications: user.notifications 
+    });
+  }
 }
