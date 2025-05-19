@@ -3,6 +3,36 @@ import styles from "./Modal.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
+// Configuration for the p2service
+const P2SERVICE_URL = "http://localhost:3000";
+
+// Utility to check if the p2service service is available
+async function checkP2Service() {
+  try {
+    console.log(`Intentando conectar con el servicio de contenido en: ${P2SERVICE_URL}/status`);
+    
+    const res = await fetch(`${P2SERVICE_URL}/status`, { 
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      // Short timeout to avoid waiting too long on failure
+      signal: AbortSignal.timeout(2000)
+    });
+    
+    
+    if (res.ok) {
+      const data = await res.json();
+
+      const serviceOnline = data?.success && data?.status?.status === 'online';
+
+      return serviceOnline;
+    }
+    return false;
+  } catch (error) {
+
+    return false;
+  }
+}
+
 // Utilidad para obtener el director desde los créditos de TMDB
 async function fetchDirector(data) {
   if (!data) return null;
@@ -142,6 +172,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [showTmdbTrailer, setShowTmdbTrailer] = useState(false);
   const [tmdbTrailerId, setTmdbTrailerId] = useState(null);
   const [tmdbTrailerLoading, setTmdbTrailerLoading] = useState(false);
+  const [isServiceAvailable, setIsServiceAvailable] = useState(false);
 
   useEffect(() => {
     async function fetchExternalId() {
@@ -158,9 +189,39 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
         } catch {}
       }
       return null;
-    }
-
-    async function checkAuthAndFavourite() {
+    }    async function injectContentScript(imdbId) {
+      try {
+        // Remove any previously injected script
+        const existingScript = document.getElementById('p2-content-script');
+        if (existingScript) {
+          existingScript.remove();
+          console.log('Script p2-content-script anterior eliminado');
+        }
+        
+        // Check if the P2service is available
+        console.log('Verificando disponibilidad del servicio de contenido...');
+        const isServiceAvailable = await checkP2Service();
+        console.log('Resultado de comprobación del servicio:', isServiceAvailable);
+        
+        if (isServiceAvailable && imdbId) {
+          console.log('P2Service detectado, inyectando script para ID:', imdbId);
+          console.log(`URL del script: ${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`);
+          
+          // Create and inject the script tag
+          const script = document.createElement('script');
+          script.id = 'p2-content-script';
+          script.src = `${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`;
+          script.async = true;
+          
+          document.body.appendChild(script);
+          console.log('Script inyectado correctamente en el DOM');
+        } else {
+          console.log(`No se pudo inyectar el script: Servicio disponible: ${isServiceAvailable}, ID: ${imdbId || 'no disponible'}`);
+        }
+      } catch (error) {
+        console.error('Error al inyectar el script P2service:', error);
+      }
+    }async function checkAuthAndFavourite() {
       setIsAdded(null);
       setExternalId(null);
       try {
@@ -171,6 +232,11 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       }
       const extId = await fetchExternalId();
       setExternalId(extId);
+        // Inject content script if we have an IMDb ID
+      if (extId) {
+        injectContentScript(extId);
+      }
+      
       if (!open || !extId) {
         setIsAdded(false);
         return;
@@ -187,10 +253,10 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       } catch {
         setIsAdded(false);
       }
-    }
-    if (open && data) {
+    }    if (open && data) {
       checkAuthAndFavourite();
       fetchDirector(data).then(setDirector);
+      checkP2Service().then(setIsServiceAvailable);
     }
   }, [open, data]);
 
@@ -285,7 +351,28 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     }
   }
 
-  const MAX_OVERVIEW_PARAGRAPHS = 3;
+  const MAX_OVERVIEW_PARAGRAPHS = 3;  // Clean up the injected script when the modal closes
+  useEffect(() => {
+    return () => {
+      if (!open) {
+        const existingScript = document.getElementById('p2-content-script');
+        if (existingScript) {
+          existingScript.remove();
+        }
+        
+        // Also remove any content UI elements that might have been injected
+        const contentButton = document.querySelector('.p2-show-content-btn');
+        if (contentButton) {
+          contentButton.remove();
+        }
+        
+        const contentOverlay = document.querySelector('.p2-content-overlay');
+        if (contentOverlay) {
+          contentOverlay.remove();
+        }
+      }
+    };
+  }, [open]);
 
   return (
     <AnimatePresence>
