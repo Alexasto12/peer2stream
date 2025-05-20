@@ -128,7 +128,13 @@ export default function ContinueWatchingCarousel() {
     }, []);
 
     // Filtrar items con status 'pending', runtime y watchedTime < runtime
-    const pending = items.filter(item => item.status === "pending");
+    let pending = items.filter(item => item.status === "pending");
+    // Ordenar por updatedAt descendente (más recientes primero)
+    pending = pending.sort((a, b) => {
+        const dateA = new Date(a.updatedAt || a.lastWatched || 0).getTime();
+        const dateB = new Date(b.updatedAt || b.lastWatched || 0).getTime();
+        return dateB - dateA;
+    });
 
     const dateYear = (date) => {
         if (!date) return "";
