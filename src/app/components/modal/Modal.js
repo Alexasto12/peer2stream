@@ -210,6 +210,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [seasonEpisodesError, setSeasonEpisodesError] = useState(null);
   const [openEpisode, setOpenEpisode] = useState(null);
   const [watchedEpisodes, setWatchedEpisodes] = useState([]);
+  const [contentStatusList, setContentStatusList] = useState([]); // Nuevo estado para todos los ContentStatus
 
   useEffect(() => {
     async function fetchExternalId() {
@@ -434,44 +435,42 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     fetchEpisodes();
   }, [selectedSeason, data?.id]);
 
-  // Fetch watched episodes or movie status from ContentStatus cuando externalId (imdb_id) esté disponible
+  // Fetch watched episodes o movie status y ContentStatus cuando externalId (imdb_id) esté disponible
   useEffect(() => {
-    // Asociar el externalId al id de la serie consultada
     if (!data?.id) return;
     const isTV = data?.media_type === 'tv' || data?.number_of_seasons;
-    // Solo hacer fetch si externalId es string válido
     if (!externalId || typeof externalId !== 'string' || externalId === 'null' || externalId.trim() === '') {
       setWatchedEpisodes([]);
+      setContentStatusList([]);
       return;
     }
-    // Log temporal para depuración
-    console.log('[fetchWatched] Consultando:', { externalId, title: data?.name || data?.title });
     let cancelled = false;
     async function fetchWatched() {
       try {
-        // Obtener todos los ContentStatus del usuario
         const res = await fetch('/api/content-status');
         if (!res.ok) throw new Error('Error fetching watched status');
         const json = await res.json();
-        // Filtrar solo los que coinciden con el externalId actual (imdb_id)
+        setContentStatusList(json); // Guardar la lista completa
         const filtered = json.filter(e => e.externalId === externalId);
         if (cancelled) return;
         if (isTV) {
-          // Para series, filtrar por temporada y status
           const watched = filtered.filter(e => e.season === Number(selectedSeason) && e.status === 'watched');
           setWatchedEpisodes(watched.map(e => e.episode));
         } else {
-          // Para películas, basta con que haya uno con status watched
           setWatchedEpisodes(filtered.some(e => e.status === 'watched') ? [true] : []);
         }
       } catch {
-        if (!cancelled) setWatchedEpisodes([]);
+        if (!cancelled) {
+          setWatchedEpisodes([]);
+          setContentStatusList([]);
+        }
       }
     }
     if ((data?.media_type === 'movie' || (selectedSeason && seasonEpisodes.length))) {
       fetchWatched();
     } else {
       setWatchedEpisodes([]);
+      setContentStatusList([]);
     }
     // Cleanup para evitar race conditions
     return () => { cancelled = true; };
@@ -562,36 +561,61 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                           )}
                           {!seasonEpisodesLoading && !seasonEpisodesError && seasonEpisodes.length > 0 && (
                             <ul className={styles.episodesListUl}>
-                              {seasonEpisodes.map(ep => (
-                                <li key={ep.id} className={styles.episodeItem}
-                                  onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
-                                >
-                                  <span className={styles.episodeTitle}>
-                                    Episode {ep.episode_number} - {ep.name}
-                                  </span>
-                                  <span className={styles.episodeImdbId}>
-                                    [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
-                                  </span>
-                                  {watchedEpisodes.includes(ep.episode_number) && (
-                                    <span className={styles.episodeWatchedIcon} title="Watched">
-                                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ display: 'inline', verticalAlign: 'middle' }} xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#6ee7b7" strokeWidth="2" fill="none" />
-                                        <circle cx="12" cy="12" r="3.5" fill="#6ee7b7" />
-                                      </svg>
+                              {seasonEpisodes.map(ep => {
+                                // Buscar progreso pendiente para este episodio
+                                const pending = contentStatusList.find(e =>
+                                  e.externalId === externalId &&
+                                  e.season === Number(selectedSeason) &&
+                                  e.episode === ep.episode_number &&
+                                  e.status === 'pending'
+                                );
+                                let percent = null;
+                                if (pending && typeof pending.watchedTime === 'number' && typeof ep.runtime === 'number' && ep.runtime > 0) {
+                                  percent = Math.min(100, Math.round((pending.watchedTime / (ep.runtime * 60)) * 100));
+                                }
+                                return (
+                                  <li key={ep.id} className={styles.episodeItem}
+                                    onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
+                                  >
+                                    <span className={styles.episodeTitle}>
+                                      Episode {ep.episode_number} - {ep.name}
                                     </span>
-                                  )}
-                                  {openEpisode === ep.id && (
-                                    <div className={styles.episodeOverviewPanel}>
-                                      <div className={styles.episodeOverviewTitle}>
-                                        Episode {ep.episode_number} - {ep.name}
+                                    <span className={styles.episodeImdbId}>
+                                      [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
+                                    </span>
+                                    {/* Barra de progreso en la badge del episodio */}
+                                    {percent !== null && !watchedEpisodes.includes(ep.episode_number) && (
+                                      <div className={styles.episodeProgressBarBadge}>
+                                        <div className={styles.episodeProgressBarBgBadge}>
+                                          <div
+                                            className={styles.episodeProgressBarFillBadge}
+                                            style={{ width: `${percent}%` }}
+                                          />
+                                        </div>
+                                        <div className={styles.episodeProgressBarPercentBadge}>{percent}%</div>
                                       </div>
-                                      <div>Rating: ⭐ {ep.vote_average}</div>
-                                      <br />
-                                      {ep.overview && <p>{ep.overview}</p>}
-                                    </div>
-                                  )}
-                                </li>
-                              ))}
+                                    )}
+                                    {watchedEpisodes.includes(ep.episode_number) && (
+                                      <span className={styles.episodeWatchedIcon} title="Watched">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ display: 'inline', verticalAlign: 'middle' }} xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#6ee7b7" strokeWidth="2" fill="none" />
+                                          <circle cx="12" cy="12" r="3.5" fill="#6ee7b7" />
+                                        </svg>
+                                      </span>
+                                    )}
+                                    {openEpisode === ep.id && (
+                                      <div className={styles.episodeOverviewPanel}>
+                                        <div className={styles.episodeOverviewTitle}>
+                                          Episode {ep.episode_number} - {ep.name}
+                                        </div>
+                                        <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
+                                        <br />
+                                        {ep.overview && <p>{ep.overview}</p>}
+                                      </div>
+                                    )}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           )}
                           {!seasonEpisodesLoading && !seasonEpisodesError && seasonEpisodes.length === 0 && (
