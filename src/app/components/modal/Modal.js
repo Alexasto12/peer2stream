@@ -531,69 +531,72 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
               )}
               {/* Panel desplegable de temporadas */}
               {showSeasonsPanel && Array.isArray(data?.seasons) && data.seasons.length > 0 && (
-                <div className={styles.seasonsPanelOverlay} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 15, background: '#181828f7', color: '#181828', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '48px 24px 24px 24px', overflowY: 'auto', borderRadius: 16 }}>
-                  <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                <div className={styles.seasonsPanelOverlay} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 15, background: '#181828f7', color: '#181828', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', padding: '48px 24px 24px 24px', borderRadius: 16 }}>
+                  {/* Selector de seasons a la izquierda */}
+                  <div className={styles.seasonsListColumn}>
+                    <h3 className={styles.seasonsListTitle}>Seasons</h3>
+                    <ul className={styles.seasonsListUl}>
+                      {data.seasons.map(season => (
+                        <li
+                          key={season.id}
+                          className={selectedSeason == season.season_number ? styles.seasonListItemSelected : styles.seasonListItem}
+                          onClick={() => setSelectedSeason(season.season_number)}
+                        >
+                          {season.name} {season.air_date ? `(${season.air_date.slice(0, 4)})` : ''}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <h3 style={{ marginBottom: 18 }}>Seasons</h3>
-                  <select
-                    className={styles.seasonsSelect}
-                    style={{ fontSize: 20, padding: '10px 18px', borderRadius: 10, marginBottom: 28, minWidth: 260, color: '#181828', background: '#f3f3fa', border: '1px solid #d1d1e0' }}
-                    value={selectedSeason || ''}
-                    onChange={e => setSelectedSeason(e.target.value)}
-                  >
-                    <option value='' disabled>Select a season</option>
-                    {data.seasons.map(season => (
-                      <option key={season.id} value={season.season_number}>
-                        {season.name} {season.air_date ? `(${season.air_date.slice(0, 4)})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  {/* Lista de episodios de la temporada seleccionada */}
-                  {selectedSeason && (
-                    <div className={styles.episodesListPanel}>
-                      {seasonEpisodesLoading && (
-                        <div className={styles.episodesLoading}>Loading episodes...</div>
-                      )}
-                      {seasonEpisodesError && (
-                        <div className={styles.episodesError}>{seasonEpisodesError}</div>
-                      )}
-                      {!seasonEpisodesLoading && !seasonEpisodesError && seasonEpisodes.length > 0 && (
-                        <ul className={styles.episodesListUl}>
-                          {seasonEpisodes.map(ep => (
-                            <li key={ep.id} className={styles.episodeItem}
-                              onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
-                            >
-                              <span className={styles.episodeTitle}>
-                                Season {selectedSeason} - Ep {ep.episode_number} - ID {ep.id}
-                              </span>
-                              {/* Mostrar el externalId (imdb_id) al lado del episodio */}
-                              <span className={styles.episodeImdbId}>
-                                [imdb_id: {externalId || 'N/A'}]
-                              </span>
-                              {/* Icono de ojo si está visto */}
-                              {watchedEpisodes.includes(ep.episode_number) && (
-                                <span className={styles.episodeWatchedIcon} title="Watched">
-                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ display: 'inline', verticalAlign: 'middle' }} xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#6ee7b7" strokeWidth="2" fill="none" />
-                                    <circle cx="12" cy="12" r="3.5" fill="#6ee7b7" />
-                                  </svg>
-                                </span>
-                              )}
-                              {openEpisode === ep.id && ep.overview && (
-                                <div className={styles.episodeOverviewPanel}>
-                                  <div>Rating: ⭐ {ep.vote_average}</div><br />
-                                  <p>{ep.overview}</p>
-                                </div>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      {!seasonEpisodesLoading && !seasonEpisodesError && seasonEpisodes.length === 0 && (
-                        <div className={styles.episodesEmpty}>No episodes found for this season.</div>
+                  {/* Lista de episodios de la temporada seleccionada o espacio reservado */}
+                  <div className={styles.episodesListPanel}>
+                    <div className={styles.episodesListScrollWrapper}>
+                      {selectedSeason ? (
+                        <>
+                          {seasonEpisodesLoading && (
+                            <div className={styles.episodesLoading}>Loading episodes...</div>
+                          )}
+                          {seasonEpisodesError && (
+                            <div className={styles.episodesError}>{seasonEpisodesError}</div>
+                          )}
+                          {!seasonEpisodesLoading && !seasonEpisodesError && seasonEpisodes.length > 0 && (
+                            <ul className={styles.episodesListUl}>
+                              {seasonEpisodes.map(ep => (
+                                <li key={ep.id} className={styles.episodeItem}
+                                  onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
+                                >
+                                  <span className={styles.episodeTitle}>
+                                    Episode {ep.episode_number}  {ep.name}
+                                  </span>
+                                  <span className={styles.episodeImdbId}>
+                                    [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
+                                  </span>
+                                  {watchedEpisodes.includes(ep.episode_number) && (
+                                    <span className={styles.episodeWatchedIcon} title="Watched">
+                                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ display: 'inline', verticalAlign: 'middle' }} xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="#6ee7b7" strokeWidth="2" fill="none" />
+                                        <circle cx="12" cy="12" r="3.5" fill="#6ee7b7" />
+                                      </svg>
+                                    </span>
+                                  )}
+                                  {openEpisode === ep.id && ep.overview && (
+                                    <div className={styles.episodeOverviewPanel}>
+                                      <div>Rating: ⭐ {ep.vote_average}</div><br />
+                                      <p>{ep.overview}</p>
+                                    </div>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {!seasonEpisodesLoading && !seasonEpisodesError && seasonEpisodes.length === 0 && (
+                            <div className={styles.episodesEmpty}>No episodes found for this season.</div>
+                          )}
+                        </>
+                      ) : (
+                        <div className={styles.episodesPlaceholder}>Select a season to view episodes</div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
               <h2 className={styles.modalTitle}>{data?.title || data?.name}</h2>
