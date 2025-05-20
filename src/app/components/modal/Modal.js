@@ -548,7 +548,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                     onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
                                   >
                                     <span className={styles.episodeTitle}>
-                                      Episode {ep.episode_number} - {ep.name}
+                                      Episode {ep.episode_number}
                                     </span>
                                     <span className={styles.episodeImdbId}>
                                       [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
@@ -576,7 +576,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                     {openEpisode === ep.id && (
                                       <div className={styles.episodeOverviewPanel}>
                                         <div className={styles.episodeOverviewTitle}>
-                                          Episode {ep.episode_number} - {ep.name}
+                                          {ep.name}
                                         </div>
                                         <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
                                         <br />
