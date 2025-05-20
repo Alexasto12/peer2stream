@@ -548,7 +548,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                     onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
                                   >
                                     <span className={styles.episodeTitle}>
-                                      Episode {ep.episode_number}
+                                      Episode {ep.episode_number} - {ep.name}
                                     </span>
                                     <span className={styles.episodeImdbId}>
                                       [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
@@ -565,6 +565,16 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                         <div className={styles.episodeProgressBarPercentBadge}>{percent}%</div>
                                       </div>
                                     )}
+                                    {openEpisode === ep.id && (
+                                      <div className={styles.episodeOverviewPanel}>
+                                        <div className={styles.episodeOverviewTitle}>
+                                          Episode {ep.episode_number} - {ep.name}
+                                        </div>
+                                        <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
+                                        <br />
+                                        {ep.overview && <p>{ep.overview}</p>}
+                                      </div>
+                                    )}
                                     {watchedEpisodes.includes(ep.episode_number) && (
                                       <span className={styles.episodeWatchedIcon} title="Watched">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ display: 'inline', verticalAlign: 'middle' }} xmlns="http://www.w3.org/2000/svg">
@@ -572,16 +582,6 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                           <circle cx="12" cy="12" r="3.5" fill="#6ee7b7" />
                                         </svg>
                                       </span>
-                                    )}
-                                    {openEpisode === ep.id && (
-                                      <div className={styles.episodeOverviewPanel}>
-                                        <div className={styles.episodeOverviewTitle}>
-                                          {ep.name}
-                                        </div>
-                                        <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
-                                        <br />
-                                        {ep.overview && <p>{ep.overview}</p>}
-                                      </div>
                                     )}
                                   </li>
                                 );
