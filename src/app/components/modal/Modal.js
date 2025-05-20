@@ -10,15 +10,25 @@ const P2SERVICE_URL = "http://localhost:3000";
 async function checkP2Service() {
   try {
     console.log(`Intentando conectar con el servicio de contenido en: ${P2SERVICE_URL}/status`);
+<<<<<<< HEAD
 
     const res = await fetch(`${P2SERVICE_URL}/status`, {
+=======
+    
+    const res = await fetch(`${P2SERVICE_URL}/status`, { 
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
       method: 'GET',
       headers: { 'Accept': 'application/json' },
       // Short timeout to avoid waiting too long on failure
       signal: AbortSignal.timeout(2000)
     });
+<<<<<<< HEAD
 
 
+=======
+    
+    
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
     if (res.ok) {
       const data = await res.json();
 
@@ -196,7 +206,11 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
         } catch { }
       }
       return null;
+<<<<<<< HEAD
     } async function injectContentScript(imdbId) {
+=======
+    }    async function injectContentScript(imdbId) {
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
       try {
         // Remove any previously injected script
         const existingScript = document.getElementById('p2-content-script');
@@ -204,22 +218,38 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
           existingScript.remove();
           console.log('Script p2-content-script anterior eliminado');
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
         // Check if the P2service is available
         console.log('Verificando disponibilidad del servicio de contenido...');
         const isServiceAvailable = await checkP2Service();
         console.log('Resultado de comprobación del servicio:', isServiceAvailable);
+<<<<<<< HEAD
 
         if (isServiceAvailable && imdbId) {
           console.log('P2Service detectado, inyectando script para ID:', imdbId);
           console.log(`URL del script: ${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`);
 
+=======
+        
+        if (isServiceAvailable && imdbId) {
+          console.log('P2Service detectado, inyectando script para ID:', imdbId);
+          console.log(`URL del script: ${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`);
+          
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
           // Create and inject the script tag
           const script = document.createElement('script');
           script.id = 'p2-content-script';
           script.src = `${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`;
           script.async = true;
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
           document.body.appendChild(script);
           console.log('Script inyectado correctamente en el DOM');
         } else {
@@ -228,7 +258,11 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       } catch (error) {
         console.error('Error al inyectar el script P2service:', error);
       }
+<<<<<<< HEAD
     } async function checkAuthAndFavourite() {
+=======
+    }async function checkAuthAndFavourite() {
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
       setIsAdded(null);
       setExternalId(null);
       try {
@@ -239,11 +273,19 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       }
       const extId = await fetchExternalId();
       setExternalId(extId);
+<<<<<<< HEAD
       // Inject content script if we have an IMDb ID
       if (extId) {
         injectContentScript(extId);
       }
 
+=======
+        // Inject content script if we have an IMDb ID
+      if (extId) {
+        injectContentScript(extId);
+      }
+      
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
       if (!open || !extId) {
         setIsAdded(false);
         return;
@@ -260,7 +302,11 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       } catch {
         setIsAdded(false);
       }
+<<<<<<< HEAD
     } if (open && data) {
+=======
+    }    if (open && data) {
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
       checkAuthAndFavourite();
       fetchDirector(data).then(setDirector);
       checkP2Service().then(setIsServiceAvailable);
@@ -366,13 +412,21 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
         if (existingScript) {
           existingScript.remove();
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
         // Also remove any content UI elements that might have been injected
         const contentButton = document.querySelector('.p2-show-content-btn');
         if (contentButton) {
           contentButton.remove();
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
         const contentOverlay = document.querySelector('.p2-content-overlay');
         if (contentOverlay) {
           contentOverlay.remove();
@@ -380,6 +434,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       }
     };
   }, [open]);
+<<<<<<< HEAD
 
   // Fetch episodes when selectedSeason changes
   useEffect(() => {
@@ -450,6 +505,8 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     // Cleanup para evitar race conditions
     return () => { cancelled = true; };
   }, [selectedSeason, externalId, seasonEpisodes.length, data?.media_type, data?.number_of_seasons, data?.id]);
+=======
+>>>>>>> ec38bad (feat: Enable dynamic external plugin/script injection in Modal for enhanced content support using IMDb IDs)
 
   return (
     <AnimatePresence>
