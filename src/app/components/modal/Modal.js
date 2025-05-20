@@ -531,7 +531,9 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
               )}
               {/* Panel desplegable de temporadas */}
               {showSeasonsPanel && Array.isArray(data?.seasons) && data.seasons.length > 0 && (
-                <div className={styles.seasonsPanelOverlay} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 15, background: '#181828f7', color: '#181828', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', padding: '48px 24px 24px 24px', borderRadius: 16 }}>
+                <div
+                  className={styles.seasonsPanelOverlay + ' ' + styles.seasonsPanelOverlayAbsolute}
+                >
                   {/* Selector de seasons a la izquierda */}
                   <div className={styles.seasonsListColumn}>
                     <h3 className={styles.seasonsListTitle}>Seasons</h3>
@@ -542,7 +544,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                           className={selectedSeason == season.season_number ? styles.seasonListItemSelected : styles.seasonListItem}
                           onClick={() => setSelectedSeason(season.season_number)}
                         >
-                          {season.name} {season.air_date ? `(${season.air_date.slice(0, 4)})` : ''}
+                          {season.name}
                         </li>
                       ))}
                     </ul>
@@ -565,7 +567,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                   onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
                                 >
                                   <span className={styles.episodeTitle}>
-                                    Episode {ep.episode_number}  {ep.name}
+                                    Episode {ep.episode_number} - {ep.name}
                                   </span>
                                   <span className={styles.episodeImdbId}>
                                     [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
