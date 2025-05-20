@@ -580,10 +580,14 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                       </svg>
                                     </span>
                                   )}
-                                  {openEpisode === ep.id && ep.overview && (
+                                  {openEpisode === ep.id && (
                                     <div className={styles.episodeOverviewPanel}>
-                                      <div>Rating: ⭐ {ep.vote_average}</div><br />
-                                      <p>{ep.overview}</p>
+                                      <div className={styles.episodeOverviewTitle}>
+                                        Episode {ep.episode_number} - {ep.name}
+                                      </div>
+                                      <div>Rating: ⭐ {ep.vote_average}</div>
+                                      <br />
+                                      {ep.overview && <p>{ep.overview}</p>}
                                     </div>
                                   )}
                                 </li>

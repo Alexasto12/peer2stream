@@ -824,13 +824,28 @@
 .episodeOverviewPanel {
   background: #181828;
   color: #fff;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-top: 8px;
-  padding: 10px 14px;
+  padding: 5px 5px;
   font-size: 14px;
   font-weight: 400;
   box-shadow: 0 1px 6px #0003;
   max-width: 420px;
+  /* Mostrar el título completo, permitiendo varias líneas y sin puntos suspensivos */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.episodeOverviewTitle {
+  font-weight: 700;
+  font-size: 1.15em;
+  color: #ffe082;
+  margin-bottom: 6px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
 }
 
 .episodesEmpty {
