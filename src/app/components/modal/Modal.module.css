@@ -755,7 +755,7 @@
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: #6ee7b7 #23234a;
+  scrollbar-color: #A88AFF #23234a;
 }
 
 .episodesListUl {
@@ -770,7 +770,7 @@
 }
 
 .episodeItem {
-  display: block;
+  display: inline-block;
   background: #23234a;
   color: #fff;
   border-radius: 16px;
@@ -784,8 +784,7 @@
   cursor: pointer;
   transition: background 0.2s;
   position: relative;
-  width: 100%;
-  /* Fijo, ocupa todo el ancho de la columna de episodios */
+  width: auto;
   box-sizing: border-box;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -800,6 +799,12 @@
 .episodeTitle {
   font-weight: 600;
   font-size: 1.08em;
+  display: inline-block;
+  width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .episodeImdbId {
@@ -852,7 +857,7 @@
   max-height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #6ee7b7 #23234a;
+  scrollbar-color: #A88AFF #23234a;
 }
 
 .seasonsListUl::-webkit-scrollbar {
@@ -862,14 +867,14 @@
 }
 
 .seasonsListUl::-webkit-scrollbar-thumb {
-  background: linear-gradient(120deg, #6ee7b7 0%, #23234a 100%);
+  background: linear-gradient(120deg, #A88AFF 0%, #23234a 100%);
   border-radius: 8px;
   min-height: 40px;
   border: 2px solid #23234a;
 }
 
 .seasonsListUl::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(120deg, #34d399 0%, #181828 100%);
+  background: linear-gradient(120deg, #A88AFF 0%, #181828 100%);
 }
 
 .seasonsListUl::-webkit-scrollbar-corner {
@@ -897,11 +902,11 @@
 }
 
 .seasonListItemSelected {
-  background: linear-gradient(90deg, #6ee7b7 0%, #23234a 100%);
+  background: linear-gradient(90deg, #A88AFF 0%, #23234a 100%);
   color: #181828;
   font-weight: 700;
   padding-left: 10px;
-  border: 2px solid #6ee7b7;
+  border: 2px solid #A88AFF;
   border-radius: 10px;
   margin-right: 6px;
   box-sizing: border-box;
