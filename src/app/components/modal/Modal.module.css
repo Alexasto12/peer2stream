@@ -703,18 +703,15 @@
 .seasonsPanelOverlay {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 32px;
   margin-left: 0;
-  padding-left: 0;
+  padding: 20px;
 }
 
 .seasonsListColumn {
-  width: 200px;
-  /* Fijo, igual para todos */
-  min-width: 200px;
-  max-width: 200px;
+  width: 300px;
   background: #22223a;
   border-radius: 14px;
   padding: 18px 10px 18px 10px;
@@ -732,14 +729,23 @@
 
 .episodesListPanel {
   margin-top: 12px;
-  width: 320px;
-  /* Fijo, igual para todos */
-  min-width: 320px;
-  max-width: 320px;
+  width: 100%;
   text-align: left;
-  height: 70%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.seasonsPanelOverlayAbsolute {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  background: #181828f7;
+  color: #181828;
+  border-radius: 16px;
 }
 
 .episodesListScrollWrapper {
@@ -754,7 +760,9 @@
 
 .episodesListUl {
   list-style: none;
-  padding: 0;
+  padding: 0 6px 0 0;
+  /* padding-right para separar la scrollbar */
+  margin: 0;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -825,34 +833,6 @@
   margin: 1em 0;
 }
 
-.seasonsPanelOverlay {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 32px;
-  /* Elimina overflow-y para que solo la lista de episodios tenga scroll */
-}
-
-.seasonsListColumn {
-  width: 200px;
-  /* Fijo, igual para todos */
-  min-width: 200px;
-  max-width: 200px;
-  background: #22223a;
-  border-radius: 14px;
-  padding: 18px 10px 18px 10px;
-  box-shadow: 0 2px 12px #0002;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  height: 100%;
-  position: sticky;
-  left: 0;
-  top: 0;
-  z-index: 2;
-}
-
 .seasonsListTitle {
   font-size: 1.25em;
   font-weight: 700;
@@ -869,10 +849,35 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #6ee7b7 #23234a;
+}
+
+.seasonsListUl::-webkit-scrollbar {
+  width: 10px;
+  background: #23234a;
+  border-radius: 8px;
+}
+
+.seasonsListUl::-webkit-scrollbar-thumb {
+  background: linear-gradient(120deg, #6ee7b7 0%, #23234a 100%);
+  border-radius: 8px;
+  min-height: 40px;
+  border: 2px solid #23234a;
+}
+
+.seasonsListUl::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(120deg, #34d399 0%, #181828 100%);
+}
+
+.seasonsListUl::-webkit-scrollbar-corner {
+  background: #23234a;
 }
 
 .seasonListItem {
-  padding: 10px 16px;
+  padding: 10px 16px 10px 16px;
   border-radius: 8px;
   background: none;
   color: #b3c7ff;
@@ -883,6 +888,7 @@
   border: none;
   text-align: left;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .seasonListItem:hover {
@@ -894,7 +900,11 @@
   background: linear-gradient(90deg, #6ee7b7 0%, #23234a 100%);
   color: #181828;
   font-weight: 700;
+  padding-left: 10px;
   border: 2px solid #6ee7b7;
+  border-radius: 10px;
+  margin-right: 6px;
+  box-sizing: border-box;
 }
 
 .episodesPlaceholder {
