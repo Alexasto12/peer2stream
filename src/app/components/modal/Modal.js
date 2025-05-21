@@ -211,6 +211,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [openEpisode, setOpenEpisode] = useState(null);
   const [watchedEpisodes, setWatchedEpisodes] = useState([]);
   const [contentStatusList, setContentStatusList] = useState([]); // Nuevo estado para todos los ContentStatus
+  const [hasAutoOpenedEpisodeThisSession, setHasAutoOpenedEpisodeThisSession] = useState(false);
 
   useEffect(() => {
     async function fetchExternalId() {
@@ -411,7 +412,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   // Fetch episodes when selectedSeason changes
   useEffect(() => {
     async function fetchEpisodes() {
-      if (!selectedSeason || !data?.id) {
+      if (selectedSeason === null || selectedSeason === undefined || !data?.id) {
         setSeasonEpisodes([]);
         setSeasonEpisodesError(null);
         return;
@@ -466,7 +467,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
         }
       }
     }
-    if ((data?.media_type === 'movie' || (selectedSeason && seasonEpisodes.length))) {
+    if ((data?.media_type === 'movie' || (typeof selectedSeason === 'number' && seasonEpisodes.length))) {
       fetchWatched();
     } else {
       setWatchedEpisodes([]);
@@ -475,6 +476,73 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     // Cleanup para evitar race conditions
     return () => { cancelled = true; };
   }, [selectedSeason, externalId, seasonEpisodes.length, data?.media_type, data?.number_of_seasons, data?.id]);
+
+  // Automatically open the first pending episode in the first available season
+  useEffect(() => {
+    if (
+      showSeasonsPanel &&
+      !hasAutoOpenedEpisodeThisSession && // Only run if not already auto-opened this session
+      data?.seasons &&
+      contentStatusList?.length > 0 &&
+      externalId &&
+      openEpisode === null // Only run if no episode is currently expanded by user or previous run
+    ) {
+      const sortedSeasons = data.seasons
+        ? [...data.seasons].sort((a, b) => a.season_number - b.season_number)
+        : [];
+
+      for (const season of sortedSeasons) {
+        const currentSeasonNumber = season.season_number;
+
+        const pendingStatusesForSeason = contentStatusList
+          .filter(
+            (cs) =>
+              cs.externalId === externalId &&
+              cs.season === currentSeasonNumber &&
+              cs.status === 'pending'
+          )
+          .sort((a, b) => a.episode - b.episode); // Sort by episode number
+
+        if (pendingStatusesForSeason.length > 0) {
+          const firstPendingEpisodeNumberInSeason = pendingStatusesForSeason[0].episode;
+
+          if (selectedSeason === currentSeasonNumber) {
+            // Current season is already selected, episodes should be loaded
+            const episodeToOpen = seasonEpisodes.find(
+              (ep) => ep.episode_number === firstPendingEpisodeNumberInSeason
+            );
+            if (episodeToOpen) {
+              setOpenEpisode(episodeToOpen.id);
+              setHasAutoOpenedEpisodeThisSession(true); // Mark as auto-opened for this session
+              return; // Exit effect once an episode is opened
+            }
+          } else {
+            // This season is not selected yet. Select it.
+            // The effect will re-run when seasonEpisodes for this new season are loaded.
+            setSelectedSeason(currentSeasonNumber);
+            return; // Exit effect, will re-trigger due to setSelectedSeason -> seasonEpisodes change
+          }
+        }
+      }
+    }
+  }, [
+    showSeasonsPanel,
+    data, // data.seasons is used
+    contentStatusList,
+    externalId,
+    selectedSeason,
+    seasonEpisodes,
+    openEpisode,
+    setSelectedSeason, // Include setters if your linting rules require it, they are stable
+    setOpenEpisode   // Include setters if your linting rules require it, they are stable
+  ]);
+
+  // Reset auto-open tracker when seasons panel is closed
+  useEffect(() => {
+    if (!showSeasonsPanel) {
+      setHasAutoOpenedEpisodeThisSession(false);
+    }
+  }, [showSeasonsPanel]);
 
   return (
     <AnimatePresence>
@@ -543,7 +611,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                           className={selectedSeason == season.season_number ? styles.seasonListItemSelected : styles.seasonListItem}
                           onClick={() => setSelectedSeason(season.season_number)}
                         >
-                          {season.name}
+                          {season.season_number === 0 ? 'Specials' : season.name}
                         </li>
                       ))}
                     </ul>
@@ -551,7 +619,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                   {/* Lista de episodios de la temporada seleccionada o espacio reservado */}
                   <div className={styles.episodesListPanel}>
                     <div className={styles.episodesListScrollWrapper}>
-                      {selectedSeason ? (
+                      {selectedSeason !== null && selectedSeason !== undefined ? (
                         <>
                           {seasonEpisodesLoading && (
                             <div className={styles.episodesLoading}>Loading episodes...</div>
@@ -578,7 +646,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                     onClick={() => setOpenEpisode(openEpisode === ep.id ? null : ep.id)}
                                   >
                                     <span className={styles.episodeTitle}>
-                                      Episode {ep.episode_number} - {ep.name}
+                                      Episode {ep.episode_number}
                                     </span>
                                     <span className={styles.episodeImdbId}>
                                       [imdb_id: {externalId || 'N/A'}] - ID {ep.id}
@@ -598,7 +666,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                     {openEpisode === ep.id && (
                                       <div className={styles.episodeOverviewPanel}>
                                         <div className={styles.episodeOverviewTitle}>
-                                          Episode {ep.episode_number} - {ep.name}
+                                          {ep.name}
                                         </div>
                                         <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
                                         <br />
