@@ -8,6 +8,7 @@ import EyeOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import RegisterModal from "../components/RegisterModal/RegisterModal";
 import Link from "next/link";
 import ForgotPasswordModal from "../components/ForgotPasswordModal/ForgotPasswordModal";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -234,9 +235,13 @@ export default function LoginPage() {
     <div className={styles.loginContainer}>
       <div className={styles.formCard}>
         <div className={styles.welcome}>Welcome To</div>
-        <h1 className={styles.crystalFormTitle}>
-          PEER2STREAM
-        </h1>
+        <Image
+          src="/LogoLetras.png"
+          width={350}
+          height={50}
+          alt="peer_2_stream_logo"
+          style={{ marginTop: -90, marginBottom: -90 }} // Reduced margin
+        />
         {newLocal}
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <div className={styles.formGroup}>
