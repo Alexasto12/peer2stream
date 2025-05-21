@@ -583,15 +583,33 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
             </div>
             <div className={styles.modalInfo}>
               <button className={styles.modalClose} onClick={onClose}>×</button>
-              {/* Botón para abrir/cerrar el panel de temporadas */}
               {Array.isArray(data?.seasons) && data.seasons.length > 0 && (
                 <button
                   className={styles.seasonsToggleBtn}
-                  style={{ position: 'absolute', top: '50%', right: -38, transform: 'translateY(-50%)', zIndex: 20, background: 'linear-gradient(90deg,rgba(24,24,40,0.85),rgba(24,24,40,0.95))', border: 'none', cursor: 'pointer', fontSize: 44, borderRadius: '50%', width: 60, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px #0007', color: '#fff', transition: 'background 0.2s' }}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: -38,
+                    transform: 'translateY(-50%)',
+                    zIndex: 20,
+                    background: 'linear-gradient(135deg,rgb(135, 93, 212),rgb(20, 20, 129) 100%)', // linear gradient background
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 44,
+                    borderRadius: '50%',
+                    width: 50,
+                    height: 50,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px #0007',
+                    color: '#fff',
+                    transition: 'background 0.2s',
+                  }}
                   aria-label={showSeasonsPanel ? 'Close seasons panel' : 'Show seasons'}
                   onClick={() => setShowSeasonsPanel(v => !v)}
                 >
-                  <svg width="38" height="38" viewBox="0 0 38 38" style={{ display: 'block', margin: 'auto', transition: 'transform 0.2s', transform: showSeasonsPanel ? 'rotate(-180deg)' : 'rotate(0deg)' }} fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="38" height="38" viewBox="0 0 38 38" style={{ display: 'block', margin: 'auto', transition: 'transform 0.2s', transform: showSeasonsPanel ? 'rotate(-180deg)' : 'rotate(0deg)' }} fill="none" xmlns="http://www.w3.org/2000/svg" >
                     <polygon points="12,8 28,19 12,30" fill="white" />
                   </svg>
                 </button>
