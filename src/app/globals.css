@@ -130,3 +130,15 @@ input.toggle:checked::before {
     filter: brightness(1) saturate(1);
   }
 }
+
+@media (min-width: 2560px) and (max-width: 3839px) {
+  html {
+transform: scale(1.25);
+  }
+}
+
+@media (min-width: 3840px) {
+  html {
+transform: scale(2);
+  }
+}
