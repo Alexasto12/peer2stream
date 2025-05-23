@@ -147,6 +147,11 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes progressShine {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
 .noContentMsg {
   text-align: center;
   color: #a78bfa;

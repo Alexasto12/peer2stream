@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   background: linear-gradient(180deg, rgba(136, 133, 133, 0.116) 0%, #0a0891 100%);
-  border-radius: 20px;
+  border-radius: 24px;
   box-shadow: 0 4px 16px rgba(5, 0, 71, 0.788);
   padding: 0.8rem;
   width: 300px;
@@ -16,7 +16,7 @@
   width: 100%;
   aspect-ratio: 12/17;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 16px;
   margin-bottom: 0.7rem;
   background: #0a0891;
 }

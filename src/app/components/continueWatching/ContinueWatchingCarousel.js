@@ -215,15 +215,17 @@ export default function ContinueWatchingCarousel() {
                                                 <div style={{
                                                     position: 'absolute',
                                                     left: 0,
-                                                    bottom: 0,
+                                                    bottom: 2,
                                                     width: '100%',
-                                                    height: 6,
-                                                    background: '#888',
-                                                    borderRadius: '0 0 10px 10px',
+                                                    height: 10,
+                                                    background: 'rgba(20,16,40,0.82)',
+                                                    borderRadius: '0 10px 30px 30px',
                                                     zIndex: 10,
                                                     pointerEvents: 'none',
                                                     overflow: 'hidden',
-                                                    boxShadow: '0 0 12px 6px rgba(180,69,231,0.4), 0 0 12px 12px rgba(20,14,154,0.18)'
+                                                    boxShadow: '0 2px 12px 2px rgba(128,0,255,0.18), 0 0 0 1px #a78bfa44',
+                                                    border: '1.5px solid rgba(128,0,255,0.13)',
+                                                    backdropFilter: 'blur(2px)'
                                                 }}>
                                                     <div
                                                         style={{
@@ -232,11 +234,14 @@ export default function ContinueWatchingCarousel() {
                                                             top: 0,
                                                             width: `${percent}%`,
                                                             height: '100%',
-                                                            background: 'linear-gradient(90deg,rgb(180, 69, 231) 0%,rgb(101, 2, 214) 100%)',
-                                                            borderRadius: '0 0 8px 8px',
-                                                            transition: 'width 0.3s',
+                                                            background: 'linear-gradient(90deg, #a78bfa 0%, #8000ff 40%, #351eff 100%)',
+                                                            borderRadius: ' 20px',
+                                                            transition: 'width 4s',
                                                             zIndex: 11,
-                                                            boxShadow: '0 0 12px 6px rgba(180,69,231,0.7), 0 0 12px 16px rgba(180,69,231,0.4), 0 0 12px 8px rgba(20,14,154,0.3)'
+                                                            boxShadow: '0 0 16px 4px #a78bfa99, 0 0 8px 2px #351eff77',
+                                                            animation: percent > 0 ? 'progressShine 2.2s linear infinite' : 'none',
+                                                            backgroundSize: '200% 100%',
+                                                            backgroundPosition: '0% 0%'
                                                         }}
                                                     />
                                                 </div>
