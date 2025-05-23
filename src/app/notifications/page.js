@@ -97,7 +97,7 @@ export default function NotificationsPage({ setNotificationCount }) {
         }
       })
       .then(data => {
-        // console.log(data) // Disabled for production
+        console.log(data)
         // Corregido: ahora toma el username correctamente del objeto devuelto y pone la primera letra en mayúscula
         if (data && data.user && data.user.username) {
           const username = data.user.username;
@@ -166,7 +166,7 @@ export default function NotificationsPage({ setNotificationCount }) {
         });
         setSelected((prev) => prev.filter((id) => id !== pendingDelete));
       } catch (error) {
-        // console.error("Error deleting notification:", error); // Consider user feedback instead of logging
+        console.error("Error deleting notification:", error);
       } finally {
         setIsDeleting(false); // Desactivar spinner cuando termine
         setShowConfirm(false);
@@ -210,7 +210,7 @@ export default function NotificationsPage({ setNotificationCount }) {
         });
         setSelected([]);
       } catch (error) {
-        // console.error("Error deleting notifications:", error); // Consider user feedback instead of logging
+        console.error("Error deleting notifications:", error);
       } finally {
         setIsDeleting(false); // Desactivar spinner cuando termine
       }

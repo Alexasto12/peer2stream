@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBarWrapper from "./components/navbar/NavBarWrapper";
 import dynamic from 'next/dynamic';
+import { URL } from "url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export const metadata = {
     locale: "en_US",
     type: "website",
   },
+  metadataBase: new URL("https://peer2stream.live"),
 };
 
 // Cargamos MobileBlocker como un componente dinámico del lado del cliente

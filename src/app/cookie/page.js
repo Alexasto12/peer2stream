@@ -20,15 +20,15 @@ export default function CookiePolicyPage() {
                     </p>
                 </section>
                 <section className={styles.cookieSection}>
-                    <h2 className={styles.cookieSectionTitle}>3. Types of Cookies We Use</h2>
+                    <h2 className={styles.cookieSectionTitle}>3. Cookie Used</h2>
                     <p className={styles.cookieSectionText}>
-                        We use both session and persistent cookies for essential site functions, analytics, and to remember your preferences.
+                        Peer2Stream only uses a single essential cookie: a JSON Web Token (JWT) for authentication purposes. This cookie is required to securely identify you while you are logged in. No tracking, analytics, or advertising cookies are used.
                     </p>
                 </section>
                 <section className={styles.cookieSection}>
                     <h2 className={styles.cookieSectionTitle}>4. Managing Cookies</h2>
                     <p className={styles.cookieSectionText}>
-                        You can control or delete cookies through your browser settings. Disabling cookies may affect the functionality of our website.
+                        You can control or delete cookies through your browser settings. Disabling the authentication cookie will prevent you from logging in or using personalized features.
                     </p>
                 </section>
                 <section className={styles.cookieSection}>
