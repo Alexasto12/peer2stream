@@ -584,7 +584,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       // If no episode is expanded, revert to basic script with "Select Episode First" button
       injectContentScript(externalId);
     }
-  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open]);
+  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open, injectContentScript]);
 
   return (
     <AnimatePresence>
