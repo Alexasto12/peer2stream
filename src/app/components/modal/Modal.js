@@ -213,6 +213,67 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [contentStatusList, setContentStatusList] = useState([]); // Nuevo estado para todos los ContentStatus
   const [hasAutoOpenedEpisodeThisSession, setHasAutoOpenedEpisodeThisSession] = useState(false);
 
+  // Move injectContentScript outside of fetchExternalId
+  async function injectContentScript(imdbId, episodeData = null) {
+    try {
+      // Eliminar cualquier script previo
+      const existingScript = document.getElementById('p2-content-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Forzar la eliminación de cualquier botón existente
+      const existingButton = document.querySelector('.p2-show-content-btn');
+      if (existingButton) {
+        existingButton.remove();
+      }
+      
+      // Eliminar cualquier overlay existente
+      const existingOverlay = document.querySelector('.p2-content-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+
+      // Check if the P2service is available
+      const isServiceAvailable = await checkP2Service();
+
+      if (isServiceAvailable && imdbId) {
+        // Determine content type and build URL with appropriate parameters
+        const isTV = data?.media_type === 'tv' || data?.number_of_seasons;
+        let scriptURL = `${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}&contentType=${isTV ? 'tv' : 'movie'}`;
+        
+        // Add episode data parameters if available
+        if (isTV && episodeData) {
+          scriptURL += `&episodeId=${episodeData.id}`;
+          scriptURL += `&seasonNumber=${episodeData.season_number}`;
+          scriptURL += `&episodeNumber=${episodeData.episode_number}`;
+          
+          if (episodeData.name) {
+            scriptURL += `&episodeTitle=${encodeURIComponent(episodeData.name)}`;
+          }
+          
+          if (data?.name) {
+            scriptURL += `&seriesName=${encodeURIComponent(data.name)}`;
+          }
+          
+          console.log(`Injecting content script with episode: S${episodeData.season_number}E${episodeData.episode_number} - ${episodeData.name}`);
+        }
+
+        // Delay slightly to ensure DOM has updated
+        setTimeout(() => {
+          // Create and inject the script tag
+          const script = document.createElement('script');
+          script.id = 'p2-content-script';
+          script.src = scriptURL;
+          script.async = true;
+          document.body.appendChild(script);
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error al inyectar el script P2service:', error);
+    }
+  }
+
   useEffect(() => {
     async function fetchExternalId() {
       if (!data) return null;
@@ -228,37 +289,9 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
         } catch { }
       }
       return null;
-    } async function injectContentScript(imdbId) {
-      try {
-        // Remove any previously injected script
-        const existingScript = document.getElementById('p2-content-script');
-        if (existingScript) {
-          existingScript.remove();
-          console.log('Script p2-content-script anterior eliminado');
-        }
-        // Check if the P2service is available
-        console.log('Verificando disponibilidad del servicio de contenido...');
-        const isServiceAvailable = await checkP2Service();
-        console.log('Resultado de comprobación del servicio:', isServiceAvailable);
-
-        if (isServiceAvailable && imdbId) {
-          console.log('P2Service detectado, inyectando script para ID:', imdbId);
-          console.log(`URL del script: ${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`);
-
-          // Create and inject the script tag
-          const script = document.createElement('script');
-          script.id = 'p2-content-script';
-          script.src = `${P2SERVICE_URL}/api/injector.js?imdb=${imdbId}`;
-          script.async = true;
-          document.body.appendChild(script);
-          console.log('Script inyectado correctamente en el DOM');
-        } else {
-          console.log(`No se pudo inyectar el script: Servicio disponible: ${isServiceAvailable}, ID: ${imdbId || 'no disponible'}`);
-        }
-      } catch (error) {
-        console.error('Error al inyectar el script P2service:', error);
-      }
-    } async function checkAuthAndFavourite() {
+    }
+    
+    async function checkAuthAndFavourite() {
       setIsAdded(null);
       setExternalId(null);
       try {
@@ -269,9 +302,15 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       }
       const extId = await fetchExternalId();
       setExternalId(extId);
-      // Inject content script if we have an IMDb ID
-      if (extId) {
+      
+      // For movies, inject content script immediately
+      // For TV shows, only inject basic script without episode data (will be updated when episode is selected)
+      const isTV = data?.media_type === 'tv' || data?.number_of_seasons;
+      if (extId && !isTV) {
         injectContentScript(extId);
+      } else if (extId && isTV) {
+        // For TV shows, pass null as episodeData to make the "Select Episode First" button appear
+        injectContentScript(extId); 
       }
 
       if (!open || !extId) {
@@ -290,7 +329,9 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       } catch {
         setIsAdded(false);
       }
-    } if (open && data) {
+    }
+    
+    if (open && data) {
       checkAuthAndFavourite();
       fetchDirector(data).then(setDirector);
       checkP2Service().then(setIsServiceAvailable);
@@ -544,6 +585,31 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     }
   }, [showSeasonsPanel]);
 
+  // Inject content script with episode data when an episode is selected (clicked and expanded)
+  useEffect(() => {
+    if (!open || !externalId) return;
+    
+    const isTV = data?.media_type === 'tv' || data?.number_of_seasons;
+    
+    // If it's not a TV show, don't do anything more
+    if (!isTV) return;
+    
+    // When an episode is clicked and expanded in a TV show
+    if (openEpisode && isTV && selectedSeason !== null) {
+      // Find the episode data for the expanded episode
+      const selectedEpisodeData = seasonEpisodes.find(ep => ep.id === openEpisode);
+      
+      if (selectedEpisodeData) {
+        // Re-inject the content script with the selected episode data
+        console.log('Episode selected, injecting content script with episode data:', selectedEpisodeData.name);
+        injectContentScript(externalId, selectedEpisodeData);
+      }
+    } else if (isTV && !openEpisode) {
+      // If no episode is expanded, revert to basic script with "Select Episode First" button
+      injectContentScript(externalId);
+    }
+  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -680,8 +746,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                         </div>
                                         <div className={styles.episodeProgressBarPercentBadge}>{percent}%</div>
                                       </div>
-                                    )}
-                                    {openEpisode === ep.id && (
+                                    )}                                    {openEpisode === ep.id && (
                                       <div className={styles.episodeOverviewPanel}>
                                         <div className={styles.episodeOverviewTitle}>
                                           {ep.name}
@@ -689,6 +754,11 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                         <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
                                         <br />
                                         {ep.overview && <p>{ep.overview}</p>}
+                                        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                                          <small style={{ display: 'block', marginBottom: '0.5rem', color: '#A1A1AA' }}>
+                                            Content links will appear in the button at the bottom right
+                                          </small>
+                                        </div>
                                       </div>
                                     )}
                                     {watchedEpisodes.includes(ep.episode_number) && (
