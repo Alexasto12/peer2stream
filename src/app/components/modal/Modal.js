@@ -34,32 +34,6 @@ async function checkP2Service() {
 }
 
 
-// Utility to check if the p2service service is available
-async function checkP2Service() {
-  try {
-    console.log(`Intentando conectar con el servicio de contenido en: ${P2SERVICE_URL}/status`);
-    
-    const res = await fetch(`${P2SERVICE_URL}/status`, { 
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-      // Short timeout to avoid waiting too long on failure
-      signal: AbortSignal.timeout(2000)
-    });
-    
-    
-    if (res.ok) {
-      const data = await res.json();
-
-      const serviceOnline = data?.success && data?.status?.status === 'online';
-
-      return serviceOnline;
-    }
-    return false;
-  } catch (error) {
-
-    return false;
-  }
-}
 
 // Utilidad para obtener el director desde los créditos de TMDB
 async function fetchDirector(data) {
