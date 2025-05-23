@@ -60,7 +60,7 @@ Peer2Stream is a web app built with Next.js that lets you explore trending movie
 ### Setup Steps
 
 1. Clone this repo:
-   ```bash
+   ```
    git clone https://github.com/yourusername/peer2stream.git
    cd peer2stream-frontend
    ```
@@ -68,10 +68,10 @@ Peer2Stream is a web app built with Next.js that lets you explore trending movie
    ```bash
    npm install
    # or
-yarn install
+   yarn install
    ```
 3. Add a `.env.local` file with:
-   ```
+   ```bash
    MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_secret_key_for_jwt
    NEXT_PUBLIC_API_URL=http://localhost:3000/api
@@ -90,7 +90,7 @@ yarn install
    ```bash
    npm run dev
    # or
-yarn dev
+   yarn dev
    ```
 5. Open [http://localhost:3000](http://localhost:3000) in your browser and enjoy! 🎉
 
