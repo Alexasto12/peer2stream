@@ -143,15 +143,25 @@ export default function ContinueWatchingCarousel() {
     };
 
     // Flechas: scroll horizontal nativo
+    const easeInOutQuad = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     const scrollByCards = (direction) => {
         if (!carouselRef.current) return;
         const card = carouselRef.current.querySelector(`.${styles.cardItem}`);
         if (!card) return;
         const cardWidth = card.offsetWidth + 24; // 24px gap aprox
-        carouselRef.current.scrollBy({
-            left: direction === 'left' ? -cardWidth * 2 : cardWidth * 2,
-            behavior: 'smooth'
-        });
+        const scrollAmount = direction === 'left' ? -cardWidth * 2 : cardWidth * 2;
+        let start = null;
+        const duration = 300;
+        const startScrollLeft = carouselRef.current.scrollLeft;
+        const animateScroll = (timestamp) => {
+            if (!start) start = timestamp;
+            const progress = Math.min((timestamp - start) / duration, 1);
+            carouselRef.current.scrollLeft = startScrollLeft + (scrollAmount * easeInOutQuad(progress));
+            if (progress < 1) {
+                requestAnimationFrame(animateScroll);
+            }
+        };
+        requestAnimationFrame(animateScroll);
     };
     return (
         <div className={styles.carouselWrapper}>
@@ -188,6 +198,7 @@ export default function ContinueWatchingCarousel() {
                                         title={item.title || item.name}
                                         release_date={dateYear(item.release_date || item.first_air_date)}
                                         onFaviconClick={handleFaviconClick}
+                                        idx={idx} // Pass idx for image priority
                                     />
                                     {/* Barra de progreso superpuesta */}
                                     {item.runtime && item.watchedTime >= 0 && (
