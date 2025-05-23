@@ -234,11 +234,11 @@ export default function LoginPage() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.formCard}>
-        <div className={styles.welcome}>Welcome To</div>
+        <div className={styles.welcome}>Peer2Stream</div>
         <Image
-          src="/LogoLetras.png"
-          width={250}
-          height={50}
+          src="/favicon.ico"
+          width={120}
+          height={120}
           alt="peer_2_stream_logo"
           className={styles.logoShine}
           style={{ marginTop: -20 }} // Reduced margin

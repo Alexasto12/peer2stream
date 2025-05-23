@@ -658,8 +658,18 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
               )}
               {/* Panel desplegable de temporadas */}
               {showSeasonsPanel && Array.isArray(data?.seasons) && data.seasons.length > 0 && (
-                <div
+                <motion.div
                   className={styles.seasonsPanelOverlay + ' ' + styles.seasonsPanelOverlayAbsolute}
+                  initial={{ x: '100%', opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: '100%', opacity: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 520,
+                    damping: 32,
+                    bounce: 0.92,
+                    duration: 0.3
+                  }}
                 >
                   {/* Selector de seasons a la izquierda */}
                   <div className={styles.seasonsListColumn}>
@@ -722,16 +732,27 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                         </div>
                                         <div className={styles.episodeProgressBarPercentBadge}>{percent}%</div>
                                       </div>
-                                    )}                                    {openEpisode === ep.id && (
-                                      <div className={styles.episodeOverviewPanel}>
+                                    )}
+                                    {openEpisode === ep.id && (
+                                      <motion.div
+                                        className={styles.episodeOverviewPanel}
+                                        initial={{ y: -24, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        exit={{ y: -24, opacity: 0 }}
+                                        transition={{
+                                          type: "spring",
+                                          stiffness: 120,
+                                          damping: 18,
+                                          duration: 0.32
+                                        }}
+                                      >
                                         <div className={styles.episodeOverviewTitle}>
                                           {ep.name}
                                         </div>
                                         <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
                                         <br />
                                         {ep.overview && <p>{ep.overview}</p>}
-                                        
-                                      </div>
+                                      </motion.div>
                                     )}
                                     {watchedEpisodes.includes(ep.episode_number) && (
                                       <span className={styles.episodeWatchedIcon} title="Watched">
@@ -755,7 +776,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
               <h2 className={styles.modalTitle}>{data?.title || data?.name}</h2>
               {data?.tagline && <div className={styles.modalTagline}>{data.tagline}</div>}

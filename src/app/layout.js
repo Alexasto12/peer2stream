@@ -6,6 +6,7 @@ import "./globals.css";
 import NavBarWrapper from "./components/navbar/NavBarWrapper";
 import dynamic from 'next/dynamic';
 import { URL } from "url";
+import ParticlesBackgroundWrapper from './components/ParticlesBackgroundWrapper';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +60,7 @@ export default function RootLayout({ children }) {
         style={{ minHeight: "100vh" }}
       >
         <MobileBlocker />
+        <ParticlesBackgroundWrapper />
         <NavBarWrapper>{children}</NavBarWrapper>
         <Analytics />
         <SpeedInsights />
