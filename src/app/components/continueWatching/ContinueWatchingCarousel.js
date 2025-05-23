@@ -53,7 +53,7 @@ async function fetchTmdbDataFromExternalId(externalId) {
                 }
             }
         } catch (e) {
-            console.error('Error obteniendo detalles TMDB:', e);
+            // console.error('Error obteniendo detalles TMDB:', e); // Consider user feedback instead of logging
         }
     }
     return result;
@@ -194,12 +194,12 @@ export default function ContinueWatchingCarousel() {
                                         (() => {
                                             // runtime ya está en segundos, así que no multiplicamos por 60
                                             const percent = Math.min(100, Math.round((item.watchedTime / item.runtime) * 100));
-                                            console.log('Barra progreso:', {
-                                                watchedTime: item.watchedTime,
-                                                runtime: item.runtime,
-                                                percent,
-                                                item
-                                            });
+                                            // console.log('Barra progreso:', {
+                                            //     watchedTime: item.watchedTime,
+                                            //     runtime: item.runtime,
+                                            //     percent,
+                                            //     item
+                                            // });
                                             return (
                                                 <div style={{
                                                     position: 'absolute',

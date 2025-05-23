@@ -181,7 +181,7 @@ export default function VideoclubPage() {
   };
 
   useEffect(() => {
-    // console.log("selectedIds changed:", selectedIds);
+    // console.log("selectedIds changed:", selectedIds); // Disabled for production
   }, [selectedIds]);
 
   if (!isLogged) {

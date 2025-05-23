@@ -9,7 +9,7 @@ const P2SERVICE_URL = "http://localhost:3000";
 // Utility to check if the p2service service is available
 async function checkP2Service() {
   try {
-    console.log(`Intentando conectar con el servicio de contenido en: ${P2SERVICE_URL}/status`);
+    // console.log(`Intentando conectar con el servicio de contenido en: ${P2SERVICE_URL}/status`); // Disabled for production
 
     const res = await fetch(`${P2SERVICE_URL}/status`, {
       method: 'GET',
@@ -226,10 +226,10 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
           const seriesName = data?.name || data?.title || '';
           if (seriesName) {
             scriptURL += `&seriesName=${encodeURIComponent(seriesName)}`;
-            console.log(`Serie: ${seriesName}`);
+            // console.log(`Serie: ${seriesName}`); // Disabled for production
           }
           
-          console.log(`Injecting content script with episode: S${episodeData.season_number}E${episodeData.episode_number} - ${episodeData.name}`);
+          // console.log(`Injecting content script with episode: S${episodeData.season_number}E${episodeData.episode_number} - ${episodeData.name}`); // Disabled for production
         }
 
         // Delay slightly to ensure DOM has updated
@@ -243,7 +243,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
         }, 100);
       }
     } catch (error) {
-      console.error('Error al inyectar el script P2service:', error);
+      // console.error('Error al inyectar el script P2service:', error); // Consider user feedback instead of logging
     }
   }
 
@@ -574,7 +574,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       
       if (selectedEpisodeData) {
         // Re-inject the content script with the selected episode data
-        console.log('Episode selected, injecting content script with episode data:', selectedEpisodeData.name);
+        // console.log('Episode selected, injecting content script with episode data:', selectedEpisodeData.name); // Disabled for production
         injectContentScript(externalId, selectedEpisodeData);
       }
     } else if (isTV && !openEpisode) {
