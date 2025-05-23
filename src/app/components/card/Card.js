@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./Card.module.css";
 
-export default function Card({ id, type, image, title, release_date, onFaviconClick }) {
+export default function Card({ id, type, image, title, release_date, onFaviconClick, idx }) {
     const [hovered, setHovered] = useState(false);
-
+    // Fallback blurDataURL (tiny transparent image)
+    const blurDataURL = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
     return (
         <div
             className={styles.card}
@@ -16,11 +17,15 @@ export default function Card({ id, type, image, title, release_date, onFaviconCl
             <div className={styles.imageWrapper} style={{ position: 'relative' }}>
                 <Image
                     src={image}
-                    alt={id}
-                    width={240}
-                    height={340}
+                    alt={title || id}
+                    width={230}
+                    height={345}
                     className={styles.cardImage + (hovered ? ' ' + styles.blurred : '')}
-                    loading="lazy"
+                    loading={idx !== undefined && idx < 6 ? "eager" : "lazy"}
+                    priority={idx !== undefined && idx < 6}
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 230px"
+                    placeholder="blur"
+                    blurDataURL={blurDataURL}
                 />
                 {hovered && (
                     <div className={styles.faviconOverlay} onClick={e => { e.stopPropagation(); onFaviconClick && onFaviconClick({ id, type }); }} style={{ cursor: 'pointer' }}>
