@@ -237,10 +237,11 @@ export default function LoginPage() {
         <div className={styles.welcome}>Welcome To</div>
         <Image
           src="/LogoLetras.png"
-          width={350}
+          width={250}
           height={50}
           alt="peer_2_stream_logo"
-          style={{ marginTop: -90, marginBottom: -90 }} // Reduced margin
+          className={styles.logoShine}
+          style={{ marginTop: -20 }} // Reduced margin
         />
         {newLocal}
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
