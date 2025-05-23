@@ -253,7 +253,14 @@ export default function DashboardPage() {
     setTimeout(() => setSecurityMsg(""), 4000);
   };
 
-  if (loading) return <main className={styles.dashboardMain}><p>Loading...</p></main>;
+  if (loading) return (
+    <main className={styles.dashboardMain}>
+      <div className={styles.spinnerContainer}>
+        <div className={styles.spinner}></div>
+        <p>Loading...</p>
+      </div>
+    </main>
+  );
   if (error) return <main className={styles.dashboardMain}><p className={styles.errorMsg}>{error}</p></main>;
   if (isLogged === false) {
     return (
