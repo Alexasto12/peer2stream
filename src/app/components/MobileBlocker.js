@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function MobileBlocker() {
   const [isMobile, setIsMobile] = useState(false);
@@ -49,13 +50,17 @@ export default function MobileBlocker() {
       fontSize: '1.18rem',
       fontFamily: 'inherit',
       backdropFilter: 'blur(2px)'
-    }}>      <img src="/favicon.ico" alt="Peer2Stream logo" style={{ 
-        width: 96, 
-        height: 96, 
-        marginBottom: 24, 
-        borderRadius: 16,
-        boxShadow: '0 2px 16px #000a' 
-      }} />
+    }}>      <Image 
+        src="/favicon.ico" 
+        alt="Peer2Stream logo" 
+        width={96} 
+        height={96}
+        style={{ 
+          marginBottom: 24, 
+          borderRadius: 16,
+          boxShadow: '0 2px 16px #000a' 
+        }} 
+      />
       <h1 style={{ 
         fontSize: '2.1rem', 
         fontWeight: 700, 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styles from "./Modal.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -185,8 +185,8 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
   const [contentStatusList, setContentStatusList] = useState([]); // Nuevo estado para todos los ContentStatus
   const [hasAutoOpenedEpisodeThisSession, setHasAutoOpenedEpisodeThisSession] = useState(false);
 
-  // Move injectContentScript outside of fetchExternalId
-  async function injectContentScript(imdbId, episodeData = null) {
+  // Wrap injectContentScript in useCallback to prevent it from changing on every render
+  const injectContentScript = useCallback(async (imdbId, episodeData = null) => {
     try {
       // Eliminar cualquier script previo
       const existingScript = document.getElementById('p2-content-script');
@@ -247,7 +247,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     } catch (error) {
       console.error('Error al inyectar el script P2service:', error);
     }
-  }
+  }, [data]); // Add data as a dependency since it's used inside the function
 
   useEffect(() => {
     async function fetchExternalId() {
@@ -311,7 +311,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       fetchDirector(data).then(setDirector);
       checkP2Service().then(setIsServiceAvailable);
     }
-  }, [open, data, injectContentScript]);
+  }, [open, data]);
 
   async function handleAddClick(e) {
     if (!isAuthenticated) {
@@ -584,7 +584,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       // If no episode is expanded, revert to basic script with "Select Episode First" button
       injectContentScript(externalId);
     }
-  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open, injectContentScript]);
+  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open]);
 
   return (
     <AnimatePresence>

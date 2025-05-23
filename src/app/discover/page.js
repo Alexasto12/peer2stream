@@ -264,7 +264,7 @@ export default function DiscoverPage() {
         setProviders(filtered);
       })
       .finally(() => setFiltersLoading(false));
-  }, [endpoint]);
+  }, [endpoint, genre]);
   // Actualizar params cuando cambian los filtros
   useEffect(() => {
     // Si el provider es vacío ("Todos"), incluir todos los IDs de los permitidos
