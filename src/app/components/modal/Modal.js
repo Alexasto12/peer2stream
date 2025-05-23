@@ -311,7 +311,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       fetchDirector(data).then(setDirector);
       checkP2Service().then(setIsServiceAvailable);
     }
-  }, [open, data]);
+  }, [open, data, injectContentScript]);
 
   async function handleAddClick(e) {
     if (!isAuthenticated) {
@@ -549,6 +549,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
     selectedSeason,
     seasonEpisodes,
     openEpisode,
+    hasAutoOpenedEpisodeThisSession,
     setSelectedSeason, // Include setters if your linting rules require it, they are stable
     setOpenEpisode   // Include setters if your linting rules require it, they are stable
   ]);
@@ -583,7 +584,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       // If no episode is expanded, revert to basic script with "Select Episode First" button
       injectContentScript(externalId);
     }
-  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open]);
+  }, [openEpisode, externalId, selectedSeason, seasonEpisodes, data, open, injectContentScript]);
 
   return (
     <AnimatePresence>
