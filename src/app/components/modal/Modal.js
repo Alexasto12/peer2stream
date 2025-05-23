@@ -33,8 +33,6 @@ async function checkP2Service() {
   }
 }
 
-// Configuration for the p2service
-const P2SERVICE_URL = "http://localhost:3000";
 
 // Utility to check if the p2service service is available
 async function checkP2Service() {
