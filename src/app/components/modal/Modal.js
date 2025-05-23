@@ -311,7 +311,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
       fetchDirector(data).then(setDirector);
       checkP2Service().then(setIsServiceAvailable);
     }
-  }, [open, data]);
+  }, [open, data, injectContentScript]);
 
   async function handleAddClick(e) {
     if (!isAuthenticated) {
