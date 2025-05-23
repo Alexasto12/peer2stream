@@ -252,8 +252,11 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
             scriptURL += `&episodeTitle=${encodeURIComponent(episodeData.name)}`;
           }
           
-          if (data?.name) {
-            scriptURL += `&seriesName=${encodeURIComponent(data.name)}`;
+          // Asegurar que se pasa el nombre de la serie (data.name o data.title)
+          const seriesName = data?.name || data?.title || '';
+          if (seriesName) {
+            scriptURL += `&seriesName=${encodeURIComponent(seriesName)}`;
+            console.log(`Serie: ${seriesName}`);
           }
           
           console.log(`Injecting content script with episode: S${episodeData.season_number}E${episodeData.episode_number} - ${episodeData.name}`);
