@@ -727,11 +727,7 @@ export default function Modal({ open, onClose, data, onFavouritesChanged }) {
                                         <div>Rating: ⭐ {ep.vote_average.toFixed(1)}</div>
                                         <br />
                                         {ep.overview && <p>{ep.overview}</p>}
-                                        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                                          <small style={{ display: 'block', marginBottom: '0.5rem', color: '#A1A1AA' }}>
-                                            Content links will appear in the button at the bottom right
-                                          </small>
-                                        </div>
+                                        
                                       </div>
                                     )}
                                     {watchedEpisodes.includes(ep.episode_number) && (

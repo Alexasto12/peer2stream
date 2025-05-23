@@ -10,7 +10,7 @@ export default function RecommendedCarousel() {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState(null);
     const carouselRef = useRef(null);
-  
+
     const startX = useRef(0);
     const scrollLeft = useRef(0);
 
@@ -67,13 +67,13 @@ export default function RecommendedCarousel() {
                     fetchPages('tv', externalId)
                 ]);
                 allResults = allResults.concat(movieResults, tvResults);
-            }            const sorted = allResults
+            } const sorted = allResults
                 .filter(item => {
                     const year = item.release_date ? new Date(item.release_date).getFullYear() : (item.first_air_date ? new Date(item.first_air_date).getFullYear() : null);
                     // Filtrar elementos sin descripción (overview) y mantener el filtro de año y calificación
-                    return (!year || year >= 1980) && 
-                           (item.vote_average === undefined || item.vote_average >= 6.8) && 
-                           item.overview && item.overview.trim() !== '';
+                    return (!year || year >= 1980) &&
+                        (item.vote_average === undefined || item.vote_average >= 6.8) &&
+                        item.overview && item.overview.trim() !== '';
                 })
                 .sort(() => Math.random() - 0.5);
             setRecommended(sorted);
@@ -109,7 +109,7 @@ export default function RecommendedCarousel() {
                 else if (prov.rent) watchProviders = prov.rent;
                 else if (prov.buy) watchProviders = prov.buy;
             }
-        } catch {}
+        } catch { }
         setModalData({ ...data, media_type: type, watchProviders });
     };
 
@@ -147,12 +147,12 @@ export default function RecommendedCarousel() {
                     <div
                         className={styles.carousel}
                         ref={carouselRef}
-                       
+
                     >                        {Array.from(new Map(
-                            recommended
-                                .filter(item => item.poster_path && item.overview && item.overview.trim() !== '')
-                                .map(item => [`${item._mediaType}-${item.id}`, item])
-                        ).values())
+                        recommended
+                            .filter(item => item.poster_path && item.overview && item.overview.trim() !== '')
+                            .map(item => [`${item._mediaType}-${item.id}`, item])
+                    ).values())
                         .map((item, idx) => (
                             <div className={styles.cardItem} key={`${item.id}-${idx}`}>
                                 <Card
